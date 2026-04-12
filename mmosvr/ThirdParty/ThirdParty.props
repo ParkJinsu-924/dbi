@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ThirdPartyDir>$(SolutionDir)ThirdParty\</ThirdPartyDir>
+        <VcpkgEnabled>false</VcpkgEnabled>
+    </PropertyGroup>
+
+    <!-- Include paths (all configurations) -->
+    <ItemDefinitionGroup>
+        <ClCompile>
+            <AdditionalIncludeDirectories>
+                $(ThirdPartyDir)boost\include;$(ThirdPartyDir)protobuf\include;$(ThirdPartyDir)nanodbc\include;%(AdditionalIncludeDirectories)
+            </AdditionalIncludeDirectories>
+            <PreprocessorDefinitions>PROTOBUF_USE_DLLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+        </ClCompile>
+    </ItemDefinitionGroup>
+
+    <!-- Debug libraries -->
+    <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+        <Link>
+            <AdditionalLibraryDirectories>$(ThirdPartyDir)protobuf\lib\Debug;$(ThirdPartyDir)nanodbc\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+            <AdditionalDependencies>libprotobufd.lib;abseil_dll.lib;utf8_range.lib;utf8_validity.lib;nanodbc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+        </Link>
+        <Lib>
+            <AdditionalLibraryDirectories>$(ThirdPartyDir)protobuf\lib\Debug;$(ThirdPartyDir)nanodbc\lib\Debug;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+        </Lib>
+    </ItemDefinitionGroup>
+
+    <!-- Release libraries -->
+    <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+        <Link>
+            <AdditionalLibraryDirectories>$(ThirdPartyDir)protobuf\lib\Release;$(ThirdPartyDir)nanodbc\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+            <AdditionalDependencies>libprotobuf.lib;abseil_dll.lib;utf8_range.lib;utf8_validity.lib;nanodbc.lib;%(AdditionalDependencies)</AdditionalDependencies>
+        </Link>
+        <Lib>
+            <AdditionalLibraryDirectories>$(ThirdPartyDir)protobuf\lib\Release;$(ThirdPartyDir)nanodbc\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+        </Lib>
+    </ItemDefinitionGroup>
+
+    <!-- Copy DLLs to output (Application projects only) -->
+    <Target Name="CopyThirdPartyDlls" AfterTargets="Build" Condition="'$(ConfigurationType)'=='Application'">
+        <ItemGroup Condition="'$(Configuration)'=='Debug'">
+            <ThirdPartyDlls Include="$(ThirdPartyDir)protobuf\bin\Debug\libprotobufd.dll" />
+            <ThirdPartyDlls Include="$(ThirdPartyDir)protobuf\bin\Debug\abseil_dll.dll" />
+        </ItemGroup>
+        <ItemGroup Condition="'$(Configuration)'=='Release'">
+            <ThirdPartyDlls Include="$(ThirdPartyDir)protobuf\bin\Release\libprotobuf.dll" />
+            <ThirdPartyDlls Include="$(ThirdPartyDir)protobuf\bin\Release\abseil_dll.dll" />
+        </ItemGroup>
+        <Copy SourceFiles="@(ThirdPartyDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+    </Target>
+</Project>

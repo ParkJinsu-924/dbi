@@ -7,7 +7,7 @@ set CPP_OUT=%SCRIPT_DIR%..\mmosvr\proto\generated
 set CS_OUT=%SCRIPT_DIR%..\ClaudeProject\Assets\Scripts\Proto
 
 rem === Find protoc (vcpkg first, then PATH) ===
-set PROTOC=C:\vcpkg\installed\x64-windows\tools\protobuf\protoc.exe
+set PROTOC=%SCRIPT_DIR%..\mmosvr\ThirdParty\protobuf\tools\protoc.exe
 if not exist "%PROTOC%" (
     where protoc >nul 2>&1
     if %ERRORLEVEL% neq 0 (
