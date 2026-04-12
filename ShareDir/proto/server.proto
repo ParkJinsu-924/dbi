@@ -1,0 +1,14 @@
+syntax = "proto3";
+package Proto;
+
+// Inter-server: Login -> Game (token validation)
+message SS_ValidateToken {
+    string token = 1;
+    string username = 2;
+}
+
+message SS_ValidateTokenResult {
+    bool valid = 1;
+    string username = 2;
+    string token = 3;
+}

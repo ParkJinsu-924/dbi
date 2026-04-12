@@ -1,0 +1,41 @@
+# === Server (mmosvr) ===
+mmosvr/bin/
+mmosvr/obj/
+mmosvr/out/
+mmosvr/.vs/
+mmosvr/proto/generated/
+*.user
+*.db
+*.opendb
+*.db-shm
+*.db-wal
+*.vsidx
+
+# === Unity (ClaudeProject) ===
+ClaudeProject/[Ll]ibrary/
+ClaudeProject/[Tt]emp/
+ClaudeProject/[Oo]bj/
+ClaudeProject/[Bb]uild/
+ClaudeProject/[Bb]uilds/
+ClaudeProject/[Ll]ogs/
+ClaudeProject/[Uu]serSettings/
+ClaudeProject/[Mm]emoryCaptures/
+ClaudeProject/[Rr]ecordings/
+ClaudeProject/*.csproj
+ClaudeProject/*.sln
+
+# === IDE ===
+.vs/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln.docstates
+
+# === Claude/OMC ===
+.omc/
+.claude/
+
+# === OS ===
+Thumbs.db
+.DS_Store

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Generated">
+      <UniqueIdentifier>{61a1c5d0-0001-0001-0001-000000000001}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Proto Files">
+      <UniqueIdentifier>{61a1c5d0-0001-0001-0001-000000000002}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\proto\generated\common.pb.cc"><Filter>Generated</Filter></ClCompile>
+    <ClCompile Include="..\proto\generated\login.pb.cc"><Filter>Generated</Filter></ClCompile>
+    <ClCompile Include="..\proto\generated\game.pb.cc"><Filter>Generated</Filter></ClCompile>
+    <ClCompile Include="..\proto\generated\server.pb.cc"><Filter>Generated</Filter></ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\proto\generated\common.pb.h"><Filter>Generated</Filter></ClInclude>
+    <ClInclude Include="..\proto\generated\login.pb.h"><Filter>Generated</Filter></ClInclude>
+    <ClInclude Include="..\proto\generated\game.pb.h"><Filter>Generated</Filter></ClInclude>
+    <ClInclude Include="..\proto\generated\server.pb.h"><Filter>Generated</Filter></ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\proto\common.proto"><Filter>Proto Files</Filter></None>
+    <None Include="..\proto\login.proto"><Filter>Proto Files</Filter></None>
+    <None Include="..\proto\game.proto"><Filter>Proto Files</Filter></None>
+    <None Include="..\proto\server.proto"><Filter>Proto Files</Filter></None>
+  </ItemGroup>
+</Project>

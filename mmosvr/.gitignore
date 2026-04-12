@@ -1,0 +1,11 @@
+bin/
+obj/
+out/
+.vs/
+*.user
+*.db
+*.opendb
+*.db-shm
+*.db-wal
+*.vsidx
+proto/generated/

@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <ItemGroup Label="ProjectConfigurations">
+        <ProjectConfiguration Include="Debug|x64">
+            <Configuration>Debug</Configuration>
+            <Platform>x64</Platform>
+        </ProjectConfiguration>
+        <ProjectConfiguration Include="Release|x64">
+            <Configuration>Release</Configuration>
+            <Platform>x64</Platform>
+        </ProjectConfiguration>
+    </ItemGroup>
+    <PropertyGroup Label="Globals">
+        <VCProjectVersion>17.0</VCProjectVersion>
+        <ProjectGuid>{A1B2C3D4-1111-1111-1111-000000000001}</ProjectGuid>
+        <RootNamespace>ProtoLib</RootNamespace>
+        <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    </PropertyGroup>
+    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+        <ConfigurationType>StaticLibrary</ConfigurationType>
+        <UseDebugLibraries>true</UseDebugLibraries>
+        <PlatformToolset>v143</PlatformToolset>
+        <CharacterSet>Unicode</CharacterSet>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+        <ConfigurationType>StaticLibrary</ConfigurationType>
+        <UseDebugLibraries>false</UseDebugLibraries>
+        <PlatformToolset>v143</PlatformToolset>
+        <CharacterSet>Unicode</CharacterSet>
+        <WholeProgramOptimization>true</WholeProgramOptimization>
+    </PropertyGroup>
+    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
+    <ImportGroup Label="ExtensionSettings">
+    </ImportGroup>
+    <ImportGroup Label="PropertySheets">
+        <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform"/>
+    </ImportGroup>
+    <PropertyGroup>
+        <OutDir>$(SolutionDir)bin\$(Configuration)\$(Platform)\</OutDir>
+        <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+    </PropertyGroup>
+    <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+        <PreBuildEvent>
+            <Command>call "$(SolutionDir)..\ShareDir\generate_proto.bat"</Command>
+        </PreBuildEvent>
+        <ClCompile>
+            <WarningLevel>TurnOffAllWarnings</WarningLevel>
+            <SDLCheck>false</SDLCheck>
+            <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+            <ConformanceMode>true</ConformanceMode>
+            <LanguageStandard>stdcpp20</LanguageStandard>
+            <AdditionalIncludeDirectories>$(SolutionDir)proto\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+        </ClCompile>
+        <Lib>
+            <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+        </Lib>
+    </ItemDefinitionGroup>
+    <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+        <PreBuildEvent>
+            <Command>call "$(SolutionDir)..\ShareDir\generate_proto.bat"</Command>
+        </PreBuildEvent>
+        <ClCompile>
+            <WarningLevel>TurnOffAllWarnings</WarningLevel>
+            <SDLCheck>false</SDLCheck>
+            <FunctionLevelLinking>true</FunctionLevelLinking>
+            <IntrinsicFunctions>true</IntrinsicFunctions>
+            <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+            <ConformanceMode>true</ConformanceMode>
+            <LanguageStandard>stdcpp20</LanguageStandard>
+            <AdditionalIncludeDirectories>$(SolutionDir)proto\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+        </ClCompile>
+        <Lib>
+            <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+        </Lib>
+    </ItemDefinitionGroup>
+    <ItemGroup>
+        <ClCompile Include="..\proto\generated\common.pb.cc"/>
+        <ClCompile Include="..\proto\generated\login.pb.cc"/>
+        <ClCompile Include="..\proto\generated\game.pb.cc"/>
+        <ClCompile Include="..\proto\generated\server.pb.cc"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ClInclude Include="..\proto\generated\common.pb.h"/>
+        <ClInclude Include="..\proto\generated\login.pb.h"/>
+        <ClInclude Include="..\proto\generated\game.pb.h"/>
+        <ClInclude Include="..\proto\generated\server.pb.h"/>
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="..\..\ShareDir\proto\common.proto"/>
+        <None Include="..\..\ShareDir\proto\login.proto"/>
+        <None Include="..\..\ShareDir\proto\game.proto"/>
+        <None Include="..\..\ShareDir\proto\server.proto"/>
+    </ItemGroup>
+    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
+    <ImportGroup Label="ExtensionTargets">
+    </ImportGroup>
+</Project>

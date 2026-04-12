@@ -1,0 +1,50 @@
+#include "pch.h"
+#include "LoginSession.h"
+#include "LoginPacketHandler.h"
+#include "TokenStore.h"
+#include "Server/ServerBase.h"
+
+
+class LoginServer : public ServerBase
+{
+public:
+	LoginServer(int32 port, int32 ioThreads)
+		: ServerBase(port, ioThreads)
+	{
+	}
+
+protected:
+	void Init() override
+	{
+		tokenStore_ = std::make_shared<TokenStore>();
+		LoginPacketHandler::Init(*tokenStore_);
+		LOG_INFO("LoginServer initialized on port " + std::to_string(port_));
+	}
+
+	SessionPtr CreateSession(tcp::socket socket, net::io_context& ioc) override
+	{
+		auto session = std::make_shared<LoginSession>(std::move(socket), ioc);
+		GetSessionManager().Add(session);
+		return session;
+	}
+
+private:
+	std::shared_ptr<TokenStore> tokenStore_;
+};
+
+
+int main()
+{
+	try
+	{
+		LogInit();
+		LoginServer server(9999, 2);
+		server.Run();
+	}
+	catch (const std::exception& e)
+	{
+		LOG_ERROR(std::string("Fatal: ") + e.what());
+		return 1;
+	}
+	return 0;
+}

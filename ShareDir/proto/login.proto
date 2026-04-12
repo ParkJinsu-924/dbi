@@ -1,0 +1,21 @@
+syntax = "proto3";
+package Proto;
+
+// Client -> Login Server
+message C_Login {
+    string username = 1;
+    string password = 2;
+}
+
+// Login Server -> Client
+message S_Login {
+    bool success = 1;
+    string token = 2;
+    string game_server_ip = 3;
+    int32 game_server_port = 4;
+}
+
+message S_LoginFail {
+    int32 error_code = 1;
+    string error_message = 2;
+}

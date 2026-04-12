@@ -1,0 +1,83 @@
+#include "pch.h"
+#include "GameSession.h"
+#include "GamePacketHandler.h"
+#include "Services/PlayerService.h"
+#include "Server/ServerBase.h"
+#include "Network/Connector.h"
+#include "Network/ServerSession.h"
+
+
+class GameServer : public ServerBase
+{
+public:
+	GameServer(int32 port, int32 ioThreads)
+		: ServerBase(port, ioThreads)
+	{
+	}
+
+protected:
+	void Init() override
+	{
+		// Register game services
+		auto playerService = std::make_shared<PlayerService>();
+		GetServiceLocator().Register<PlayerService>(playerService);
+		playerService->Init();
+
+		// Register packet handlers
+		GamePacketHandler::Init(GetSessionManager(), *playerService);
+
+		// Give GameSession access to services for disconnect handling
+		GameSession::SetServices(&GetSessionManager(), playerService.get());
+
+		// Connect to LoginServer for token validation
+		ConnectToLoginServer();
+
+		LOG_INFO("GameServer initialized on port " + std::to_string(port_));
+	}
+
+	SessionPtr CreateSession(tcp::socket socket, net::io_context& ioc) override
+	{
+		auto session = std::make_shared<GameSession>(std::move(socket), ioc);
+		GetSessionManager().Add(session);
+		return session;
+	}
+
+private:
+	void ConnectToLoginServer()
+	{
+		auto& ioc = ioPool_.GetNextIoContext();
+		connector_ = std::make_unique<Connector>(ioc,
+			[this](tcp::socket socket, net::io_context& ioc) -> SessionPtr
+			{
+				auto session = std::make_shared<ServerSession>(std::move(socket), ioc);
+				loginSession_ = session;
+				GamePacketHandler::SetLoginSession(session);
+				LOG_INFO("Connected to LoginServer");
+				return session;
+			});
+
+		auto endpoint = tcp::endpoint(
+			net::ip::make_address("127.0.0.1"), 9999);
+		connector_->Connect(endpoint);
+	}
+
+	std::unique_ptr<Connector> connector_;
+	std::shared_ptr<ServerSession> loginSession_;
+};
+
+
+int main()
+{
+	try
+	{
+		LogInit();
+		GameServer server(7777, 4);
+		server.Run();
+	}
+	catch (const std::exception& e)
+	{
+		LOG_ERROR(std::string("Fatal: ") + e.what());
+		return 1;
+	}
+	return 0;
+}

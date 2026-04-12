@@ -1,0 +1,59 @@
+syntax = "proto3";
+package Proto;
+
+import "common.proto";
+
+// Client -> Game Server
+message C_EnterGame {
+    string token = 1;
+}
+
+message C_PlayerMove {
+    Vector3 position = 1;
+    float yaw = 2;
+}
+
+message C_Chat {
+    string message = 1;
+}
+
+message C_RequestUseSkill {
+	string skillId = 1;
+}
+
+// Game Server -> Client
+message S_EnterGame {
+    bool success = 1;
+    int32 player_id = 2;
+    Vector3 spawn_position = 3;
+}
+
+message S_PlayerList {
+    message PlayerInfo {
+        int32 player_id = 1;
+        string name = 2;
+        Vector3 position = 3;
+    }
+    repeated PlayerInfo players = 1;
+}
+
+message S_PlayerMove {
+    int32 player_id = 1;
+    Vector3 position = 2;
+    float yaw = 3;
+}
+
+message S_Chat {
+    int32 player_id = 1;
+    string sender = 2;
+    string message = 3;
+}
+
+message S_PlayerLeave {
+    int32 player_id = 1;
+}
+
+message S_RequestUseSkill {
+	bool success = 1;
+	int32 range = 2;
+}
