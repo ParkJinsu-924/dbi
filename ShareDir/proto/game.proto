@@ -18,14 +18,16 @@ message C_Chat {
 }
 
 message C_RequestUseSkill {
-	string skillId = 1;
+    string skillId = 1;
 }
 
 // Game Server -> Client
+// Note: success path uses typed S_* packet. Failure path is signalled via S_Error
+// (see below) — these messages no longer carry per-packet success flags.
+
 message S_EnterGame {
-    bool success = 1;
-    int32 player_id = 2;
-    Vector3 spawn_position = 3;
+    int32 player_id = 1;
+    Vector3 spawn_position = 2;
 }
 
 message S_PlayerList {
@@ -54,11 +56,18 @@ message S_PlayerLeave {
 }
 
 message S_RequestUseSkill {
-	bool success = 1;
-	int32 range = 2;
+    int32 range = 1;
 }
 
 // Server corrects client position when move target is invalid
 message S_MoveCorrection {
     Vector3 position = 1;
+}
+
+// Generic error response. Sent automatically by the dispatcher when a handler
+// returns a non-OK ErrorCode. source_packet_id identifies the original request.
+message S_Error {
+    uint32 source_packet_id = 1;
+    ErrorCode code = 2;
+    string detail = 3;
 }

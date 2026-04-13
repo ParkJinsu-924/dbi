@@ -33,6 +33,7 @@ public class NetworkManager : MonoBehaviour
     public event Action<S_PlayerLeave> OnPlayerLeave;
     public event Action<S_Chat> OnChat;
     public event Action<S_MoveCorrection> OnMoveCorrection;
+    public event Action<S_Error> OnServerError;
 
     private void Awake()
     {
@@ -56,7 +57,7 @@ public class NetworkManager : MonoBehaviour
             loginRouter = new PacketRouter();
 
             loginRouter.Register<S_Login>(OnLoginResponse);
-            loginRouter.Register<S_LoginFail>(OnLoginFailResponse);
+            loginRouter.Register<S_Error>(OnLoginServerError);
 
             loginClient.OnPacketReceived += loginRouter.Route;
             loginClient.OnDisconnected += OnLoginDisconnected;
@@ -81,32 +82,27 @@ public class NetworkManager : MonoBehaviour
 
     private void OnLoginResponse(S_Login response)
     {
-        if (response.Success)
-        {
-            token = response.Token;
-            gameServerIp = string.IsNullOrEmpty(response.GameServerIp) ? loginServerIp : response.GameServerIp;
-            gameServerPort = response.GameServerPort > 0 ? response.GameServerPort : 7777;
+        // Receipt of S_Login implies success. Failure arrives as S_Error.
+        token = response.Token;
+        gameServerIp = string.IsNullOrEmpty(response.GameServerIp) ? loginServerIp : response.GameServerIp;
+        gameServerPort = response.GameServerPort > 0 ? response.GameServerPort : 7777;
 
-            Debug.Log("[NetworkManager] Login success. Token: " + token);
+        Debug.Log("[NetworkManager] Login success. Token: " + token);
 
-            loginClient?.Disconnect();
-            loginClient = null;
-
-            OnLoginSuccess?.Invoke();
-            ConnectToGameServer();
-        }
-        else
-        {
-            OnLoginFail?.Invoke("Login failed");
-        }
-    }
-
-    private void OnLoginFailResponse(S_LoginFail response)
-    {
-        Debug.LogError("[NetworkManager] Login failed: " + response.ErrorMessage);
         loginClient?.Disconnect();
         loginClient = null;
-        OnLoginFail?.Invoke(response.ErrorMessage);
+
+        OnLoginSuccess?.Invoke();
+        ConnectToGameServer();
+    }
+
+    private void OnLoginServerError(S_Error error)
+    {
+        string msg = "code=" + error.Code + " detail=" + error.Detail;
+        Debug.LogError("[NetworkManager] LoginServer error: " + msg);
+        loginClient?.Disconnect();
+        loginClient = null;
+        OnLoginFail?.Invoke(msg);
     }
 
     private void OnLoginDisconnected()
@@ -127,6 +123,7 @@ public class NetworkManager : MonoBehaviour
             gameRouter.Register<S_PlayerLeave>((pkt) => OnPlayerLeave?.Invoke(pkt));
             gameRouter.Register<S_Chat>((pkt) => OnChat?.Invoke(pkt));
             gameRouter.Register<S_MoveCorrection>((pkt) => OnMoveCorrection?.Invoke(pkt));
+            gameRouter.Register<S_Error>(OnGameServerError);
 
             gameClient.OnPacketReceived += gameRouter.Route;
             gameClient.OnDisconnected += OnGameDisconnected;
@@ -146,22 +143,24 @@ public class NetworkManager : MonoBehaviour
 
     private void OnEnterGameResponse(S_EnterGame response)
     {
-        if (response.Success)
-        {
-            LocalPlayerId = response.PlayerId;
-            var spawnPos = new UnityEngine.Vector3(
-                response.SpawnPosition?.X ?? 0f,
-                response.SpawnPosition?.Y ?? 0f,
-                response.SpawnPosition?.Z ?? 0f
-            );
+        // Receipt of S_EnterGame implies success. Failure arrives as S_Error.
+        LocalPlayerId = response.PlayerId;
+        var spawnPos = new UnityEngine.Vector3(
+            response.SpawnPosition?.X ?? 0f,
+            response.SpawnPosition?.Y ?? 0f,
+            response.SpawnPosition?.Z ?? 0f
+        );
 
-            Debug.Log("[NetworkManager] Entered game. PlayerId: " + LocalPlayerId);
-            OnEnterGameSuccess?.Invoke(LocalPlayerId, spawnPos);
-        }
-        else
-        {
-            Debug.LogError("[NetworkManager] Enter game failed");
-        }
+        Debug.Log("[NetworkManager] Entered game. PlayerId: " + LocalPlayerId);
+        OnEnterGameSuccess?.Invoke(LocalPlayerId, spawnPos);
+    }
+
+    private void OnGameServerError(S_Error error)
+    {
+        // Generic server error. UI/gameplay layers can subscribe to OnServerError for handling.
+        Debug.LogError("[NetworkManager] GameServer error: source_packet_id=" + error.SourcePacketId
+            + " code=" + error.Code + " detail=" + error.Detail);
+        OnServerError?.Invoke(error);
     }
 
     private void OnGameDisconnected()

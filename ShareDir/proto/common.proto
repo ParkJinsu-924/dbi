@@ -10,3 +10,23 @@ message Vector3 {
 message Timestamp {
     int64 epoch_ms = 1;
 }
+
+// Common error codes shared by client/server. 0 = success.
+// Used by S_Error packet (game.proto) and any handler that returns ErrorCode.
+enum ErrorCode {
+    OK = 0;
+    UNKNOWN = 1;
+
+    // Auth / session
+    LOGIN_SERVER_OFFLINE = 100;
+    TOKEN_INVALID = 101;
+    TOKEN_EXPIRED = 102;
+
+    // Game state
+    PLAYER_NOT_FOUND = 200;
+    INVALID_POSITION = 201;
+
+    // Generic
+    INVALID_REQUEST = 900;
+    INTERNAL_ERROR = 901;
+}

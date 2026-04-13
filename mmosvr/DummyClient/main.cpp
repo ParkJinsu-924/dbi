@@ -28,25 +28,25 @@ public:
 		{
 			Proto::S_Login pkt;
 			pkt.ParseFromArray(payload, payloadSize);
-			LOG_INFO("Login response: success=" + std::to_string(pkt.success())
-				+ " token=" + pkt.token()
+			LOG_INFO("Login response: token=" + pkt.token()
 				+ " gameServer=" + pkt.game_server_ip()
 				+ ":" + std::to_string(pkt.game_server_port()));
-			break;
-		}
-		case PacketId::S_LOGIN_FAIL:
-		{
-			Proto::S_LoginFail pkt;
-			pkt.ParseFromArray(payload, payloadSize);
-			LOG_ERROR("Login failed: " + pkt.error_message());
 			break;
 		}
 		case PacketId::S_ENTER_GAME:
 		{
 			Proto::S_EnterGame pkt;
 			pkt.ParseFromArray(payload, payloadSize);
-			LOG_INFO("Enter game: success=" + std::to_string(pkt.success())
-				+ " playerId=" + std::to_string(pkt.player_id()));
+			LOG_INFO("Enter game: playerId=" + std::to_string(pkt.player_id()));
+			break;
+		}
+		case PacketId::S_ERROR:
+		{
+			Proto::S_Error pkt;
+			pkt.ParseFromArray(payload, payloadSize);
+			LOG_ERROR("Server error: source_packet_id=" + std::to_string(pkt.source_packet_id())
+				+ " code=" + std::to_string(static_cast<int>(pkt.code()))
+				+ " detail=" + pkt.detail());
 			break;
 		}
 		case PacketId::S_PLAYER_MOVE:

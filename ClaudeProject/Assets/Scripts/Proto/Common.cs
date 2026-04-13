@@ -26,10 +26,14 @@ namespace Proto {
           string.Concat(
             "Cgxjb21tb24ucHJvdG8SBVByb3RvIioKB1ZlY3RvcjMSCQoBeBgBIAEoAhIJ",
             "CgF5GAIgASgCEgkKAXoYAyABKAIiHQoJVGltZXN0YW1wEhAKCGVwb2NoX21z",
-            "GAEgASgDYgZwcm90bzM="));
+            "GAEgASgDKrkBCglFcnJvckNvZGUSBgoCT0sQABILCgdVTktOT1dOEAESGAoU",
+            "TE9HSU5fU0VSVkVSX09GRkxJTkUQZBIRCg1UT0tFTl9JTlZBTElEEGUSEQoN",
+            "VE9LRU5fRVhQSVJFRBBmEhUKEFBMQVlFUl9OT1RfRk9VTkQQyAESFQoQSU5W",
+            "QUxJRF9QT1NJVElPThDJARIUCg9JTlZBTElEX1JFUVVFU1QQhAcSEwoOSU5U",
+            "RVJOQUxfRVJST1IQhQdiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
-          new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
+          new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Proto.ErrorCode), }, null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.Vector3), global::Proto.Vector3.Parser, new[]{ "X", "Y", "Z" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.Timestamp), global::Proto.Timestamp.Parser, new[]{ "EpochMs" }, null, null, null, null)
           }));
@@ -37,6 +41,34 @@ namespace Proto {
     #endregion
 
   }
+  #region Enums
+  /// <summary>
+  /// Common error codes shared by client/server. 0 = success.
+  /// Used by S_Error packet (game.proto) and any handler that returns ErrorCode.
+  /// </summary>
+  public enum ErrorCode {
+    [pbr::OriginalName("OK")] Ok = 0,
+    [pbr::OriginalName("UNKNOWN")] Unknown = 1,
+    /// <summary>
+    /// Auth / session
+    /// </summary>
+    [pbr::OriginalName("LOGIN_SERVER_OFFLINE")] LoginServerOffline = 100,
+    [pbr::OriginalName("TOKEN_INVALID")] TokenInvalid = 101,
+    [pbr::OriginalName("TOKEN_EXPIRED")] TokenExpired = 102,
+    /// <summary>
+    /// Game state
+    /// </summary>
+    [pbr::OriginalName("PLAYER_NOT_FOUND")] PlayerNotFound = 200,
+    [pbr::OriginalName("INVALID_POSITION")] InvalidPosition = 201,
+    /// <summary>
+    /// Generic
+    /// </summary>
+    [pbr::OriginalName("INVALID_REQUEST")] InvalidRequest = 900,
+    [pbr::OriginalName("INTERNAL_ERROR")] InternalError = 901,
+  }
+
+  #endregion
+
   #region Messages
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class Vector3 : pb::IMessage<Vector3>

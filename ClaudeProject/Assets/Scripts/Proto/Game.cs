@@ -28,19 +28,20 @@ namespace Proto {
             "YW1lEg0KBXRva2VuGAEgASgJIj0KDENfUGxheWVyTW92ZRIgCghwb3NpdGlv",
             "bhgBIAEoCzIOLlByb3RvLlZlY3RvcjMSCwoDeWF3GAIgASgCIhkKBkNfQ2hh",
             "dBIPCgdtZXNzYWdlGAEgASgJIiQKEUNfUmVxdWVzdFVzZVNraWxsEg8KB3Nr",
-            "aWxsSWQYASABKAkiWQoLU19FbnRlckdhbWUSDwoHc3VjY2VzcxgBIAEoCBIR",
-            "CglwbGF5ZXJfaWQYAiABKAUSJgoOc3Bhd25fcG9zaXRpb24YAyABKAsyDi5Q",
-            "cm90by5WZWN0b3IzIpABCgxTX1BsYXllckxpc3QSLwoHcGxheWVycxgBIAMo",
-            "CzIeLlByb3RvLlNfUGxheWVyTGlzdC5QbGF5ZXJJbmZvGk8KClBsYXllcklu",
-            "Zm8SEQoJcGxheWVyX2lkGAEgASgFEgwKBG5hbWUYAiABKAkSIAoIcG9zaXRp",
-            "b24YAyABKAsyDi5Qcm90by5WZWN0b3IzIlAKDFNfUGxheWVyTW92ZRIRCglw",
-            "bGF5ZXJfaWQYASABKAUSIAoIcG9zaXRpb24YAiABKAsyDi5Qcm90by5WZWN0",
-            "b3IzEgsKA3lhdxgDIAEoAiI8CgZTX0NoYXQSEQoJcGxheWVyX2lkGAEgASgF",
-            "Eg4KBnNlbmRlchgCIAEoCRIPCgdtZXNzYWdlGAMgASgJIiIKDVNfUGxheWVy",
-            "TGVhdmUSEQoJcGxheWVyX2lkGAEgASgFIjMKEVNfUmVxdWVzdFVzZVNraWxs",
-            "Eg8KB3N1Y2Nlc3MYASABKAgSDQoFcmFuZ2UYAiABKAUiNAoQU19Nb3ZlQ29y",
-            "cmVjdGlvbhIgCghwb3NpdGlvbhgBIAEoCzIOLlByb3RvLlZlY3RvcjNiBnBy",
-            "b3RvMw=="));
+            "aWxsSWQYASABKAkiSAoLU19FbnRlckdhbWUSEQoJcGxheWVyX2lkGAEgASgF",
+            "EiYKDnNwYXduX3Bvc2l0aW9uGAIgASgLMg4uUHJvdG8uVmVjdG9yMyKQAQoM",
+            "U19QbGF5ZXJMaXN0Ei8KB3BsYXllcnMYASADKAsyHi5Qcm90by5TX1BsYXll",
+            "ckxpc3QuUGxheWVySW5mbxpPCgpQbGF5ZXJJbmZvEhEKCXBsYXllcl9pZBgB",
+            "IAEoBRIMCgRuYW1lGAIgASgJEiAKCHBvc2l0aW9uGAMgASgLMg4uUHJvdG8u",
+            "VmVjdG9yMyJQCgxTX1BsYXllck1vdmUSEQoJcGxheWVyX2lkGAEgASgFEiAK",
+            "CHBvc2l0aW9uGAIgASgLMg4uUHJvdG8uVmVjdG9yMxILCgN5YXcYAyABKAIi",
+            "PAoGU19DaGF0EhEKCXBsYXllcl9pZBgBIAEoBRIOCgZzZW5kZXIYAiABKAkS",
+            "DwoHbWVzc2FnZRgDIAEoCSIiCg1TX1BsYXllckxlYXZlEhEKCXBsYXllcl9p",
+            "ZBgBIAEoBSIiChFTX1JlcXVlc3RVc2VTa2lsbBINCgVyYW5nZRgBIAEoBSI0",
+            "ChBTX01vdmVDb3JyZWN0aW9uEiAKCHBvc2l0aW9uGAEgASgLMg4uUHJvdG8u",
+            "VmVjdG9yMyJTCgdTX0Vycm9yEhgKEHNvdXJjZV9wYWNrZXRfaWQYASABKA0S",
+            "HgoEY29kZRgCIAEoDjIQLlByb3RvLkVycm9yQ29kZRIOCgZkZXRhaWwYAyAB",
+            "KAliBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Proto.CommonReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -48,13 +49,14 @@ namespace Proto {
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.C_PlayerMove), global::Proto.C_PlayerMove.Parser, new[]{ "Position", "Yaw" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.C_Chat), global::Proto.C_Chat.Parser, new[]{ "Message" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.C_RequestUseSkill), global::Proto.C_RequestUseSkill.Parser, new[]{ "SkillId" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_EnterGame), global::Proto.S_EnterGame.Parser, new[]{ "Success", "PlayerId", "SpawnPosition" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_EnterGame), global::Proto.S_EnterGame.Parser, new[]{ "PlayerId", "SpawnPosition" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_PlayerList), global::Proto.S_PlayerList.Parser, new[]{ "Players" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_PlayerList.Types.PlayerInfo), global::Proto.S_PlayerList.Types.PlayerInfo.Parser, new[]{ "PlayerId", "Name", "Position" }, null, null, null, null)}),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_PlayerMove), global::Proto.S_PlayerMove.Parser, new[]{ "PlayerId", "Position", "Yaw" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_Chat), global::Proto.S_Chat.Parser, new[]{ "PlayerId", "Sender", "Message" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_PlayerLeave), global::Proto.S_PlayerLeave.Parser, new[]{ "PlayerId" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_RequestUseSkill), global::Proto.S_RequestUseSkill.Parser, new[]{ "Success", "Range" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MoveCorrection), global::Proto.S_MoveCorrection.Parser, new[]{ "Position" }, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_RequestUseSkill), global::Proto.S_RequestUseSkill.Parser, new[]{ "Range" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MoveCorrection), global::Proto.S_MoveCorrection.Parser, new[]{ "Position" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_Error), global::Proto.S_Error.Parser, new[]{ "SourcePacketId", "Code", "Detail" }, null, null, null, null)
           }));
     }
     #endregion
@@ -902,9 +904,6 @@ namespace Proto {
 
   }
 
-  /// <summary>
-  /// Game Server -> Client
-  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class S_EnterGame : pb::IMessage<S_EnterGame>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
@@ -940,7 +939,6 @@ namespace Proto {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public S_EnterGame(S_EnterGame other) : this() {
-      success_ = other.success_;
       playerId_ = other.playerId_;
       spawnPosition_ = other.spawnPosition_ != null ? other.spawnPosition_.Clone() : null;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -952,20 +950,8 @@ namespace Proto {
       return new S_EnterGame(this);
     }
 
-    /// <summary>Field number for the "success" field.</summary>
-    public const int SuccessFieldNumber = 1;
-    private bool success_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Success {
-      get { return success_; }
-      set {
-        success_ = value;
-      }
-    }
-
     /// <summary>Field number for the "player_id" field.</summary>
-    public const int PlayerIdFieldNumber = 2;
+    public const int PlayerIdFieldNumber = 1;
     private int playerId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -977,7 +963,7 @@ namespace Proto {
     }
 
     /// <summary>Field number for the "spawn_position" field.</summary>
-    public const int SpawnPositionFieldNumber = 3;
+    public const int SpawnPositionFieldNumber = 2;
     private global::Proto.Vector3 spawnPosition_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -1003,7 +989,6 @@ namespace Proto {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (Success != other.Success) return false;
       if (PlayerId != other.PlayerId) return false;
       if (!object.Equals(SpawnPosition, other.SpawnPosition)) return false;
       return Equals(_unknownFields, other._unknownFields);
@@ -1013,7 +998,6 @@ namespace Proto {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (Success != false) hash ^= Success.GetHashCode();
       if (PlayerId != 0) hash ^= PlayerId.GetHashCode();
       if (spawnPosition_ != null) hash ^= SpawnPosition.GetHashCode();
       if (_unknownFields != null) {
@@ -1034,16 +1018,12 @@ namespace Proto {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (Success != false) {
-        output.WriteRawTag(8);
-        output.WriteBool(Success);
-      }
       if (PlayerId != 0) {
-        output.WriteRawTag(16);
+        output.WriteRawTag(8);
         output.WriteInt32(PlayerId);
       }
       if (spawnPosition_ != null) {
-        output.WriteRawTag(26);
+        output.WriteRawTag(18);
         output.WriteMessage(SpawnPosition);
       }
       if (_unknownFields != null) {
@@ -1056,16 +1036,12 @@ namespace Proto {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Success != false) {
-        output.WriteRawTag(8);
-        output.WriteBool(Success);
-      }
       if (PlayerId != 0) {
-        output.WriteRawTag(16);
+        output.WriteRawTag(8);
         output.WriteInt32(PlayerId);
       }
       if (spawnPosition_ != null) {
-        output.WriteRawTag(26);
+        output.WriteRawTag(18);
         output.WriteMessage(SpawnPosition);
       }
       if (_unknownFields != null) {
@@ -1078,9 +1054,6 @@ namespace Proto {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (Success != false) {
-        size += 1 + 1;
-      }
       if (PlayerId != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(PlayerId);
       }
@@ -1098,9 +1071,6 @@ namespace Proto {
     public void MergeFrom(S_EnterGame other) {
       if (other == null) {
         return;
-      }
-      if (other.Success != false) {
-        Success = other.Success;
       }
       if (other.PlayerId != 0) {
         PlayerId = other.PlayerId;
@@ -1131,14 +1101,10 @@ namespace Proto {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            Success = input.ReadBool();
-            break;
-          }
-          case 16: {
             PlayerId = input.ReadInt32();
             break;
           }
-          case 26: {
+          case 18: {
             if (spawnPosition_ == null) {
               SpawnPosition = new global::Proto.Vector3();
             }
@@ -1165,14 +1131,10 @@ namespace Proto {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            Success = input.ReadBool();
-            break;
-          }
-          case 16: {
             PlayerId = input.ReadInt32();
             break;
           }
-          case 26: {
+          case 18: {
             if (spawnPosition_ == null) {
               SpawnPosition = new global::Proto.Vector3();
             }
@@ -2448,7 +2410,6 @@ namespace Proto {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public S_RequestUseSkill(S_RequestUseSkill other) : this() {
-      success_ = other.success_;
       range_ = other.range_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
@@ -2459,20 +2420,8 @@ namespace Proto {
       return new S_RequestUseSkill(this);
     }
 
-    /// <summary>Field number for the "success" field.</summary>
-    public const int SuccessFieldNumber = 1;
-    private bool success_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Success {
-      get { return success_; }
-      set {
-        success_ = value;
-      }
-    }
-
     /// <summary>Field number for the "range" field.</summary>
-    public const int RangeFieldNumber = 2;
+    public const int RangeFieldNumber = 1;
     private int range_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -2498,7 +2447,6 @@ namespace Proto {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if (Success != other.Success) return false;
       if (Range != other.Range) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -2507,7 +2455,6 @@ namespace Proto {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override int GetHashCode() {
       int hash = 1;
-      if (Success != false) hash ^= Success.GetHashCode();
       if (Range != 0) hash ^= Range.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -2527,12 +2474,8 @@ namespace Proto {
     #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       output.WriteRawMessage(this);
     #else
-      if (Success != false) {
-        output.WriteRawTag(8);
-        output.WriteBool(Success);
-      }
       if (Range != 0) {
-        output.WriteRawTag(16);
+        output.WriteRawTag(8);
         output.WriteInt32(Range);
       }
       if (_unknownFields != null) {
@@ -2545,12 +2488,8 @@ namespace Proto {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
-      if (Success != false) {
-        output.WriteRawTag(8);
-        output.WriteBool(Success);
-      }
       if (Range != 0) {
-        output.WriteRawTag(16);
+        output.WriteRawTag(8);
         output.WriteInt32(Range);
       }
       if (_unknownFields != null) {
@@ -2563,9 +2502,6 @@ namespace Proto {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public int CalculateSize() {
       int size = 0;
-      if (Success != false) {
-        size += 1 + 1;
-      }
       if (Range != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Range);
       }
@@ -2580,9 +2516,6 @@ namespace Proto {
     public void MergeFrom(S_RequestUseSkill other) {
       if (other == null) {
         return;
-      }
-      if (other.Success != false) {
-        Success = other.Success;
       }
       if (other.Range != 0) {
         Range = other.Range;
@@ -2607,10 +2540,6 @@ namespace Proto {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 8: {
-            Success = input.ReadBool();
-            break;
-          }
-          case 16: {
             Range = input.ReadInt32();
             break;
           }
@@ -2634,10 +2563,6 @@ namespace Proto {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
             break;
           case 8: {
-            Success = input.ReadBool();
-            break;
-          }
-          case 16: {
             Range = input.ReadInt32();
             break;
           }
@@ -2849,6 +2774,282 @@ namespace Proto {
               Position = new global::Proto.Vector3();
             }
             input.ReadMessage(Position);
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// Generic error response. Sent automatically by the dispatcher when a handler
+  /// returns a non-OK ErrorCode. source_packet_id identifies the original request.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class S_Error : pb::IMessage<S_Error>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<S_Error> _parser = new pb::MessageParser<S_Error>(() => new S_Error());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<S_Error> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Proto.GameReflection.Descriptor.MessageTypes[11]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public S_Error() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public S_Error(S_Error other) : this() {
+      sourcePacketId_ = other.sourcePacketId_;
+      code_ = other.code_;
+      detail_ = other.detail_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public S_Error Clone() {
+      return new S_Error(this);
+    }
+
+    /// <summary>Field number for the "source_packet_id" field.</summary>
+    public const int SourcePacketIdFieldNumber = 1;
+    private uint sourcePacketId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public uint SourcePacketId {
+      get { return sourcePacketId_; }
+      set {
+        sourcePacketId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "code" field.</summary>
+    public const int CodeFieldNumber = 2;
+    private global::Proto.ErrorCode code_ = global::Proto.ErrorCode.Ok;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Proto.ErrorCode Code {
+      get { return code_; }
+      set {
+        code_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "detail" field.</summary>
+    public const int DetailFieldNumber = 3;
+    private string detail_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string Detail {
+      get { return detail_; }
+      set {
+        detail_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as S_Error);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(S_Error other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (SourcePacketId != other.SourcePacketId) return false;
+      if (Code != other.Code) return false;
+      if (Detail != other.Detail) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (SourcePacketId != 0) hash ^= SourcePacketId.GetHashCode();
+      if (Code != global::Proto.ErrorCode.Ok) hash ^= Code.GetHashCode();
+      if (Detail.Length != 0) hash ^= Detail.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (SourcePacketId != 0) {
+        output.WriteRawTag(8);
+        output.WriteUInt32(SourcePacketId);
+      }
+      if (Code != global::Proto.ErrorCode.Ok) {
+        output.WriteRawTag(16);
+        output.WriteEnum((int) Code);
+      }
+      if (Detail.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Detail);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (SourcePacketId != 0) {
+        output.WriteRawTag(8);
+        output.WriteUInt32(SourcePacketId);
+      }
+      if (Code != global::Proto.ErrorCode.Ok) {
+        output.WriteRawTag(16);
+        output.WriteEnum((int) Code);
+      }
+      if (Detail.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Detail);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (SourcePacketId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(SourcePacketId);
+      }
+      if (Code != global::Proto.ErrorCode.Ok) {
+        size += 1 + pb::CodedOutputStream.ComputeEnumSize((int) Code);
+      }
+      if (Detail.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Detail);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(S_Error other) {
+      if (other == null) {
+        return;
+      }
+      if (other.SourcePacketId != 0) {
+        SourcePacketId = other.SourcePacketId;
+      }
+      if (other.Code != global::Proto.ErrorCode.Ok) {
+        Code = other.Code;
+      }
+      if (other.Detail.Length != 0) {
+        Detail = other.Detail;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            SourcePacketId = input.ReadUInt32();
+            break;
+          }
+          case 16: {
+            Code = (global::Proto.ErrorCode) input.ReadEnum();
+            break;
+          }
+          case 26: {
+            Detail = input.ReadString();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            SourcePacketId = input.ReadUInt32();
+            break;
+          }
+          case 16: {
+            Code = (global::Proto.ErrorCode) input.ReadEnum();
+            break;
+          }
+          case 26: {
+            Detail = input.ReadString();
             break;
           }
         }
