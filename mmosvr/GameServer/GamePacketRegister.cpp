@@ -2,8 +2,8 @@
 #include "GamePacketHandler.h"
 #include "Packet/PacketHandler.h"
 
-#define RegisterPacket_Game(Packet, HandlerFunc) \
-	GetPacketHandler().Register<Packet, GameSession>(&HandlerFunc);
+#define RegisterPacket_Game(RequestPacket, HandlerFunc) \
+	GetPacketHandler().Register<RequestPacket, GameSession>(&HandlerFunc);
 #define RegisterPacket_Server(Packet, HandlerFunc) \
 	GetPacketHandler().Register<Packet, ServerSession>(&HandlerFunc);
 

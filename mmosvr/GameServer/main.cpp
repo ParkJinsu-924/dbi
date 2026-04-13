@@ -56,7 +56,7 @@ private:
 			{
 				auto session = std::make_shared<ServerSession>(std::move(socket), ioc);
 				loginSession_ = session;
-				GamePacketHandler::SetLoginSession(session);
+				GamePacketHandler::SetLoginServerSession(session);
 				LOG_INFO("Connected to LoginServer");
 				return session;
 			});

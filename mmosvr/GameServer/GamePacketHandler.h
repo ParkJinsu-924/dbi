@@ -15,7 +15,7 @@ class GamePacketHandler
 public:
 	static void Init(SessionManager& sessionManager, PlayerService& playerService, MapService& mapService);
 
-	static void SetLoginSession(std::shared_ptr<ServerSession> session);
+	static void SetLoginServerSession(std::shared_ptr<ServerSession> session);
 
 	static void C_EnterGame(std::shared_ptr<GameSession> session, const Proto::C_EnterGame& pkt);
 	static void C_PlayerMove(std::shared_ptr<GameSession> session, const Proto::C_PlayerMove& pkt);
@@ -25,6 +25,6 @@ public:
 	static SessionManager* sSessionManager;
 	static PlayerService* sPlayerService;
 	static MapService* sMapService;
-	static std::weak_ptr<ServerSession> sLoginSession;
+	static std::weak_ptr<ServerSession> sLoginServerSession;
 	static Synchronized<std::unordered_map<std::string, std::weak_ptr<GameSession>>, std::mutex> sPendingValidations;
 };

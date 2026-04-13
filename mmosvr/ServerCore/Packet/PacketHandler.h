@@ -36,12 +36,18 @@ public:
 					LOG_ERROR("Failed to parse packet id=" + std::to_string(packetId));
 					return;
 				}
+				
+				if (msg.valid() == false)
+				{
+					LOG_ERROR("Failed to validate packet id=" + std::to_string(packetId));
+					return;
+				}
+				
 				handler(std::static_pointer_cast<SessionT>(session), msg);
 			};
 	}
 
-	void Dispatch(std::shared_ptr<PacketSession> session,
-		uint16 packetId, const char* payload, int32 size);
+	void Dispatch(std::shared_ptr<PacketSession> session, uint16 packetId, const char* payload, int32 size);
 
 private:
 	using RawHandler = std::function<void(

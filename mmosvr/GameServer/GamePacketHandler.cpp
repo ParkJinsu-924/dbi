@@ -5,7 +5,7 @@
 SessionManager* GamePacketHandler::sSessionManager = nullptr;
 PlayerService* GamePacketHandler::sPlayerService = nullptr;
 MapService* GamePacketHandler::sMapService = nullptr;
-std::weak_ptr<ServerSession> GamePacketHandler::sLoginSession;
+std::weak_ptr<ServerSession> GamePacketHandler::sLoginServerSession;
 Synchronized<std::unordered_map<std::string, std::weak_ptr<GameSession>>, std::mutex> GamePacketHandler::sPendingValidations;
 
 void GamePacketHandler::Init(SessionManager& sessionManager, PlayerService& playerService, MapService& mapService)
@@ -15,15 +15,14 @@ void GamePacketHandler::Init(SessionManager& sessionManager, PlayerService& play
 	sMapService = &mapService;
 }
 
-void GamePacketHandler::SetLoginSession(std::shared_ptr<ServerSession> session)
+void GamePacketHandler::SetLoginServerSession(std::shared_ptr<ServerSession> session)
 {
-	sLoginSession = session;
+	sLoginServerSession = session;
 }
 
-void GamePacketHandler::C_EnterGame(
-	std::shared_ptr<GameSession> session, const Proto::C_EnterGame& pkt)
+void GamePacketHandler::C_EnterGame(std::shared_ptr<GameSession> session, const Proto::C_EnterGame& pkt)
 {
-	const auto loginSession = sLoginSession.lock();
+	const auto loginSession = sLoginServerSession.lock();
 	if (!loginSession || !loginSession->IsConnected())
 	{
 		LOG_ERROR("LoginServer not connected, rejecting C_EnterGame");
@@ -45,8 +44,7 @@ void GamePacketHandler::C_EnterGame(
 	LOG_INFO("Token validation requested: " + pkt.token());
 }
 
-void GamePacketHandler::SS_ValidateTokenResult(
-	std::shared_ptr<ServerSession> /*session*/, const Proto::SS_ValidateTokenResult& pkt)
+void GamePacketHandler::SS_ValidateTokenResult(std::shared_ptr<ServerSession> /*session*/, const Proto::SS_ValidateTokenResult& pkt)
 {
 	std::shared_ptr<GameSession> gameSession;
 	const bool found = sPendingValidations.WithLock([&](auto& m)
