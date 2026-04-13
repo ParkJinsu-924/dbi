@@ -32,6 +32,7 @@ public class NetworkManager : MonoBehaviour
     public event Action<S_PlayerMove> OnPlayerMove;
     public event Action<S_PlayerLeave> OnPlayerLeave;
     public event Action<S_Chat> OnChat;
+    public event Action<S_MoveCorrection> OnMoveCorrection;
 
     private void Awake()
     {
@@ -125,6 +126,7 @@ public class NetworkManager : MonoBehaviour
             gameRouter.Register<S_PlayerMove>((pkt) => OnPlayerMove?.Invoke(pkt));
             gameRouter.Register<S_PlayerLeave>((pkt) => OnPlayerLeave?.Invoke(pkt));
             gameRouter.Register<S_Chat>((pkt) => OnChat?.Invoke(pkt));
+            gameRouter.Register<S_MoveCorrection>((pkt) => OnMoveCorrection?.Invoke(pkt));
 
             gameClient.OnPacketReceived += gameRouter.Route;
             gameClient.OnDisconnected += OnGameDisconnected;

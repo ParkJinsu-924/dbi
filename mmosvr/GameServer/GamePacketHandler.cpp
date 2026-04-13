@@ -4,14 +4,16 @@
 
 SessionManager* GamePacketHandler::sSessionManager = nullptr;
 PlayerService* GamePacketHandler::sPlayerService = nullptr;
+MapService* GamePacketHandler::sMapService = nullptr;
 std::weak_ptr<ServerSession> GamePacketHandler::sLoginSession;
 std::mutex GamePacketHandler::sPendingMutex;
 std::unordered_map<std::string, std::weak_ptr<GameSession>> GamePacketHandler::sPendingValidations;
 
-void GamePacketHandler::Init(SessionManager& sessionManager, PlayerService& playerService)
+void GamePacketHandler::Init(SessionManager& sessionManager, PlayerService& playerService, MapService& mapService)
 {
 	sSessionManager = &sessionManager;
 	sPlayerService = &playerService;
+	sMapService = &mapService;
 }
 
 void GamePacketHandler::SetLoginSession(std::shared_ptr<ServerSession> session)
@@ -114,11 +116,42 @@ void GamePacketHandler::C_PlayerMove(
 	if (playerId == 0)
 		return;
 
-	sPlayerService->MovePlayer(playerId, pkt.position(), pkt.yaw());
+	Proto::Vector3 validatedPos = pkt.position();
+
+	// Validate against NavMesh
+	if (sMapService && sMapService->IsLoaded())
+	{
+		float x = pkt.position().x();
+		float y = pkt.position().y();
+		float z = pkt.position().z();
+
+		if (!sMapService->IsOnNavMesh(x, y, z))
+		{
+			float outX, outY, outZ;
+			if (sMapService->FindNearestValidPosition(x, y, z, outX, outY, outZ))
+			{
+				validatedPos.set_x(outX);
+				validatedPos.set_y(outY);
+				validatedPos.set_z(outZ);
+
+				// Notify the requesting client of position correction
+				Proto::S_MoveCorrection correction;
+				*correction.mutable_position() = validatedPos;
+				session->Send(correction);
+			}
+			else
+			{
+				// No valid nearby position; ignore the move entirely
+				return;
+			}
+		}
+	}
+
+	sPlayerService->MovePlayer(playerId, validatedPos, pkt.yaw());
 
 	Proto::S_PlayerMove broadcast;
 	broadcast.set_player_id(playerId);
-	*broadcast.mutable_position() = pkt.position();
+	*broadcast.mutable_position() = validatedPos;
 	broadcast.set_yaw(pkt.yaw());
 
 	sSessionManager->Broadcast(session->MakeSendBuffer(broadcast));

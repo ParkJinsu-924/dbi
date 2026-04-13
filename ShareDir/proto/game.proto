@@ -57,3 +57,8 @@ message S_RequestUseSkill {
 	bool success = 1;
 	int32 range = 2;
 }
+
+// Server corrects client position when move target is invalid
+message S_MoveCorrection {
+    Vector3 position = 1;
+}

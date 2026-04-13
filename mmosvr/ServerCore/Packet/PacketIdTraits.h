@@ -19,6 +19,7 @@ namespace Proto
 	class S_Chat;
 	class S_PlayerLeave;
 	class S_RequestUseSkill;
+	class S_MoveCorrection;
 	class SS_ValidateToken;
 	class SS_ValidateTokenResult;
 }
@@ -43,6 +44,7 @@ PACKET_ID_TRAIT(S_PlayerMove, S_PLAYER_MOVE)
 PACKET_ID_TRAIT(S_Chat, S_CHAT)
 PACKET_ID_TRAIT(S_PlayerLeave, S_PLAYER_LEAVE)
 PACKET_ID_TRAIT(S_RequestUseSkill, S_REQUEST_USE_SKILL)
+PACKET_ID_TRAIT(S_MoveCorrection, S_MOVE_CORRECTION)
 PACKET_ID_TRAIT(SS_ValidateToken, SS_VALIDATE_TOKEN)
 PACKET_ID_TRAIT(SS_ValidateTokenResult, SS_VALIDATE_TOKEN_RESULT)
 

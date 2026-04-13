@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <ItemGroup Label="ProjectConfigurations">
+        <ProjectConfiguration Include="Debug|x64">
+            <Configuration>Debug</Configuration>
+            <Platform>x64</Platform>
+        </ProjectConfiguration>
+        <ProjectConfiguration Include="Release|x64">
+            <Configuration>Release</Configuration>
+            <Platform>x64</Platform>
+        </ProjectConfiguration>
+    </ItemGroup>
+    <PropertyGroup Label="Globals">
+        <VCProjectVersion>17.0</VCProjectVersion>
+        <ProjectGuid>{A1B2C3D4-6666-6666-6666-000000000006}</ProjectGuid>
+        <RootNamespace>RecastDetour</RootNamespace>
+        <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    </PropertyGroup>
+    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+        <ConfigurationType>StaticLibrary</ConfigurationType>
+        <UseDebugLibraries>true</UseDebugLibraries>
+        <PlatformToolset>v143</PlatformToolset>
+        <CharacterSet>Unicode</CharacterSet>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+        <ConfigurationType>StaticLibrary</ConfigurationType>
+        <UseDebugLibraries>false</UseDebugLibraries>
+        <PlatformToolset>v143</PlatformToolset>
+        <CharacterSet>Unicode</CharacterSet>
+        <WholeProgramOptimization>true</WholeProgramOptimization>
+    </PropertyGroup>
+    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
+    <ImportGroup Label="PropertySheets">
+        <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform"/>
+    </ImportGroup>
+    <PropertyGroup>
+        <OutDir>$(MSBuildThisFileDirectory)..\lib\$(Configuration)\$(Platform)\</OutDir>
+        <IntDir>$(MSBuildThisFileDirectory)..\obj\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+    </PropertyGroup>
+    <ItemDefinitionGroup>
+        <ClCompile>
+            <WarningLevel>Level3</WarningLevel>
+            <ConformanceMode>true</ConformanceMode>
+            <LanguageStandard>stdcpp20</LanguageStandard>
+            <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+            <DisableSpecificWarnings>4267;4244;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+        </ClCompile>
+    </ItemDefinitionGroup>
+    <ItemGroup>
+        <ClCompile Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\src\Recast\Recast.cpp" />
+        <ClCompile Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\src\Recast\RecastAlloc.cpp" />
+        <ClCompile Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\src\Recast\RecastArea.cpp" />
+        <ClCompile Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\src\Recast\RecastAssert.cpp" />
+        <ClCompile Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\src\Recast\RecastContour.cpp" />
+        <ClCompile Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\src\Recast\RecastFilter.cpp" />
+        <ClCompile Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\src\Recast\RecastLayers.cpp" />
+        <ClCompile Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\src\Recast\RecastMesh.cpp" />
+        <ClCompile Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\src\Recast\RecastMeshDetail.cpp" />
+        <ClCompile Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\src\Recast\RecastRasterization.cpp" />
+        <ClCompile Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\src\Recast\RecastRegion.cpp" />
+        <ClCompile Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\src\Detour\DetourAlloc.cpp" />
+        <ClCompile Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\src\Detour\DetourAssert.cpp" />
+        <ClCompile Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\src\Detour\DetourCommon.cpp" />
+        <ClCompile Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\src\Detour\DetourNavMesh.cpp" />
+        <ClCompile Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\src\Detour\DetourNavMeshBuilder.cpp" />
+        <ClCompile Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\src\Detour\DetourNavMeshQuery.cpp" />
+        <ClCompile Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\src\Detour\DetourNode.cpp" />
+    </ItemGroup>
+    <ItemGroup>
+        <ClInclude Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\include\Recast.h" />
+        <ClInclude Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\include\RecastAlloc.h" />
+        <ClInclude Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\include\RecastAssert.h" />
+        <ClInclude Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\include\DetourAlloc.h" />
+        <ClInclude Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\include\DetourAssert.h" />
+        <ClInclude Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\include\DetourCommon.h" />
+        <ClInclude Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\include\DetourMath.h" />
+        <ClInclude Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\include\DetourNavMesh.h" />
+        <ClInclude Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\include\DetourNavMeshBuilder.h" />
+        <ClInclude Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\include\DetourNavMeshQuery.h" />
+        <ClInclude Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\include\DetourNode.h" />
+        <ClInclude Include="$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\include\DetourStatus.h" />
+    </ItemGroup>
+    <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets"/>
+</Project>

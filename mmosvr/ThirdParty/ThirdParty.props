@@ -9,7 +9,7 @@
     <ItemDefinitionGroup>
         <ClCompile>
             <AdditionalIncludeDirectories>
-                $(ThirdPartyDir)boost\include;$(ThirdPartyDir)protobuf\include;$(ThirdPartyDir)nanodbc\include;%(AdditionalIncludeDirectories)
+                $(ThirdPartyDir)boost\include;$(ThirdPartyDir)protobuf\include;$(ThirdPartyDir)nanodbc\include;$(ThirdPartyDir)recastnavigation\include;%(AdditionalIncludeDirectories)
             </AdditionalIncludeDirectories>
             <PreprocessorDefinitions>PROTOBUF_USE_DLLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
         </ClCompile>

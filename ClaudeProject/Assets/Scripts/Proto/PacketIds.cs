@@ -14,4 +14,5 @@ namespace Proto
     public partial class S_Chat { public const uint PacketId = 11; }
     public partial class S_PlayerLeave { public const uint PacketId = 12; }
     public partial class S_RequestUseSkill { public const uint PacketId = 13; }
+    public partial class S_MoveCorrection { public const uint PacketId = 14; }
 }

@@ -8,11 +8,13 @@
     <ClCompile Include="GameSession.cpp" />
     <ClCompile Include="GamePacketHandler.cpp" />
     <ClCompile Include="Services\PlayerService.cpp"><Filter>Services</Filter></ClCompile>
+    <ClCompile Include="Services\MapService.cpp"><Filter>Services</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameSession.h" />
     <ClInclude Include="GamePacketHandler.h" />
     <ClInclude Include="Services\GameService.h"><Filter>Services</Filter></ClInclude>
     <ClInclude Include="Services\PlayerService.h"><Filter>Services</Filter></ClInclude>
+    <ClInclude Include="Services\MapService.h"><Filter>Services</Filter></ClInclude>
   </ItemGroup>
 </Project>

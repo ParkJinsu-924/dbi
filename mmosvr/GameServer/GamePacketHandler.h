@@ -6,12 +6,13 @@
 #include "Network/ServerSession.h"
 #include "Server/SessionManager.h"
 #include "Services/PlayerService.h"
+#include "Services/MapService.h"
 
 
 class GamePacketHandler
 {
 public:
-	static void Init(SessionManager& sessionManager, PlayerService& playerService);
+	static void Init(SessionManager& sessionManager, PlayerService& playerService, MapService& mapService);
 
 	static void SetLoginSession(std::shared_ptr<ServerSession> session);
 
@@ -22,6 +23,7 @@ public:
 
 	static SessionManager* sSessionManager;
 	static PlayerService* sPlayerService;
+	static MapService* sMapService;
 	static std::weak_ptr<ServerSession> sLoginSession;
 	static std::mutex sPendingMutex;
 	static std::unordered_map<std::string, std::weak_ptr<GameSession>> sPendingValidations;

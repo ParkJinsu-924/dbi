@@ -2,6 +2,7 @@
 #include "GameSession.h"
 #include "GamePacketHandler.h"
 #include "Services/PlayerService.h"
+#include "Services/MapService.h"
 #include "Server/ServerBase.h"
 #include "Network/Connector.h"
 #include "Network/ServerSession.h"
@@ -23,8 +24,12 @@ protected:
 		GetServiceLocator().Register<PlayerService>(playerService);
 		playerService->Init();
 
+		auto mapService = std::make_shared<MapService>();
+		GetServiceLocator().Register<MapService>(mapService);
+		mapService->Init();
+
 		// Register packet handlers
-		GamePacketHandler::Init(GetSessionManager(), *playerService);
+		GamePacketHandler::Init(GetSessionManager(), *playerService, *mapService);
 
 		// Give GameSession access to services for disconnect handling
 		GameSession::SetServices(&GetSessionManager(), playerService.get());

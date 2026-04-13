@@ -1,4 +1,5 @@
 using UnityEngine;
+using Proto;
 
 public class NetworkPlayerSync : MonoBehaviour
 {
@@ -8,6 +9,18 @@ public class NetworkPlayerSync : MonoBehaviour
     private Vector3 lastSentPosition;
     private float lastSentYaw;
     private const float POSITION_THRESHOLD = 0.01f;
+
+    private void OnEnable()
+    {
+        if (NetworkManager.Instance != null)
+            NetworkManager.Instance.OnMoveCorrection += HandleMoveCorrection;
+    }
+
+    private void OnDisable()
+    {
+        if (NetworkManager.Instance != null)
+            NetworkManager.Instance.OnMoveCorrection -= HandleMoveCorrection;
+    }
 
     private void Update()
     {
@@ -29,5 +42,26 @@ public class NetworkPlayerSync : MonoBehaviour
             lastSentPosition = currentPos;
             lastSentYaw = currentYaw;
         }
+    }
+
+    private void HandleMoveCorrection(S_MoveCorrection pkt)
+    {
+        // Server rejected our move; snap to corrected position
+        var cc = GetComponent<CharacterController>();
+        var correctedPos = new Vector3(pkt.Position.X, pkt.Position.Y, pkt.Position.Z);
+
+        if (cc != null)
+        {
+            cc.enabled = false;
+            transform.position = correctedPos;
+            cc.enabled = true;
+        }
+        else
+        {
+            transform.position = correctedPos;
+        }
+
+        lastSentPosition = correctedPos;
+        Debug.Log($"[NetworkPlayerSync] Position corrected to {correctedPos}");
     }
 }
