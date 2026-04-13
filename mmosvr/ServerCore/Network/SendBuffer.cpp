@@ -33,20 +33,26 @@ int32 SendBufferChunk::Size() const
 
 void SendBuffer::Push(SendBufferChunkPtr chunk)
 {
-	std::scoped_lock lock(mutex_);
-	pendingChunks_.push_back(std::move(chunk));
+	pendingChunks_.WithLock([&](auto& v)
+	{
+		v.push_back(std::move(chunk));
+	});
 }
 
 std::vector<SendBufferChunkPtr> SendBuffer::PopAll()
 {
-	std::scoped_lock lock(mutex_);
-	std::vector<SendBufferChunkPtr> result;
-	result.swap(pendingChunks_);
-	return result;
+	return pendingChunks_.WithLock([](auto& v)
+	{
+		std::vector<SendBufferChunkPtr> result;
+		result.swap(v);
+		return result;
+	});
 }
 
 bool SendBuffer::Empty() const
 {
-	std::scoped_lock lock(mutex_);
-	return pendingChunks_.empty();
+	return pendingChunks_.WithLock([](const auto& v)
+	{
+		return v.empty();
+	});
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Utils/Types.h"
+#include "Utils/Synchronized.h"
 
 
 class SendBufferChunk
@@ -28,6 +29,5 @@ public:
 	bool Empty() const;
 
 private:
-	mutable std::mutex mutex_;
-	std::vector<SendBufferChunkPtr> pendingChunks_;
+	Synchronized<std::vector<SendBufferChunkPtr>, std::mutex> pendingChunks_;
 };

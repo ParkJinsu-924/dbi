@@ -4,40 +4,50 @@
 
 void SessionManager::Add(SessionPtr session)
 {
-	std::scoped_lock lock(mutex_);
-	sessions_.insert(std::move(session));
+	sessions_.Write([&](auto& set)
+	{
+		set.insert(std::move(session));
+	});
 }
 
 void SessionManager::Remove(SessionPtr session)
 {
-	std::scoped_lock lock(mutex_);
-	sessions_.erase(session);
+	sessions_.Write([&](auto& set)
+	{
+		set.erase(session);
+	});
 }
 
 void SessionManager::Broadcast(SendBufferChunkPtr chunk)
 {
-	std::scoped_lock lock(mutex_);
-	for (auto& session : sessions_)
+	sessions_.Read([&](const auto& set)
 	{
-		if (session->IsConnected())
+		for (auto& session : set)
 		{
-			session->Send(chunk);
+			if (session->IsConnected())
+			{
+				session->Send(chunk);
+			}
 		}
-	}
+	});
 }
 
 int32 SessionManager::Count() const
 {
-	std::scoped_lock lock(mutex_);
-	return static_cast<int32>(sessions_.size());
+	return sessions_.Read([](const auto& set)
+	{
+		return static_cast<int32>(set.size());
+	});
 }
 
 void SessionManager::Clear()
 {
-	std::scoped_lock lock(mutex_);
-	for (auto& session : sessions_)
+	sessions_.Write([](auto& set)
 	{
-		session->Disconnect();
-	}
-	sessions_.clear();
+		for (auto& session : set)
+		{
+			session->Disconnect();
+		}
+		set.clear();
+	});
 }

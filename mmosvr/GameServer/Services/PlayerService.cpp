@@ -14,8 +14,10 @@ void PlayerService::Update(float /*deltaTime*/)
 
 void PlayerService::Shutdown()
 {
-	std::scoped_lock lock(mutex_);
-	players_.clear();
+	players_.Write([](auto& m)
+	{
+		m.clear();
+	});
 	LOG_INFO("PlayerService shutdown");
 }
 
@@ -30,8 +32,10 @@ int32 PlayerService::AddPlayer(const std::string& name)
 	data.position.set_y(0.0f);
 	data.position.set_z(0.0f);
 
-	std::scoped_lock lock(mutex_);
-	players_[id] = std::move(data);
+	players_.Write([&](auto& m)
+	{
+		m[id] = std::move(data);
+	});
 
 	LOG_INFO("Player added: id=" + std::to_string(id) + " name=" + name);
 	return id;
@@ -39,35 +43,32 @@ int32 PlayerService::AddPlayer(const std::string& name)
 
 void PlayerService::RemovePlayer(int32 playerId)
 {
-	std::scoped_lock lock(mutex_);
-	players_.erase(playerId);
-}
-
-PlayerData* PlayerService::FindPlayer(int32 playerId)
-{
-	auto it = players_.find(playerId);
-	if (it == players_.end())
-		return nullptr;
-	return &it->second;
+	players_.Write([&](auto& m)
+	{
+		m.erase(playerId);
+	});
 }
 
 void PlayerService::MovePlayer(int32 playerId, const Proto::Vector3& newPos, float /*yaw*/)
 {
-	std::scoped_lock lock(mutex_);
-	auto it = players_.find(playerId);
-	if (it != players_.end())
+	players_.Write([&](auto& m)
 	{
-		it->second.position = newPos;
-	}
+		auto it = m.find(playerId);
+		if (it != m.end())
+		{
+			it->second.position = newPos;
+		}
+	});
 }
 
 std::vector<PlayerData> PlayerService::GetAllPlayers() const
 {
-	std::scoped_lock lock(mutex_);
-	std::vector<PlayerData> result;
-	result.reserve(players_.size());
-	for (const auto& [id, data] : players_)
-		result.push_back(data);
-	return result;
+	return players_.Read([](const auto& m)
+	{
+		std::vector<PlayerData> result;
+		result.reserve(m.size());
+		for (const auto& [id, data] : m)
+			result.push_back(data);
+		return result;
+	});
 }
-

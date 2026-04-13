@@ -7,6 +7,7 @@
 #include "Server/SessionManager.h"
 #include "Services/PlayerService.h"
 #include "Services/MapService.h"
+#include "Utils/Synchronized.h"
 
 
 class GamePacketHandler
@@ -25,6 +26,5 @@ public:
 	static PlayerService* sPlayerService;
 	static MapService* sMapService;
 	static std::weak_ptr<ServerSession> sLoginSession;
-	static std::mutex sPendingMutex;
-	static std::unordered_map<std::string, std::weak_ptr<GameSession>> sPendingValidations;
+	static Synchronized<std::unordered_map<std::string, std::weak_ptr<GameSession>>, std::mutex> sPendingValidations;
 };

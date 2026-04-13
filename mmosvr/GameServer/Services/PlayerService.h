@@ -2,8 +2,8 @@
 
 #include "GameService.h"
 #include "common.pb.h"
+#include "Utils/Synchronized.h"
 #include <unordered_map>
-#include <mutex>
 #include <atomic>
 #include <string>
 
@@ -24,13 +24,11 @@ public:
 
 	int32 AddPlayer(const std::string& name);
 	void RemovePlayer(int32 playerId);
-	PlayerData* FindPlayer(int32 playerId);
 
 	void MovePlayer(int32 playerId, const Proto::Vector3& newPos, float yaw);
 	std::vector<PlayerData> GetAllPlayers() const;
 
 private:
-	mutable std::mutex mutex_;
-	std::unordered_map<int32, PlayerData> players_;
+	Synchronized<std::unordered_map<int32, PlayerData>, std::shared_mutex> players_;
 	std::atomic<int32> nextPlayerId_{1};
 };

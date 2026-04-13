@@ -6,8 +6,7 @@ SessionManager* GamePacketHandler::sSessionManager = nullptr;
 PlayerService* GamePacketHandler::sPlayerService = nullptr;
 MapService* GamePacketHandler::sMapService = nullptr;
 std::weak_ptr<ServerSession> GamePacketHandler::sLoginSession;
-std::mutex GamePacketHandler::sPendingMutex;
-std::unordered_map<std::string, std::weak_ptr<GameSession>> GamePacketHandler::sPendingValidations;
+Synchronized<std::unordered_map<std::string, std::weak_ptr<GameSession>>, std::mutex> GamePacketHandler::sPendingValidations;
 
 void GamePacketHandler::Init(SessionManager& sessionManager, PlayerService& playerService, MapService& mapService)
 {
@@ -34,10 +33,10 @@ void GamePacketHandler::C_EnterGame(
 		return;
 	}
 
+	sPendingValidations.WithLock([&](auto& m)
 	{
-		std::scoped_lock lock(sPendingMutex);
-		sPendingValidations[pkt.token()] = session;
-	}
+		m[pkt.token()] = session;
+	});
 
 	Proto::SS_ValidateToken validatePkt;
 	validatePkt.set_token(pkt.token());
@@ -50,16 +49,20 @@ void GamePacketHandler::SS_ValidateTokenResult(
 	std::shared_ptr<ServerSession> /*session*/, const Proto::SS_ValidateTokenResult& pkt)
 {
 	std::shared_ptr<GameSession> gameSession;
+	bool found = sPendingValidations.WithLock([&](auto& m)
 	{
-		std::scoped_lock lock(sPendingMutex);
-		auto it = sPendingValidations.find(pkt.token());
-		if (it == sPendingValidations.end())
-		{
-			LOG_ERROR("No pending validation for token: " + pkt.token());
-			return;
-		}
+		auto it = m.find(pkt.token());
+		if (it == m.end())
+			return false;
 		gameSession = it->second.lock();
-		sPendingValidations.erase(it);
+		m.erase(it);
+		return true;
+	});
+
+	if (!found)
+	{
+		LOG_ERROR("No pending validation for token: " + pkt.token());
+		return;
 	}
 
 	if (!gameSession || !gameSession->IsConnected())

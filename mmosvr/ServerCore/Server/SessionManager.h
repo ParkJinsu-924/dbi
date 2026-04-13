@@ -2,7 +2,7 @@
 
 #include "Network/Session.h"
 #include "Network/SendBuffer.h"
-
+#include "Utils/Synchronized.h"
 
 class SessionManager
 {
@@ -14,6 +14,5 @@ public:
 	void Clear();
 
 private:
-	mutable std::mutex mutex_;
-	std::set<SessionPtr> sessions_;
+	Synchronized<std::set<SessionPtr>, std::shared_mutex> sessions_;
 };

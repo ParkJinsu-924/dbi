@@ -95,6 +95,7 @@
     </ItemGroup>
     <ItemGroup>
         <ClInclude Include="pch.h"/>
+        <ClInclude Include="Utils\Synchronized.h" />
         <ClInclude Include="Utils\Types.h"/>
         <ClInclude Include="Utils\Logger.h"/>
         <ClInclude Include="Network\RecvBuffer.h"/>
