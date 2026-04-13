@@ -23,7 +23,7 @@ void GamePacketHandler::SetLoginSession(std::shared_ptr<ServerSession> session)
 void GamePacketHandler::C_EnterGame(
 	std::shared_ptr<GameSession> session, const Proto::C_EnterGame& pkt)
 {
-	auto loginSession = sLoginSession.lock();
+	const auto loginSession = sLoginSession.lock();
 	if (!loginSession || !loginSession->IsConnected())
 	{
 		LOG_ERROR("LoginServer not connected, rejecting C_EnterGame");
@@ -34,9 +34,9 @@ void GamePacketHandler::C_EnterGame(
 	}
 
 	sPendingValidations.WithLock([&](auto& m)
-	{
-		m[pkt.token()] = session;
-	});
+		{
+			m[pkt.token()] = session;
+		});
 
 	Proto::SS_ValidateToken validatePkt;
 	validatePkt.set_token(pkt.token());
@@ -49,15 +49,15 @@ void GamePacketHandler::SS_ValidateTokenResult(
 	std::shared_ptr<ServerSession> /*session*/, const Proto::SS_ValidateTokenResult& pkt)
 {
 	std::shared_ptr<GameSession> gameSession;
-	bool found = sPendingValidations.WithLock([&](auto& m)
-	{
-		auto it = m.find(pkt.token());
-		if (it == m.end())
-			return false;
-		gameSession = it->second.lock();
-		m.erase(it);
-		return true;
-	});
+	const bool found = sPendingValidations.WithLock([&](auto& m)
+		{
+			auto it = m.find(pkt.token());
+			if (it == m.end())
+				return false;
+			gameSession = it->second.lock();
+			m.erase(it);
+			return true;
+		});
 
 	if (!found)
 	{
@@ -163,7 +163,7 @@ void GamePacketHandler::C_PlayerMove(
 void GamePacketHandler::C_Chat(
 	std::shared_ptr<GameSession> session, const Proto::C_Chat& pkt)
 {
-	int32 playerId = session->GetPlayerId();
+	const int32 playerId = session->GetPlayerId();
 	if (playerId == 0)
 		return;
 

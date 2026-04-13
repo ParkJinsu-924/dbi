@@ -34,25 +34,25 @@ int32 SendBufferChunk::Size() const
 void SendBuffer::Push(SendBufferChunkPtr chunk)
 {
 	pendingChunks_.WithLock([&](auto& v)
-	{
-		v.push_back(std::move(chunk));
-	});
+		{
+			v.push_back(std::move(chunk));
+		});
 }
 
 std::vector<SendBufferChunkPtr> SendBuffer::PopAll()
 {
 	return pendingChunks_.WithLock([](auto& v)
-	{
-		std::vector<SendBufferChunkPtr> result;
-		result.swap(v);
-		return result;
-	});
+		{
+			std::vector<SendBufferChunkPtr> result;
+			result.swap(v);
+			return result;
+		});
 }
 
 bool SendBuffer::Empty() const
 {
 	return pendingChunks_.WithLock([](const auto& v)
-	{
-		return v.empty();
-	});
+		{
+			return v.empty();
+		});
 }
