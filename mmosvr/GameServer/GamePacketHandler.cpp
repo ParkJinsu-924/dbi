@@ -58,7 +58,6 @@ Proto::ErrorCode GamePacketHandler::SS_ValidateTokenResult(std::shared_ptr<Serve
 
 	if (!found)
 	{
-		// Stale validation result (e.g. client disconnected). Not a server bug — log only.
 		LOG_ERROR("No pending validation for token: " + pkt.token());
 		return Proto::ErrorCode::OK;
 	}
@@ -71,8 +70,6 @@ Proto::ErrorCode GamePacketHandler::SS_ValidateTokenResult(std::shared_ptr<Serve
 
 	if (!pkt.valid())
 	{
-		// Token rejected by LoginServer — surface as S_Error to the original GameSession
-		// (not to the ServerSession this handler runs on).
 		Proto::S_Error errPkt;
 		errPkt.set_source_packet_id(static_cast<uint32>(PacketId::C_ENTER_GAME));
 		errPkt.set_code(Proto::ErrorCode::TOKEN_INVALID);
@@ -80,12 +77,13 @@ Proto::ErrorCode GamePacketHandler::SS_ValidateTokenResult(std::shared_ptr<Serve
 		LOG_INFO("Token validation failed: " + pkt.token());
 		return Proto::ErrorCode::OK;
 	}
-
+	
 	const std::string playerName = pkt.username();
-	const int32 playerId = sPlayerService->AddPlayer(playerName);
+	const auto player = sPlayerService->AddPlayer(playerName);
+	const int32 playerId = player->GetPlayerId();
 
 	gameSession->SetPlayerId(playerId);
-	gameSession->SetPlayerName(playerName);
+	player->BindSession(gameSession);
 
 	Proto::S_EnterGame response;
 	response.set_player_id(playerId);
@@ -100,9 +98,9 @@ Proto::ErrorCode GamePacketHandler::SS_ValidateTokenResult(std::shared_ptr<Serve
 	for (const auto& p : allPlayers)
 	{
 		auto* info = playerListPkt.add_players();
-		info->set_player_id(p.playerId);
-		info->set_name(p.name);
-		*info->mutable_position() = p.position;
+		info->set_player_id(p->GetPlayerId());
+		info->set_name(p->GetName());
+		*info->mutable_position() = p->GetPosition();
 	}
 	gameSession->Send(playerListPkt);
 
@@ -116,9 +114,12 @@ Proto::ErrorCode GamePacketHandler::C_PlayerMove(std::shared_ptr<GameSession> se
 	if (playerId == 0)
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
 
+	auto player = sPlayerService->FindPlayer(playerId);
+	if (!player)
+		return Proto::ErrorCode::PLAYER_NOT_FOUND;
+
 	Proto::Vector3 validatedPos = pkt.position();
 
-	// Validate against NavMesh
 	if (sMapService && sMapService->IsLoaded())
 	{
 		const float x = pkt.position().x();
@@ -134,21 +135,19 @@ Proto::ErrorCode GamePacketHandler::C_PlayerMove(std::shared_ptr<GameSession> se
 				validatedPos.set_y(outY);
 				validatedPos.set_z(outZ);
 
-				// Notify the requesting client of position correction (side-channel packet,
-				// not a request response — sent manually).
 				Proto::S_MoveCorrection correction;
 				*correction.mutable_position() = validatedPos;
 				session->Send(correction);
 			}
 			else
 			{
-				// No valid nearby position; reject the move entirely.
 				return Proto::ErrorCode::INVALID_POSITION;
 			}
 		}
 	}
 
-	sPlayerService->MovePlayer(playerId, validatedPos, pkt.yaw());
+	player->SetPosition(validatedPos);
+	player->SetYaw(pkt.yaw());
 
 	Proto::S_PlayerMove broadcast;
 	broadcast.set_player_id(playerId);
@@ -165,13 +164,17 @@ Proto::ErrorCode GamePacketHandler::C_Chat(std::shared_ptr<GameSession> session,
 	if (playerId == 0)
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
 
+	auto player = sPlayerService->FindPlayer(playerId);
+	if (!player)
+		return Proto::ErrorCode::PLAYER_NOT_FOUND;
+
 	Proto::S_Chat broadcast;
 	broadcast.set_player_id(playerId);
-	broadcast.set_sender(session->GetPlayerName());
+	broadcast.set_sender(player->GetName());
 	broadcast.set_message(pkt.message());
 
 	sSessionManager->Broadcast(session->MakeSendBuffer(broadcast));
 
-	LOG_INFO("[Chat] " + session->GetPlayerName() + ": " + pkt.message());
+	LOG_INFO("[Chat] " + player->GetName() + ": " + pkt.message());
 	return Proto::ErrorCode::OK;
 }

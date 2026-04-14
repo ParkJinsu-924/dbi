@@ -25,6 +25,13 @@ void GameSession::OnDisconnected()
 
 	if (playerId_ != 0 && sPlayerService && sSessionManager)
 	{
+		// Unbind session from Player (Player can outlive session for future reconnect)
+		if (auto player = sPlayerService->FindPlayer(playerId_))
+		{
+			player->UnbindSession();
+		}
+
+		// Remove player (immediate for now; can be delayed for reconnect window later)
 		sPlayerService->RemovePlayer(playerId_);
 
 		Proto::S_PlayerLeave leavePkt;

@@ -5,12 +5,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="GameLoop.cpp" />
+    <ClCompile Include="Player.cpp" />
     <ClCompile Include="GameSession.cpp" />
     <ClCompile Include="GamePacketHandler.cpp" />
     <ClCompile Include="Services\PlayerService.cpp"><Filter>Services</Filter></ClCompile>
     <ClCompile Include="Services\MapService.cpp"><Filter>Services</Filter></ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GameLoop.h" />
+    <ClInclude Include="Player.h" />
     <ClInclude Include="GameSession.h" />
     <ClInclude Include="GamePacketHandler.h" />
     <ClInclude Include="Services\GameService.h"><Filter>Services</Filter></ClInclude>

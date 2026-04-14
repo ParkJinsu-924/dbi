@@ -80,14 +80,18 @@
         </Link>
     </ItemDefinitionGroup>
     <ItemGroup>
+        <ClCompile Include="GameLoop.cpp"/>
         <ClCompile Include="GamePacketRegister.cpp" />
         <ClCompile Include="main.cpp"/>
+        <ClCompile Include="Player.cpp"/>
         <ClCompile Include="GameSession.cpp"/>
         <ClCompile Include="GamePacketHandler.cpp"/>
         <ClCompile Include="Services\PlayerService.cpp"/>
         <ClCompile Include="Services\MapService.cpp"/>
     </ItemGroup>
     <ItemGroup>
+        <ClInclude Include="GameLoop.h"/>
+        <ClInclude Include="Player.h"/>
         <ClInclude Include="GameSession.h"/>
         <ClInclude Include="GamePacketHandler.h"/>
         <ClInclude Include="Services\GameService.h"/>

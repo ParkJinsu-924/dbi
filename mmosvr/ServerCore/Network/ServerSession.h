@@ -6,7 +6,7 @@
 
 class ServerSession : public PacketSession
 {
-public:
+protected:
 	using PacketSession::PacketSession;
 
 	void OnConnected() override;

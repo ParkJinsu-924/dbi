@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "GameSession.h"
 #include "GamePacketHandler.h"
+#include "GameLoop.h"
 #include "Services/PlayerService.h"
 #include "Services/MapService.h"
 #include "Server/ServerBase.h"
@@ -19,7 +20,6 @@ public:
 protected:
 	void Init() override
 	{
-		// Register game services
 		auto playerService = std::make_shared<PlayerService>();
 		GetServiceLocator().Register<PlayerService>(playerService);
 		playerService->Init();
@@ -28,13 +28,15 @@ protected:
 		GetServiceLocator().Register<MapService>(mapService);
 		mapService->Init();
 
-		// Register packet handlers
 		GamePacketHandler::Init(GetSessionManager(), *playerService, *mapService);
 
-		// Give GameSession access to services for disconnect handling
 		GameSession::SetServices(&GetSessionManager(), playerService.get());
 
-		// Connect to LoginServer for token validation
+		gameLoop_ = std::make_unique<GameLoop>(100);
+		gameLoop_->AddService(playerService, 0.05f);  // 20 Hz
+		gameLoop_->AddService(mapService, 0.01f);      // 100 Hz
+		gameLoop_->Start();
+
 		ConnectToLoginServer();
 
 		LOG_INFO("GameServer initialized on port " + std::to_string(port_));
@@ -66,6 +68,7 @@ private:
 		connector_->Connect(endpoint);
 	}
 
+	std::unique_ptr<GameLoop> gameLoop_;
 	std::unique_ptr<Connector> connector_;
 	std::shared_ptr<ServerSession> loginSession_;
 };

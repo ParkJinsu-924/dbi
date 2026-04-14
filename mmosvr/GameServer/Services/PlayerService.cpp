@@ -21,24 +21,18 @@ void PlayerService::Shutdown()
 	LOG_INFO("PlayerService shutdown");
 }
 
-int32 PlayerService::AddPlayer(const std::string& name)
+std::shared_ptr<Player> PlayerService::AddPlayer(const std::string& name)
 {
 	int32 id = nextPlayerId_.fetch_add(1);
-
-	PlayerData data;
-	data.playerId = id;
-	data.name = name;
-	data.position.set_x(0.0f);
-	data.position.set_y(0.0f);
-	data.position.set_z(0.0f);
+	auto player = std::make_shared<Player>(id, name);
 
 	players_.Write([&](auto& m)
 		{
-			m[id] = std::move(data);
+			m[id] = player;
 		});
 
 	LOG_INFO("Player added: id=" + std::to_string(id) + " name=" + name);
-	return id;
+	return player;
 }
 
 void PlayerService::RemovePlayer(int32 playerId)
@@ -49,26 +43,25 @@ void PlayerService::RemovePlayer(int32 playerId)
 		});
 }
 
-void PlayerService::MovePlayer(int32 playerId, const Proto::Vector3& newPos, float /*yaw*/)
+std::shared_ptr<Player> PlayerService::FindPlayer(int32 playerId) const
 {
-	players_.Write([&](auto& m)
+	return players_.Read([&](const auto& m) -> std::shared_ptr<Player>
 		{
 			auto it = m.find(playerId);
 			if (it != m.end())
-			{
-				it->second.position = newPos;
-			}
+				return it->second;
+			return nullptr;
 		});
 }
 
-std::vector<PlayerData> PlayerService::GetAllPlayers() const
+std::vector<std::shared_ptr<Player>> PlayerService::GetAllPlayers() const
 {
 	return players_.Read([](const auto& m)
 		{
-			std::vector<PlayerData> result;
+			std::vector<std::shared_ptr<Player>> result;
 			result.reserve(m.size());
-			for (const auto& [id, data] : m)
-				result.push_back(data);
+			for (const auto& [id, player] : m)
+				result.push_back(player);
 			return result;
 		});
 }
