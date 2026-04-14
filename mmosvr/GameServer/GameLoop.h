@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Services/GameService.h"
+#include "Utils/JobQueue.h"
 #include <vector>
 #include <memory>
 #include <thread>
@@ -14,10 +15,11 @@ public:
 	GameLoop(const GameLoop&) = delete;
 	GameLoop& operator=(const GameLoop&) = delete;
 
-	// interval: seconds between Update calls for this service (e.g., 0.05f = 20Hz)
 	void AddService(std::shared_ptr<GameService> service, float interval);
 	void Start();
 	void Stop();
+
+	JobQueue& GetJobQueue() { return jobQueue_; }
 
 private:
 	struct ServiceEntry
@@ -31,5 +33,6 @@ private:
 
 	int32 tickRate_;
 	std::vector<ServiceEntry> services_;
+	JobQueue jobQueue_;
 	std::jthread thread_;
 };

@@ -4,6 +4,7 @@
 #include "Packet/PacketIdTraits.h"
 #include "Utils/Logger.h"
 #include "Utils/TSingleton.h"
+#include "Utils/JobQueue.h"
 #include "common.pb.h"
 #include "game.pb.h"
 #include <google/protobuf/message.h>
@@ -24,17 +25,11 @@ concept PacketSessionType = std::derived_from<T, PacketSession>;
 class PacketHandler : public TSingleton<PacketHandler>
 {
 public:
-	// Register a handler that returns ErrorCode.
-	// On non-OK return, an S_Error packet is automatically sent back to the requesting session
-	// with source_packet_id set to the request's PacketId.
-	//
-	// Convention:
-	//   - Handlers should EARLY RETURN on error — do NOT send any response packet before
-	//     returning a non-OK code (otherwise the client receives both partial response and S_Error).
-	//   - For broadcast/receive-only handlers (e.g. C_PlayerMove, SS_*), return OK after
-	//     completing the side effect; non-OK is reserved for actual failures.
-	//   - For ServerSession handlers, returning non-OK sends S_Error back to the peer server,
-	//     which is intentional for surfacing protocol bugs in server-to-server links.
+	// When a JobQueue is set, Dispatch enqueues handler execution for deferred
+	// processing (GameLoop thread). When null, handlers execute immediately on
+	// the calling I/O thread (LoginServer path).
+	void SetJobQueue(JobQueue* queue) { jobQueue_ = queue; }
+
 	template<ProtoMessage MsgT, PacketSessionType SessionT>
 	void Register(Proto::ErrorCode (*handler)(std::shared_ptr<SessionT>, const MsgT&))
 	{
@@ -70,4 +65,5 @@ private:
 		std::shared_ptr<PacketSession>, const char*, int32)>;
 
 	std::unordered_map<uint16, RawHandler> handlers_;
+	JobQueue* jobQueue_ = nullptr;
 };
