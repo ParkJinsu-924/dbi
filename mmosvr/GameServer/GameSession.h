@@ -8,13 +8,14 @@ class PlayerService;
 
 class GameSession : public PacketSession
 {
-public:
+protected:
 	using PacketSession::PacketSession;
 
 	void OnConnected() override;
 	void OnDisconnected() override;
 	void OnRecvPacket(uint16 packetId, const char* payload, int32 payloadSize) override;
 
+public:
 	int32 GetPlayerId() const { return playerId_; }
 	void SetPlayerId(int32 id) { playerId_ = id; }
 	const std::string& GetPlayerName() const { return playerName_; }
