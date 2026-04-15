@@ -14,9 +14,9 @@ GameLoop::~GameLoop()
 	Stop();
 }
 
-void GameLoop::AddService(std::shared_ptr<GameService> service, float interval)
+void GameLoop::AddService(GameService& service, float interval)
 {
-	services_.push_back({ std::move(service), interval, 0.0f });
+	services_.push_back({ &service, interval, 0.0f });
 }
 
 void GameLoop::Start()

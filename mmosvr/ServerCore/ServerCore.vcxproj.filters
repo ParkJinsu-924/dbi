@@ -36,7 +36,6 @@
     <ClInclude Include="Packet\PacketIdTraits.h"><Filter>Packet</Filter></ClInclude>
     <ClInclude Include="Packet\PacketHandler.h"><Filter>Packet</Filter></ClInclude>
     <ClInclude Include="Server\ServerBase.h"><Filter>Server</Filter></ClInclude>
-    <ClInclude Include="Server\ServiceLocator.h"><Filter>Server</Filter></ClInclude>
     <ClInclude Include="Server\SessionManager.h"><Filter>Server</Filter></ClInclude>
   </ItemGroup>
 </Project>

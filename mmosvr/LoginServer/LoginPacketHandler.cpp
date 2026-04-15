@@ -1,19 +1,8 @@
 #include "pch.h"
 #include "LoginPacketHandler.h"
+#include "TokenStore.h"
 
-
-TokenStore* LoginPacketHandler::sTokenStore = nullptr;
-
-void LoginPacketHandler::Init(TokenStore& tokenStore)
-{
-	sTokenStore = &tokenStore;
-
-	auto& handler = PacketHandler::Instance();
-	handler.Register<Proto::C_Login, LoginSession>(&HandleLogin);
-	handler.Register<Proto::SS_ValidateToken, LoginSession>(&HandleValidateToken);
-}
-
-Proto::ErrorCode LoginPacketHandler::HandleLogin(
+Proto::ErrorCode LoginPacketHandler::C_Login(
 	std::shared_ptr<LoginSession> session, const Proto::C_Login& pkt)
 {
 	LOG_INFO("Login attempt: username=" + pkt.username());
@@ -22,7 +11,7 @@ Proto::ErrorCode LoginPacketHandler::HandleLogin(
 		return Proto::ErrorCode::INVALID_REQUEST;
 
 	const std::string token = "token_" + pkt.username();
-	sTokenStore->Store(token, pkt.username());
+	GetTokenStore().Store(token, pkt.username());
 
 	Proto::S_Login response;
 	response.set_token(token);
@@ -34,7 +23,7 @@ Proto::ErrorCode LoginPacketHandler::HandleLogin(
 	return Proto::ErrorCode::OK;
 }
 
-Proto::ErrorCode LoginPacketHandler::HandleValidateToken(
+Proto::ErrorCode LoginPacketHandler::SS_ValidateToken(
 	std::shared_ptr<LoginSession> session, const Proto::SS_ValidateToken& pkt)
 {
 	LOG_INFO("Token validation request: token=" + pkt.token());
@@ -43,7 +32,7 @@ Proto::ErrorCode LoginPacketHandler::HandleValidateToken(
 	result.set_token(pkt.token());
 
 	std::string username;
-	if (sTokenStore->Validate(pkt.token(), username))
+	if (GetTokenStore().Validate(pkt.token(), username))
 	{
 		result.set_valid(true);
 		result.set_username(username);
@@ -54,7 +43,7 @@ Proto::ErrorCode LoginPacketHandler::HandleValidateToken(
 		result.set_valid(false);
 		LOG_INFO("Token invalid: " + pkt.token());
 	}
-
+	
 	session->Send(result);
 	return Proto::ErrorCode::OK;
 }

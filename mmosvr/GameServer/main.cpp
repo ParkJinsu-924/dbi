@@ -5,6 +5,7 @@
 #include "Services/PlayerService.h"
 #include "Services/MapService.h"
 #include "Server/ServerBase.h"
+#include "Server/SessionManager.h"
 #include "Network/Connector.h"
 #include "Network/ServerSession.h"
 
@@ -20,21 +21,12 @@ public:
 protected:
 	void Init() override
 	{
-		auto playerService = std::make_shared<PlayerService>();
-		GetServiceLocator().Register<PlayerService>(playerService);
-		playerService->Init();
-
-		auto mapService = std::make_shared<MapService>();
-		GetServiceLocator().Register<MapService>(mapService);
-		mapService->Init();
-
-		GamePacketHandler::Init(GetSessionManager(), *playerService, *mapService);
-
-		GameSession::SetServices(&GetSessionManager(), playerService.get());
+		GetPlayerService().Init();
+		GetMapService().Init();
 
 		gameLoop_ = std::make_unique<GameLoop>(100);
-		gameLoop_->AddService(playerService, 0.05f);  // 20 Hz
-		gameLoop_->AddService(mapService, 0.01f);      // 100 Hz
+		gameLoop_->AddService(GetPlayerService(), 0.05f);  // 20 Hz
+		gameLoop_->AddService(GetMapService(), 0.01f);      // 100 Hz
 		gameLoop_->Start();
 
 		ConnectToLoginServer();
@@ -45,7 +37,7 @@ protected:
 	SessionPtr CreateSession(tcp::socket socket, net::io_context& ioc) override
 	{
 		auto session = std::make_shared<GameSession>(std::move(socket), ioc);
-		GetSessionManager().Add(session);
+		GetSessionManager().AddGameSession(session);
 		return session;
 	}
 
@@ -53,24 +45,36 @@ private:
 	void ConnectToLoginServer()
 	{
 		auto& ioc = ioPool_.GetNextIoContext();
-		connector_ = std::make_unique<Connector>(ioc,
-			[this](tcp::socket socket, net::io_context& ioc) -> SessionPtr
+		
+		Connector::Config config;
+		config.endpoint = tcp::endpoint(net::ip::make_address("127.0.0.1"), 9999);
+		config.interval = std::chrono::milliseconds(2000);
+		config.autoReconnect = true;
+		config.sessionFactory = [](tcp::socket socket, net::io_context& ioc) -> SessionPtr
 			{
-				auto session = std::make_shared<ServerSession>(std::move(socket), ioc);
-				loginSession_ = session;
-				GamePacketHandler::SetLoginServerSession(session);
+				return std::make_shared<ServerSession>(std::move(socket), ioc);
+			};
+
+		loginConnector_ = Connector::Create(ioc, config);
+		
+		loginConnector_->SetOnConnected([](const SessionPtr& session)
+			{
+				auto serverSession = std::static_pointer_cast<ServerSession>(session);
+				GetSessionManager().SetServerSession(ServerType::LoginServer, serverSession);
 				LOG_INFO("Connected to LoginServer");
-				return session;
 			});
 
-		auto endpoint = tcp::endpoint(
-			net::ip::make_address("127.0.0.1"), 9999);
-		connector_->Connect(endpoint);
+		loginConnector_->SetOnDisconnected([]()
+			{
+				GetSessionManager().ClearServerSession(ServerType::LoginServer);
+				LOG_WARN("LoginServer disconnected, reconnecting...");
+			});
+
+		loginConnector_->Start();
 	}
 
 	std::unique_ptr<GameLoop> gameLoop_;
-	std::unique_ptr<Connector> connector_;
-	std::shared_ptr<ServerSession> loginSession_;
+	std::shared_ptr<Connector> loginConnector_;
 };
 
 

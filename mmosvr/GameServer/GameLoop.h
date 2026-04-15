@@ -3,7 +3,6 @@
 #include "Services/GameService.h"
 #include "Utils/JobQueue.h"
 #include <vector>
-#include <memory>
 #include <thread>
 
 class GameLoop
@@ -15,7 +14,7 @@ public:
 	GameLoop(const GameLoop&) = delete;
 	GameLoop& operator=(const GameLoop&) = delete;
 
-	void AddService(std::shared_ptr<GameService> service, float interval);
+	void AddService(GameService& service, float interval);
 	void Start();
 	void Stop();
 
@@ -24,7 +23,7 @@ public:
 private:
 	struct ServiceEntry
 	{
-		std::shared_ptr<GameService> service;
+		GameService* service = nullptr;
 		float interval = 0.0f;
 		float accumulated = 0.0f;
 	};

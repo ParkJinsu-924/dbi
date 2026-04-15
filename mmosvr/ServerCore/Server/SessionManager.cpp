@@ -1,8 +1,9 @@
 #include "pch.h"
 #include "Server/SessionManager.h"
+#include "Network/ServerSession.h"
 
 
-void SessionManager::Add(SessionPtr session)
+void SessionManager::AddGameSession(SessionPtr session)
 {
 	sessions_.Write([&](auto& set)
 		{
@@ -10,7 +11,7 @@ void SessionManager::Add(SessionPtr session)
 		});
 }
 
-void SessionManager::Remove(SessionPtr session)
+void SessionManager::RemoveGameSession(SessionPtr session)
 {
 	sessions_.Write([&](auto& set)
 		{
@@ -18,7 +19,7 @@ void SessionManager::Remove(SessionPtr session)
 		});
 }
 
-void SessionManager::Broadcast(SendBufferChunkPtr chunk)
+void SessionManager::BroadcastToGameSessions(SendBufferChunkPtr chunk)
 {
 	sessions_.Read([&](const auto& set)
 		{
@@ -32,7 +33,7 @@ void SessionManager::Broadcast(SendBufferChunkPtr chunk)
 		});
 }
 
-int32 SessionManager::Count() const
+int32 SessionManager::GetGameSessionsCount() const
 {
 	return sessions_.Read([](const auto& set)
 		{
@@ -40,7 +41,7 @@ int32 SessionManager::Count() const
 		});
 }
 
-void SessionManager::Clear()
+void SessionManager::ClearGameSessions()
 {
 	sessions_.Write([](auto& set)
 		{
@@ -49,5 +50,32 @@ void SessionManager::Clear()
 				session->Disconnect();
 			}
 			set.clear();
+		});
+}
+
+void SessionManager::SetServerSession(ServerType type, std::shared_ptr<ServerSession> session)
+{
+	serverSession_.WithLock([&](auto& set)
+		{
+			set[type] = std::move(session);
+		});
+}
+
+void SessionManager::ClearServerSession(ServerType type)
+{
+	serverSession_.WithLock([&](auto& set)
+		{
+			set.erase(type);
+		});
+}
+
+std::shared_ptr<ServerSession> SessionManager::GetServerSession(ServerType type) const
+{
+	return serverSession_.WithLock([&](auto& set) -> std::shared_ptr<ServerSession>
+		{
+			auto it = set.find(type);
+			if (it == set.end())
+				return nullptr;
+			return it->second.lock();
 		});
 }

@@ -3,16 +3,45 @@
 #include "Network/Session.h"
 
 
-class Connector
+class Connector : public std::enable_shared_from_this<Connector>
 {
 public:
 	using SessionFactory = std::function<SessionPtr(tcp::socket, net::io_context&)>;
+	using ConnectedCallback = std::function<void(SessionPtr)>;
+	using DisconnectedCallback = std::function<void()>;
 
-	Connector(net::io_context& ioc, SessionFactory factory);
+	struct Config
+	{
+		tcp::endpoint endpoint;
+		std::chrono::milliseconds interval;
+		bool autoReconnect{true};
+		SessionFactory sessionFactory;
+	};
 
-	void Connect(const tcp::endpoint& endpoint);
+	static std::shared_ptr<Connector> Create(
+		net::io_context& ioc,
+		const Config& config = {});
+
+	void Start();
+	void Stop();
+
+	void SetOnConnected(ConnectedCallback cb);
+	void SetOnDisconnected(DisconnectedCallback cb);
 
 private:
+	Connector(net::io_context& ioc, const Config& config);
+
+	void DoConnect();
+	void ScheduleReconnect();
+	void OnSessionDisconnected();
+
 	net::io_context& ioc_;
-	SessionFactory sessionFactory_;
+	Config config_;
+	net::steady_timer timer_;
+
+	std::atomic<bool> running_{false};
+	std::weak_ptr<Session> activeSession_;
+
+	ConnectedCallback onConnected_;
+	DisconnectedCallback onDisconnected_;
 };

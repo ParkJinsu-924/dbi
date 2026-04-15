@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameService.h"
+#include "Utils/TSingleton.h"
 #include <vector>
 #include <string>
 #include <cstdint>
@@ -8,7 +9,9 @@
 class dtNavMesh;
 class dtNavMeshQuery;
 
-class MapService : public GameService
+#define GetMapService() MapService::Instance()
+
+class MapService : public TSingleton<MapService>, public GameService
 {
 public:
 	void Init() override;

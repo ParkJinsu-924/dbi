@@ -30,3 +30,4 @@ using uint64 = std::uint64_t;
 
 namespace net = boost::asio;
 using tcp = net::ip::tcp;
+using udp = net::ip::udp;

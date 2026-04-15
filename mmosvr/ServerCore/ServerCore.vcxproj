@@ -111,7 +111,6 @@
         <ClInclude Include="Packet\PacketIdTraits.h"/>
         <ClInclude Include="Packet\PacketHandler.h"/>
         <ClInclude Include="Server\ServerBase.h"/>
-        <ClInclude Include="Server\ServiceLocator.h"/>
         <ClInclude Include="Server\SessionManager.h"/>
         <ClInclude Include="Database\DbConnection.h"/>
         <ClInclude Include="Database\DbResult.h"/>

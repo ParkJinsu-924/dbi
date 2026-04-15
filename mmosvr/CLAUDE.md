@@ -137,5 +137,5 @@ GameServer connects to LoginServer on startup via `Connector`. The token validat
 
 ## Known Limitations
 
-- No reconnect logic for GameServer→LoginServer link; if it drops, `C_EnterGame` fails until restart
+- ~~No reconnect logic for GameServer→LoginServer link~~ — `PersistentConnector` handles auto-reconnect with exponential backoff
 - Token auth is a stub: any non-empty username+password accepted, tokens never expire

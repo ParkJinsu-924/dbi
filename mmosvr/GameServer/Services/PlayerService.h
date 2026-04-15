@@ -3,12 +3,15 @@
 #include "GameService.h"
 #include "Player.h"
 #include "Utils/Synchronized.h"
+#include "Utils/TSingleton.h"
 #include <unordered_map>
 #include <atomic>
 #include <string>
 
 
-class PlayerService : public GameService
+#define GetPlayerService() PlayerService::Instance()
+
+class PlayerService : public TSingleton<PlayerService>, public GameService
 {
 public:
 	void Init() override;

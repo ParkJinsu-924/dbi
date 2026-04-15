@@ -15,6 +15,7 @@ public:
 	bool IsConnected() const;
 
 	void Send(SendBufferChunkPtr chunk);
+	void SetDisconnectCallback(std::function<void()> cb);
 
 	tcp::socket& GetSocket() { return socket_; }
 
@@ -38,6 +39,7 @@ private:
 	SendBuffer sendBuffer_;
 	std::atomic<bool> connected_{false};
 	std::atomic<bool> writeInProgress_{false};
+	std::function<void()> disconnectCallback_;
 };
 
 using SessionPtr = std::shared_ptr<Session>;

@@ -78,6 +78,7 @@
         </Link>
     </ItemDefinitionGroup>
     <ItemGroup>
+        <ClCompile Include="LoginPacketRegister.cpp" />
         <ClCompile Include="main.cpp"/>
         <ClCompile Include="LoginSession.cpp"/>
         <ClCompile Include="LoginPacketHandler.cpp"/>

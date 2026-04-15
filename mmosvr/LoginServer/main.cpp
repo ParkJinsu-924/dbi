@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "LoginSession.h"
 #include "LoginPacketHandler.h"
-#include "TokenStore.h"
 #include "Server/ServerBase.h"
 
 
@@ -16,20 +15,16 @@ public:
 protected:
 	void Init() override
 	{
-		tokenStore_ = std::make_shared<TokenStore>();
-		LoginPacketHandler::Init(*tokenStore_);
 		LOG_INFO("LoginServer initialized on port " + std::to_string(port_));
 	}
 
 	SessionPtr CreateSession(tcp::socket socket, net::io_context& ioc) override
 	{
 		auto session = std::make_shared<LoginSession>(std::move(socket), ioc);
-		GetSessionManager().Add(session);
+		GetSessionManager().AddGameSession(session);
 		return session;
 	}
 
-private:
-	std::shared_ptr<TokenStore> tokenStore_;
 };
 
 

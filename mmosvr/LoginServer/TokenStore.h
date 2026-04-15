@@ -2,9 +2,12 @@
 
 #include "Utils/Types.h"
 #include "Utils/Synchronized.h"
+#include "Utils/TSingleton.h"
 
 
-class TokenStore
+#define GetTokenStore() TokenStore::Instance()
+
+class TokenStore : public TSingleton<TokenStore>
 {
 public:
 	void Store(const std::string& token, const std::string& username)

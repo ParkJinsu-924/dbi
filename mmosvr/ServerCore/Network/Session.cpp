@@ -31,11 +31,19 @@ void Session::Disconnect()
 	socket_.close(ec);
 
 	OnDisconnected();
+
+	if (disconnectCallback_)
+		disconnectCallback_();
 }
 
 bool Session::IsConnected() const
 {
 	return connected_;
+}
+
+void Session::SetDisconnectCallback(std::function<void()> cb)
+{
+	disconnectCallback_ = std::move(cb);
 }
 
 void Session::Send(SendBufferChunkPtr chunk)
