@@ -2,6 +2,7 @@
 #include "GameSession.h"
 #include "GamePacketHandler.h"
 #include "GameLoop.h"
+#include "ZoneManager.h"
 #include "Services/PlayerService.h"
 #include "Services/MapService.h"
 #include "Server/ServerBase.h"
@@ -23,6 +24,7 @@ protected:
 	{
 		GetPlayerService().Init();
 		GetMapService().Init();
+		GetZoneManager().Init();
 
 		gameLoop_ = std::make_unique<GameLoop>(100);
 		gameLoop_->AddService(GetPlayerService(), 0.05f);  // 20 Hz

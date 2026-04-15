@@ -86,6 +86,8 @@
         <ClCompile Include="Player.cpp"/>
         <ClCompile Include="GameSession.cpp"/>
         <ClCompile Include="GamePacketHandler.cpp"/>
+        <ClCompile Include="Zone.cpp"/>
+        <ClCompile Include="ZoneManager.cpp"/>
         <ClCompile Include="Services\PlayerService.cpp"/>
         <ClCompile Include="Services\MapService.cpp"/>
     </ItemGroup>
@@ -94,6 +96,10 @@
         <ClInclude Include="Player.h"/>
         <ClInclude Include="GameSession.h"/>
         <ClInclude Include="GamePacketHandler.h"/>
+        <ClInclude Include="Monster.h"/>
+        <ClInclude Include="Npc.h"/>
+        <ClInclude Include="Zone.h"/>
+        <ClInclude Include="ZoneManager.h"/>
         <ClInclude Include="Services\GameService.h"/>
         <ClInclude Include="Services\PlayerService.h"/>
         <ClInclude Include="Services\MapService.h"/>

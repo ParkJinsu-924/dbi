@@ -4,6 +4,7 @@
 #include "Server/SessionManager.h"
 #include "Services/PlayerService.h"
 #include "Services/MapService.h"
+#include "ZoneManager.h"
 
 
 Synchronized<std::unordered_map<std::string, std::weak_ptr<GameSession>>, std::mutex> GamePacketHandler::sPendingValidations;
@@ -71,6 +72,11 @@ Proto::ErrorCode GamePacketHandler::SS_ValidateTokenResult(std::shared_ptr<Serve
 
 	gameSession->SetPlayerId(playerId);
 	player->BindSession(gameSession);
+
+	// Put the player into the default zone
+	player->SetZoneId(DEFAULT_ZONE_ID);
+	if (auto* zone = GetZoneManager().GetZone(DEFAULT_ZONE_ID))
+		zone->AddPlayer(player);
 
 	Proto::S_EnterGame response;
 	response.set_player_id(playerId);
@@ -142,7 +148,8 @@ Proto::ErrorCode GamePacketHandler::C_PlayerMove(std::shared_ptr<GameSession> se
 	*broadcast.mutable_position() = validatedPos;
 	broadcast.set_yaw(pkt.yaw());
 
-	GetSessionManager().BroadcastToGameSessions(session->MakeSendBuffer(broadcast));
+	if (auto* zone = GetZoneManager().GetZone(player->GetZoneId()))
+		zone->Broadcast(session->MakeSendBuffer(broadcast));
 	return Proto::ErrorCode::OK;
 }
 
@@ -161,7 +168,8 @@ Proto::ErrorCode GamePacketHandler::C_Chat(std::shared_ptr<GameSession> session,
 	broadcast.set_sender(player->GetName());
 	broadcast.set_message(pkt.message());
 
-	GetSessionManager().BroadcastToGameSessions(session->MakeSendBuffer(broadcast));
+	if (auto* zone = GetZoneManager().GetZone(player->GetZoneId()))
+		zone->Broadcast(session->MakeSendBuffer(broadcast));
 
 	LOG_INFO("[Chat] " + player->GetName() + ": " + pkt.message());
 	return Proto::ErrorCode::OK;

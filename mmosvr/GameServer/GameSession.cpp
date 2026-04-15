@@ -2,6 +2,7 @@
 #include "GameSession.h"
 #include "Services/PlayerService.h"
 #include "Server/SessionManager.h"
+#include "ZoneManager.h"
 #include "game.pb.h"
 
 
@@ -17,16 +18,24 @@ void GameSession::OnDisconnected()
 	if (playerId_ != 0)
 	{
 		auto& playerService = GetPlayerService();
+		int32 zoneId = 0;
+
 		if (auto player = playerService.FindPlayer(playerId_))
 		{
+			zoneId = player->GetZoneId();
 			player->UnbindSession();
 		}
+
+		// Remove from zone first so the leave broadcast doesn't target this player
+		if (auto* zone = GetZoneManager().GetZone(zoneId))
+			zone->RemovePlayer(playerId_);
 
 		playerService.RemovePlayer(playerId_);
 
 		Proto::S_PlayerLeave leavePkt;
 		leavePkt.set_player_id(playerId_);
-		GetSessionManager().BroadcastToGameSessions(MakeSendBuffer(leavePkt));
+		if (auto* zone = GetZoneManager().GetZone(zoneId))
+			zone->Broadcast(MakeSendBuffer(leavePkt));
 	}
 
 	GetSessionManager().RemoveGameSession(shared_from_this());
