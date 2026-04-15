@@ -2,13 +2,13 @@
 setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
-rem === 1. Locate a real Python (reject Microsoft Store WindowsApps stub) ===
+rem === 1. Locate a real Python ===
 call :find_python
 if defined PY_INVOKE goto :have_python
 
 rem === 2. Python not found — offer to install via winget ===
-echo [WARN] Python not found in PATH.
-echo         ^(Microsoft Store aliases under WindowsApps\ are not real installs.^)
+echo [WARN] Python not found in PATH or known install locations.
+echo         ^(If you just installed Python, close this window and open a new cmd.^)
 echo.
 
 where winget >nul 2>&1
@@ -38,25 +38,19 @@ if errorlevel 1 (
     exit /b 1
 )
 
-rem === 3. Locate freshly installed Python (user-scope default path) ===
-rem    PATH in the current session is NOT refreshed by winget, so probe the
-rem    well-known install directory directly.
-for %%V in (313 312 311 310) do (
-    if not defined PY_INVOKE if exist "%LOCALAPPDATA%\Programs\Python\Python%%V\python.exe" (
-        set PY_INVOKE="%LOCALAPPDATA%\Programs\Python\Python%%V\python.exe"
-    )
-)
-
-if not defined PY_INVOKE (
+rem === 3. Re-locate Python after install (current session's PATH is stale) ===
+call :find_python
+if defined PY_INVOKE (
+    echo [OK] Using !PY_INVOKE!
     echo.
-    echo [OK] Python was installed, but this terminal's PATH isn't refreshed yet.
-    echo      Close this window, open a new terminal, and run this batch again.
-    pause
-    exit /b 0
+    goto :have_python
 )
 
-echo [OK] Using !PY_INVOKE!
 echo.
+echo [OK] Python was installed, but it couldn't be located automatically.
+echo      Close this window, open a new terminal, and run this batch again.
+pause
+exit /b 0
 
 :have_python
 
@@ -96,11 +90,31 @@ rem  Subroutines
 rem =========================================================================
 :find_python
 set "PY_INVOKE="
+
+rem --- Strategy 1: python.exe in PATH (reject MS Store WindowsApps stubs) ---
 for /f "delims=" %%P in ('where python 2^>nul') do (
     echo %%P | findstr /i "WindowsApps" >nul
     if !errorlevel! neq 0 if not defined PY_INVOKE set PY_INVOKE="%%P"
 )
+
+rem --- Strategy 2: py launcher in PATH ---
 if not defined PY_INVOKE (
-    where py >nul 2>&1 && set "PY_INVOKE=py -3"
+    where py >nul 2>&1
+    if !errorlevel! equ 0 set "PY_INVOKE=py -3"
 )
+
+rem --- Strategy 3: user-scope install dir (winget --scope user / python.org per-user) ---
+if not defined PY_INVOKE (
+    for %%V in (313 312 311 310 39) do (
+        if not defined PY_INVOKE if exist "%LOCALAPPDATA%\Programs\Python\Python%%V\python.exe" set PY_INVOKE="%LOCALAPPDATA%\Programs\Python\Python%%V\python.exe"
+    )
+)
+
+rem --- Strategy 4: system-wide install dir (python.org all-users / winget default) ---
+if not defined PY_INVOKE (
+    for %%V in (313 312 311 310 39) do (
+        if not defined PY_INVOKE if exist "%ProgramFiles%\Python%%V\python.exe" set PY_INVOKE="%ProgramFiles%\Python%%V\python.exe"
+    )
+)
+
 goto :eof

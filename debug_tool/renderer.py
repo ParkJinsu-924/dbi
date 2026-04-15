@@ -3,7 +3,7 @@
 
 Draws:
   - Red circle: the local player (you)
-  - Black circles: other players
+  - Blue circles: other players
   - (Future) Squares: monsters/NPCs
 
 Coordinate transform: world (x, z) on GameServer maps to screen (x, y) with
@@ -15,7 +15,7 @@ import pygame
 BG_COLOR = (30, 30, 35)
 GRID_COLOR = (55, 55, 65)
 ME_COLOR = (220, 60, 60)
-OTHER_COLOR = (20, 20, 20)
+OTHER_COLOR = (60, 120, 220)
 MONSTER_COLOR = (60, 200, 90)
 TEXT_COLOR = (220, 220, 220)
 
