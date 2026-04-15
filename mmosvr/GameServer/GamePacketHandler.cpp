@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "GamePacketHandler.h"
 #include "Packet/PacketUtils.h"
+#include "Packet/PacketHandler.h"
 #include "Server/SessionManager.h"
 #include "Services/PlayerService.h"
 #include "Services/MapService.h"
@@ -31,37 +32,34 @@ Proto::ErrorCode GamePacketHandler::C_EnterGame(std::shared_ptr<GameSession> ses
 	return Proto::ErrorCode::OK;
 }
 
-Proto::ErrorCode GamePacketHandler::SS_ValidateTokenResult(std::shared_ptr<ServerSession> /*session*/, const Proto::SS_ValidateTokenResult& pkt)
+Proto::ErrorCode GamePacketHandler::SS_ValidateToken(std::shared_ptr<ServerSession> /*session*/, const Proto::SS_ValidateTokenResult& pkt)
 {
 	std::shared_ptr<GameSession> gameSession;
-	const bool found = sPendingValidations.WithLock([&](auto& m)
+	sPendingValidations.WithLock([&](auto& m)
 		{
 			auto it = m.find(pkt.token());
 			if (it == m.end())
-				return false;
+				return;
+		
 			gameSession = it->second.lock();
 			m.erase(it);
-			return true;
 		});
 
-	if (!found)
+	if (!gameSession)
 	{
 		LOG_ERROR("No pending validation for token: " + pkt.token());
 		return Proto::ErrorCode::OK;
 	}
 
-	if (!gameSession || !gameSession->IsConnected())
+	if (!gameSession->IsConnected())
 	{
 		LOG_INFO("Client disconnected before token validation completed");
 		return Proto::ErrorCode::OK;
 	}
 
 	if (!pkt.valid())
-	{
-		Proto::S_Error errPkt;
-		errPkt.set_source_packet_id(static_cast<uint32>(PacketId::C_ENTER_GAME));
-		errPkt.set_code(Proto::ErrorCode::TOKEN_INVALID);
-		gameSession->Send(errPkt);
+	{ // In this time, LoginServer <-> GameServer
+		SendErrorTo<Proto::C_EnterGame>(gameSession, Proto::ErrorCode::TOKEN_INVALID);
 		LOG_INFO("Token validation failed: " + pkt.token());
 		return Proto::ErrorCode::OK;
 	}

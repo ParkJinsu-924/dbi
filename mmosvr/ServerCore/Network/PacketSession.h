@@ -3,7 +3,7 @@
 #include "Network/Session.h"
 #include "Packet/PacketHeader.h"
 #include "Packet/PacketIdTraits.h"
-#include <google/protobuf/message.h>
+#include "common.pb.h"
 
 
 class PacketSession : public Session

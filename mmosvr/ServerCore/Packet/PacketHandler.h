@@ -2,6 +2,7 @@
 
 #include "Packet/PacketHeader.h"
 #include "Packet/PacketIdTraits.h"
+#include "Network/PacketSession.h"
 #include "Utils/Logger.h"
 #include "Utils/TSingleton.h"
 #include "Utils/JobQueue.h"
@@ -11,8 +12,6 @@
 #include <concepts>
 #include <format>
 
-
-class PacketSession;
 
 template<typename T>
 concept ProtoMessage = std::derived_from<T, google::protobuf::Message>;
@@ -46,7 +45,7 @@ public:
 				}
 
 				auto typedSession = std::static_pointer_cast<SessionT>(session);
-				Proto::ErrorCode err = handler(typedSession, msg);
+				const Proto::ErrorCode err = handler(typedSession, msg);
 
 				if (err != Proto::ErrorCode::OK) [[unlikely]]
 				{
@@ -65,5 +64,23 @@ private:
 		std::shared_ptr<PacketSession>, const char*, int32)>;
 
 	std::unordered_map<uint16, RawHandler> handlers_;
-	JobQueue* jobQueue_ = nullptr;
+	JobQueue* jobQueue_ = nullptr; // For GameServer
 };
+
+// ---------------------------------------------------------------------------
+// Manually send an S_Error to a specific target session with a specific
+// source-request PacketId. Use when PacketHandler::Register's auto-wrap
+// cannot apply -- typically in server-to-server bridge handlers where the
+// client session and the source request's PacketId differ from the handler's
+// own input (e.g. SS_ValidateTokenResult needs to reply to the client's
+// original C_EnterGame, not the LoginServer's SS_* message).
+// ---------------------------------------------------------------------------
+template<ProtoMessage RequestT>
+void SendErrorTo(const std::shared_ptr<PacketSession>& target,
+                 Proto::ErrorCode code)
+{
+	Proto::S_Error err;
+	err.set_source_packet_id(static_cast<uint32>(PacketIdTraits<RequestT>::Id));
+	err.set_code(code);
+	target->Send(err);
+}

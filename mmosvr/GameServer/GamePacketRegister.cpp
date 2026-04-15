@@ -18,6 +18,6 @@ struct AutoPacketRegister
 		GetPacketHandler().Register(&GamePacketHandler::C_Chat);
 
 		// Server (LoginServer → GameServer)
-		GetPacketHandler().Register(&GamePacketHandler::SS_ValidateTokenResult);
+		GetPacketHandler().Register(&GamePacketHandler::SS_ValidateToken);
 	}
 } _;
