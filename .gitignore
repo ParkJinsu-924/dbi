@@ -36,6 +36,14 @@ ClaudeProject/*.sln
 .omc/
 .claude/
 
+# === Python (debug_tool) ===
+__pycache__/
+*.pyc
+*.pyo
+
+# === Cygwin / Git Bash ===
+*.stackdump
+
 # === OS ===
 Thumbs.db
 .DS_Store
