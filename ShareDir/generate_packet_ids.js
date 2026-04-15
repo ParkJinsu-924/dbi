@@ -7,6 +7,7 @@ const PROTO_DIR = path.join(SCRIPT_DIR, 'proto');
 const CPP_ENUM_OUT = path.join(SCRIPT_DIR, '..', 'mmosvr', 'ServerCore', 'Packet', 'PacketUtils.h');
 const CPP_TRAITS_OUT = path.join(SCRIPT_DIR, '..', 'mmosvr', 'ServerCore', 'Packet', 'PacketIdTraits.h');
 const CS_PARTIAL_OUT = path.join(SCRIPT_DIR, '..', 'ClaudeProject', 'Assets', 'Scripts', 'Proto', 'PacketIds.cs');
+const PY_OUT = path.join(SCRIPT_DIR, '..', 'debug_tool', 'packet_ids.py');
 
 // Proto files to scan, in order. Messages get sequential IDs.
 // server.proto messages are server-only (excluded from C# PacketIds).
@@ -132,6 +133,25 @@ function generateCsPartial() {
     return lines.join('\r\n');
 }
 
+// --- Generate Python packet_ids.py ---
+function generatePyIds() {
+    let lines = [];
+    lines.push('# Auto-generated from ShareDir/generate_packet_ids.js');
+    lines.push('');
+    for (const pkt of allPackets.filter(p => !p.serverOnly)) {
+        lines.push(`${pkt.enumName} = ${pkt.id}`);
+    }
+    lines.push('');
+    lines.push('# Reverse mapping: id -> message class name (for dispatch)');
+    lines.push('PACKET_NAMES = {');
+    for (const pkt of allPackets.filter(p => !p.serverOnly)) {
+        lines.push(`    ${pkt.id}: "${pkt.proto}",`);
+    }
+    lines.push('}');
+    lines.push('');
+    return lines.join('\r\n');
+}
+
 // --- Write files ---
 fs.writeFileSync(CPP_ENUM_OUT, generateCppEnum());
 console.log('[OK] ' + CPP_ENUM_OUT);
@@ -141,5 +161,8 @@ console.log('[OK] ' + CPP_TRAITS_OUT);
 
 fs.writeFileSync(CS_PARTIAL_OUT, generateCsPartial());
 console.log('[OK] ' + CS_PARTIAL_OUT);
+
+fs.writeFileSync(PY_OUT, generatePyIds());
+console.log('[OK] ' + PY_OUT);
 
 console.log('[OK] PacketId generation complete. Total: ' + allPackets.length + ' packets');

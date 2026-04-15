@@ -9,8 +9,8 @@ Frame         Function      Args
 End of stack trace
 Loaded modules:
 000100400000 bash.exe
-000000E50000 ntd1l.dll
-0000010C0000 kern3l32.dll
+000000EB0000 ntd1l.dll
+000001120000 kern3l32.dll
 7FFEC5660000 ntdll.dll
 7FFEC3D30000 KERNEL32.DLL
 7FFEC2090000 KERNELBASE.dll
