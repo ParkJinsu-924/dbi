@@ -1,11 +1,12 @@
-bin/
-obj/
-out/
-.vs/
+/bin/
+/obj/
+/lib/
+/out/
+/.vs/
 *.user
 *.db
 *.opendb
 *.db-shm
 *.db-wal
 *.vsidx
-proto/generated/
+/proto/generated/
