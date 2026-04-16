@@ -57,6 +57,7 @@ std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, int32 templateId,
 	monster->SetMoveSpeed(tmpl->moveSpeed);
 	monster->SetAttackCooldown(tmpl->attackCooldown);
 	monster->SetAttackDamage(tmpl->attackDamage);
+	monster->SetAttackType(tmpl->attackType);
 	monster->InitAI(spawnPos, zone);
 
 	zone->Add(monster);

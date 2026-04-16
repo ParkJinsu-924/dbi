@@ -1118,7 +1118,8 @@ class Renderer:
     #  MAIN DRAW
     # ═══════════════════════════════════════════════════════════════════
 
-    def draw_frame(self, my_player, other_players: dict, monsters: dict, status_lines: list):
+    def draw_frame(self, my_player, other_players: dict, monsters: dict, status_lines: list,
+                   hitscan_lines: list = None):
         self.screen.fill(BG_COLOR)
 
         if my_player is None:
@@ -1189,6 +1190,23 @@ class Renderer:
         hp = getattr(my_player, 'hp', max_hp)
         self._draw_hp_bar(sx, sy, hp, max_hp, HP_BAR_FG,
                           y_offset=-int(30 * CHAR_SCALE))
+
+        # ── Hitscan lines ──
+        if hitscan_lines:
+            now_t = time.time()
+            for (sx, sz, ex, ez, expire) in hitscan_lines:
+                remaining = max(0.0, expire - now_t)
+                alpha = int(255 * (remaining / 0.4))
+                s_screen = self.world_to_screen(sx, sz, cx, cz)
+                e_screen = self.world_to_screen(ex, ez, cx, cz)
+                line_surf = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
+                pygame.draw.line(line_surf, (255, 60, 40, alpha),
+                                 s_screen, e_screen, 2)
+                # Impact flash at hit point
+                if remaining > 0.2:
+                    pygame.draw.circle(line_surf, (255, 200, 60, alpha),
+                                       e_screen, 5)
+                self.screen.blit(line_surf, (0, 0))
 
         # ── Status HUD ──
         self._draw_status(status_lines)

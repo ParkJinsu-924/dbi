@@ -52,8 +52,12 @@ namespace Proto {
             "X3JhbmdlGAQgASgCIkIKDlNfTW9uc3RlclN0YXRlEgwKBGd1aWQYASABKAMS",
             "DQoFc3RhdGUYAiABKA0SEwoLdGFyZ2V0X2d1aWQYAyABKAMiTAoPU19Nb25z",
             "dGVyQXR0YWNrEhQKDG1vbnN0ZXJfZ3VpZBgBIAEoAxITCgt0YXJnZXRfZ3Vp",
-            "ZBgCIAEoAxIOCgZkYW1hZ2UYAyABKAUiKAoKU19QbGF5ZXJIcBIKCgJocBgB",
-            "IAEoBRIOCgZtYXhfaHAYAiABKAViBnByb3RvMw=="));
+            "ZBgCIAEoAxIOCgZkYW1hZ2UYAyABKAUimwEKD1NfSGl0c2NhbkF0dGFjaxIV",
+            "Cg1hdHRhY2tlcl9ndWlkGAEgASgDEhMKC3RhcmdldF9ndWlkGAIgASgDEiYK",
+            "DnN0YXJ0X3Bvc2l0aW9uGAMgASgLMg4uUHJvdG8uVmVjdG9yMxIkCgxoaXRf",
+            "cG9zaXRpb24YBCABKAsyDi5Qcm90by5WZWN0b3IzEg4KBmRhbWFnZRgFIAEo",
+            "BSIoCgpTX1BsYXllckhwEgoKAmhwGAEgASgFEg4KBm1heF9ocBgCIAEoBWIG",
+            "cHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Proto.CommonReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -75,6 +79,7 @@ namespace Proto {
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterList), global::Proto.S_MonsterList.Parser, new[]{ "Monsters" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterList.Types.MonsterInfo), global::Proto.S_MonsterList.Types.MonsterInfo.Parser, new[]{ "Guid", "Name", "Position", "DetectRange" }, null, null, null, null)}),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterState), global::Proto.S_MonsterState.Parser, new[]{ "Guid", "State", "TargetGuid" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterAttack), global::Proto.S_MonsterAttack.Parser, new[]{ "MonsterGuid", "TargetGuid", "Damage" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_HitscanAttack), global::Proto.S_HitscanAttack.Parser, new[]{ "AttackerGuid", "TargetGuid", "StartPosition", "HitPosition", "Damage" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_PlayerHp), global::Proto.S_PlayerHp.Parser, new[]{ "Hp", "MaxHp" }, null, null, null, null)
           }));
     }
@@ -4902,6 +4907,370 @@ namespace Proto {
   }
 
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class S_HitscanAttack : pb::IMessage<S_HitscanAttack>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<S_HitscanAttack> _parser = new pb::MessageParser<S_HitscanAttack>(() => new S_HitscanAttack());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<S_HitscanAttack> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Proto.GameReflection.Descriptor.MessageTypes[18]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public S_HitscanAttack() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public S_HitscanAttack(S_HitscanAttack other) : this() {
+      attackerGuid_ = other.attackerGuid_;
+      targetGuid_ = other.targetGuid_;
+      startPosition_ = other.startPosition_ != null ? other.startPosition_.Clone() : null;
+      hitPosition_ = other.hitPosition_ != null ? other.hitPosition_.Clone() : null;
+      damage_ = other.damage_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public S_HitscanAttack Clone() {
+      return new S_HitscanAttack(this);
+    }
+
+    /// <summary>Field number for the "attacker_guid" field.</summary>
+    public const int AttackerGuidFieldNumber = 1;
+    private long attackerGuid_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long AttackerGuid {
+      get { return attackerGuid_; }
+      set {
+        attackerGuid_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "target_guid" field.</summary>
+    public const int TargetGuidFieldNumber = 2;
+    private long targetGuid_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long TargetGuid {
+      get { return targetGuid_; }
+      set {
+        targetGuid_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "start_position" field.</summary>
+    public const int StartPositionFieldNumber = 3;
+    private global::Proto.Vector3 startPosition_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Proto.Vector3 StartPosition {
+      get { return startPosition_; }
+      set {
+        startPosition_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "hit_position" field.</summary>
+    public const int HitPositionFieldNumber = 4;
+    private global::Proto.Vector3 hitPosition_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Proto.Vector3 HitPosition {
+      get { return hitPosition_; }
+      set {
+        hitPosition_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "damage" field.</summary>
+    public const int DamageFieldNumber = 5;
+    private int damage_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int Damage {
+      get { return damage_; }
+      set {
+        damage_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as S_HitscanAttack);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(S_HitscanAttack other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (AttackerGuid != other.AttackerGuid) return false;
+      if (TargetGuid != other.TargetGuid) return false;
+      if (!object.Equals(StartPosition, other.StartPosition)) return false;
+      if (!object.Equals(HitPosition, other.HitPosition)) return false;
+      if (Damage != other.Damage) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (AttackerGuid != 0L) hash ^= AttackerGuid.GetHashCode();
+      if (TargetGuid != 0L) hash ^= TargetGuid.GetHashCode();
+      if (startPosition_ != null) hash ^= StartPosition.GetHashCode();
+      if (hitPosition_ != null) hash ^= HitPosition.GetHashCode();
+      if (Damage != 0) hash ^= Damage.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (AttackerGuid != 0L) {
+        output.WriteRawTag(8);
+        output.WriteInt64(AttackerGuid);
+      }
+      if (TargetGuid != 0L) {
+        output.WriteRawTag(16);
+        output.WriteInt64(TargetGuid);
+      }
+      if (startPosition_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(StartPosition);
+      }
+      if (hitPosition_ != null) {
+        output.WriteRawTag(34);
+        output.WriteMessage(HitPosition);
+      }
+      if (Damage != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(Damage);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (AttackerGuid != 0L) {
+        output.WriteRawTag(8);
+        output.WriteInt64(AttackerGuid);
+      }
+      if (TargetGuid != 0L) {
+        output.WriteRawTag(16);
+        output.WriteInt64(TargetGuid);
+      }
+      if (startPosition_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(StartPosition);
+      }
+      if (hitPosition_ != null) {
+        output.WriteRawTag(34);
+        output.WriteMessage(HitPosition);
+      }
+      if (Damage != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(Damage);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (AttackerGuid != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(AttackerGuid);
+      }
+      if (TargetGuid != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(TargetGuid);
+      }
+      if (startPosition_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(StartPosition);
+      }
+      if (hitPosition_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(HitPosition);
+      }
+      if (Damage != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Damage);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(S_HitscanAttack other) {
+      if (other == null) {
+        return;
+      }
+      if (other.AttackerGuid != 0L) {
+        AttackerGuid = other.AttackerGuid;
+      }
+      if (other.TargetGuid != 0L) {
+        TargetGuid = other.TargetGuid;
+      }
+      if (other.startPosition_ != null) {
+        if (startPosition_ == null) {
+          StartPosition = new global::Proto.Vector3();
+        }
+        StartPosition.MergeFrom(other.StartPosition);
+      }
+      if (other.hitPosition_ != null) {
+        if (hitPosition_ == null) {
+          HitPosition = new global::Proto.Vector3();
+        }
+        HitPosition.MergeFrom(other.HitPosition);
+      }
+      if (other.Damage != 0) {
+        Damage = other.Damage;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            AttackerGuid = input.ReadInt64();
+            break;
+          }
+          case 16: {
+            TargetGuid = input.ReadInt64();
+            break;
+          }
+          case 26: {
+            if (startPosition_ == null) {
+              StartPosition = new global::Proto.Vector3();
+            }
+            input.ReadMessage(StartPosition);
+            break;
+          }
+          case 34: {
+            if (hitPosition_ == null) {
+              HitPosition = new global::Proto.Vector3();
+            }
+            input.ReadMessage(HitPosition);
+            break;
+          }
+          case 40: {
+            Damage = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            AttackerGuid = input.ReadInt64();
+            break;
+          }
+          case 16: {
+            TargetGuid = input.ReadInt64();
+            break;
+          }
+          case 26: {
+            if (startPosition_ == null) {
+              StartPosition = new global::Proto.Vector3();
+            }
+            input.ReadMessage(StartPosition);
+            break;
+          }
+          case 34: {
+            if (hitPosition_ == null) {
+              HitPosition = new global::Proto.Vector3();
+            }
+            input.ReadMessage(HitPosition);
+            break;
+          }
+          case 40: {
+            Damage = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class S_PlayerHp : pb::IMessage<S_PlayerHp>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
@@ -4916,7 +5285,7 @@ namespace Proto {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Proto.GameReflection.Descriptor.MessageTypes[18]; }
+      get { return global::Proto.GameReflection.Descriptor.MessageTypes[19]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

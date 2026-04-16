@@ -45,6 +45,7 @@ public:
 	float GetMoveSpeed()      const { return moveSpeed_; }
 	float GetAttackCooldown() const { return attackCooldown_; }
 	int32 GetAttackDamage()   const { return attackDamage_; }
+	int32 GetAttackType()     const { return attackType_; }
 
 	void SetDetectRange(float v)    { detectRange_ = v; }
 	void SetAttackRange(float v)    { attackRange_ = v; }
@@ -52,6 +53,7 @@ public:
 	void SetMoveSpeed(float v)      { moveSpeed_ = v; }
 	void SetAttackCooldown(float v) { attackCooldown_ = v; }
 	void SetAttackDamage(int32 v)   { attackDamage_ = v; }
+	void SetAttackType(int32 v)     { attackType_ = v; }
 
 private:
 	void BroadcastState(MonsterStateId prev, MonsterStateId next);
@@ -70,4 +72,5 @@ private:
 	float moveSpeed_      = 3.0f;
 	float attackCooldown_ = 1.5f;
 	int32 attackDamage_   = 10;
+	int32 attackType_     = 0;    // 0=Melee, 1=Hitscan
 };

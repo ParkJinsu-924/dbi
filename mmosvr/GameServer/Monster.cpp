@@ -84,9 +84,20 @@ void Monster::MoveToward(const Proto::Vector3& target, const float deltaTime)
 
 void Monster::DoAttack(Player& target)
 {
-	if (false)  // damage temporarily disabled
+	target.TakeDamage(attackDamage_);
+
+	if (attackType_ == 1)  // Hitscan
 	{
-		target.TakeDamage(attackDamage_);
+		Proto::S_HitscanAttack pkt;
+		pkt.set_attacker_guid(GetGuid());
+		pkt.set_target_guid(target.GetGuid());
+		*pkt.mutable_start_position() = GetPosition();
+		*pkt.mutable_hit_position() = target.GetPosition();
+		pkt.set_damage(attackDamage_);
+		zone_->Broadcast(pkt);
+	}
+	else  // Melee
+	{
 		BroadcastAttack(target.GetGuid(), attackDamage_);
 	}
 

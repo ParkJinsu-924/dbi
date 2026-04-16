@@ -47,12 +47,25 @@ class PlayerState:
 class MonsterState:
     guid: int = 0
     name: str = ""
-    x: float = 0.0
+    x: float = 0.0       # display position (interpolated)
     y: float = 0.0
     z: float = 0.0
+    tx: float = 0.0      # target position (from server)
+    ty: float = 0.0
+    tz: float = 0.0
     state: int = 0        # 0=Idle, 1=Patrol, 2=Chase, 3=Attack, 4=Return
     target_guid: int = 0  # Chase/Attack target player GUID
     detect_range: float = 10.0
+
+    def set_target(self, x, y, z):
+        self.tx, self.ty, self.tz = x, y, z
+
+    def lerp(self, dt, speed=12.0):
+        """Interpolate display position toward server target."""
+        t = min(1.0, speed * dt)
+        self.x += (self.tx - self.x) * t
+        self.y += (self.ty - self.y) * t
+        self.z += (self.tz - self.z) * t
 
 
 def make_vec3(x, y, z):
@@ -113,6 +126,7 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
     me = PlayerState(name=username)
     others: dict[int, PlayerState] = {}
     monsters: dict[int, MonsterState] = {}
+    hitscan_lines: list = []  # [(sx, sz, ex, ez, expire_time), ...]
     in_game = False
     pending_move = False
     last_send = 0.0
@@ -195,21 +209,23 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
             # --- Monster packets ---
             elif pkt_id == packet_ids.S_MONSTER_LIST:
                 for m in msg.monsters:
+                    px, py, pz = m.position.x, m.position.y, m.position.z
                     monsters[m.guid] = MonsterState(
                         guid=m.guid, name=m.name,
-                        x=m.position.x, y=m.position.y, z=m.position.z,
+                        x=px, y=py, z=pz, tx=px, ty=py, tz=pz,
                         detect_range=m.detect_range if m.detect_range > 0 else 10.0)
 
             elif pkt_id == packet_ids.S_MONSTER_SPAWN:
+                px, py, pz = msg.position.x, msg.position.y, msg.position.z
                 monsters[msg.guid] = MonsterState(
                     guid=msg.guid, name=msg.name,
-                    x=msg.position.x, y=msg.position.y, z=msg.position.z,
+                    x=px, y=py, z=pz, tx=px, ty=py, tz=pz,
                     detect_range=msg.detect_range if msg.detect_range > 0 else 10.0)
 
             elif pkt_id == packet_ids.S_MONSTER_MOVE:
                 ms = monsters.get(msg.guid)
                 if ms:
-                    ms.x, ms.y, ms.z = msg.position.x, msg.position.y, msg.position.z
+                    ms.set_target(msg.position.x, msg.position.y, msg.position.z)
 
             elif pkt_id == packet_ids.S_MONSTER_DESPAWN:
                 monsters.pop(msg.guid, None)
@@ -225,9 +241,27 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
                 if ms:
                     print(f"[game] {ms.name} attacks player (dmg={msg.damage})")
 
+            elif pkt_id == packet_ids.S_HITSCAN_ATTACK:
+                hitscan_lines.append((
+                    msg.start_position.x, msg.start_position.z,
+                    msg.hit_position.x, msg.hit_position.z,
+                    time.time() + 0.4))
+                ms = monsters.get(msg.attacker_guid)
+                name = ms.name if ms else "?"
+                print(f"[game] {name} hitscan -> player (dmg={msg.damage})")
+
             elif pkt_id == packet_ids.S_PLAYER_HP:
                 me.hp = msg.hp
                 me.max_hp = msg.max_hp
+
+        # interpolate monster positions
+        dt_frame = 1 / 60.0
+        for ms in monsters.values():
+            ms.lerp(dt_frame)
+
+        # expire old hitscan lines
+        now_t = time.time()
+        hitscan_lines = [h for h in hitscan_lines if h[4] > now_t]
 
         # render
         status = [
@@ -238,7 +272,8 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
         keys = pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE]:
             running = False
-        renderer.draw_frame(me if in_game else None, others, monsters, status)
+        renderer.draw_frame(me if in_game else None, others, monsters, status,
+                            hitscan_lines=hitscan_lines)
 
     renderer.close()
     client.close()
