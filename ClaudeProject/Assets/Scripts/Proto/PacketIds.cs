@@ -15,4 +15,8 @@ namespace Proto
     public partial class S_RequestUseSkill { public const uint PacketId = 12; }
     public partial class S_MoveCorrection { public const uint PacketId = 13; }
     public partial class S_Error { public const uint PacketId = 14; }
+    public partial class S_MonsterSpawn { public const uint PacketId = 15; }
+    public partial class S_MonsterMove { public const uint PacketId = 16; }
+    public partial class S_MonsterDespawn { public const uint PacketId = 17; }
+    public partial class S_MonsterList { public const uint PacketId = 18; }
 }

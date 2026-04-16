@@ -71,3 +71,29 @@ message S_Error {
     ErrorCode code = 2;
     string detail = 3;
 }
+
+// --- Monster ---
+
+message S_MonsterSpawn {
+    int64 guid = 1;
+    string name = 2;
+    Vector3 position = 3;
+}
+
+message S_MonsterMove {
+    int64 guid = 1;
+    Vector3 position = 2;
+}
+
+message S_MonsterDespawn {
+    int64 guid = 1;
+}
+
+message S_MonsterList {
+    message MonsterInfo {
+        int64 guid = 1;
+        string name = 2;
+        Vector3 position = 3;
+    }
+    repeated MonsterInfo monsters = 1;
+}

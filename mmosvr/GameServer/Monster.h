@@ -1,26 +1,30 @@
 #pragma once
 
-#include "common.pb.h"
-#include "Utils/Types.h"
-#include "Utils/ObjectGuidGenerator.h"
+#include "GameObject.h"
 
 
-class Monster
+class Monster : public GameObject
 {
 public:
-	Monster()
-		: guid_(GetObjectGuidGenerator().Generate())
+	explicit Monster(std::string name = "")
+		: GameObject(GameObjectType::Monster, std::move(name))
 	{
 	}
 
-	long long GetGuid() const { return guid_; }
-	const Proto::Vector3& GetPosition() const { return position_; }
-	void SetPosition(const Proto::Vector3& p) { position_ = p; }
 	int32 GetHp() const { return hp_; }
 	void SetHp(int32 hp) { hp_ = hp; }
 
+	// --- Test movement: walk in a circle around a fixed center ---
+	void InitCircularMovement(const Proto::Vector3& center,
+		float radius, float angularSpeedRad, float startAngleRad = 0.0f);
+	void UpdateMovement(float deltaTime);
+
 private:
-	const long long guid_;
-	Proto::Vector3 position_;
 	int32 hp_ = 100;
+
+	// Circular movement state
+	Proto::Vector3 center_;
+	float radius_ = 0.0f;
+	float angularSpeed_ = 0.0f;  // radians per second
+	float angle_ = 0.0f;
 };

@@ -5,6 +5,8 @@
 #include "ZoneManager.h"
 #include "Services/PlayerService.h"
 #include "Services/MapService.h"
+#include "Services/MonsterService.h"
+#include "common.pb.h"
 #include "Server/ServerBase.h"
 #include "Server/SessionManager.h"
 #include "Network/Connector.h"
@@ -24,11 +26,16 @@ protected:
 	{
 		GetPlayerService().Init();
 		GetMapService().Init();
+		GetMonsterService().Init();
 		GetZoneManager().Init();
 
+		// Spawn test monsters in default zone
+		SpawnTestMonsters();
+
 		gameLoop_ = std::make_unique<GameLoop>(100);
-		gameLoop_->AddService(GetPlayerService(), 0.05f);  // 20 Hz
-		gameLoop_->AddService(GetMapService(), 0.01f);      // 100 Hz
+		gameLoop_->AddService(GetPlayerService(), 0.05f);   // 20 Hz
+		gameLoop_->AddService(GetMapService(), 0.01f);       // 100 Hz
+		gameLoop_->AddService(GetMonsterService(), 0.1f);    // 10 Hz (movement broadcast)
 		gameLoop_->Start();
 
 		ConnectToLoginServer();
@@ -44,6 +51,25 @@ protected:
 	}
 
 private:
+	void SpawnTestMonsters()
+	{
+		auto makeVec = [](float x, float y, float z) {
+			Proto::Vector3 v;
+			v.set_x(x); v.set_y(y); v.set_z(z);
+			return v;
+		};
+
+		// Three monsters, each circling around a different center
+		GetMonsterService().Spawn(1, "Goblin",
+			makeVec(5.0f, 0.0f, 0.0f),   /*radius*/3.0f, /*angularSpeed*/0.8f, /*start*/0.0f);
+
+		GetMonsterService().Spawn(1, "Orc",
+			makeVec(-5.0f, 0.0f, 3.0f),  /*radius*/2.5f, /*angularSpeed*/-1.2f, /*start*/1.0f);
+
+		GetMonsterService().Spawn(1, "Slime",
+			makeVec(0.0f, 0.0f, -6.0f),  /*radius*/4.0f, /*angularSpeed*/0.5f, /*start*/2.0f);
+	}
+
 	void ConnectToLoginServer()
 	{
 		auto& ioc = ioPool_.GetNextIoContext();

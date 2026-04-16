@@ -19,16 +19,18 @@ void GameSession::OnDisconnected()
 	{
 		auto& playerService = GetPlayerService();
 		int32 zoneId = 0;
+		long long guid = 0;
 
 		if (auto player = playerService.FindPlayer(playerId_))
 		{
 			zoneId = player->GetZoneId();
+			guid = player->GetGuid();
 			player->UnbindSession();
 		}
 
 		// Remove from zone first so the leave broadcast doesn't target this player
 		if (auto* zone = GetZoneManager().GetZone(zoneId))
-			zone->RemovePlayer(playerId_);
+			zone->Remove(guid);
 
 		playerService.RemovePlayer(playerId_);
 
@@ -43,7 +45,7 @@ void GameSession::OnDisconnected()
 
 void GameSession::OnRecvPacket(uint16 packetId, const char* payload, int32 payloadSize)
 {
-	PacketHandler::Instance().Dispatch(
+	GetPacketHandler().Dispatch(
 		std::static_pointer_cast<PacketSession>(shared_from_this()),
 		packetId, payload, payloadSize);
 }

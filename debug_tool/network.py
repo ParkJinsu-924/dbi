@@ -32,6 +32,10 @@ _MSG_CLASS_MAP = {
     packet_ids.S_PLAYER_LEAVE:     game_pb2.S_PlayerLeave,
     packet_ids.S_MOVE_CORRECTION:  game_pb2.S_MoveCorrection,
     packet_ids.S_ERROR:            game_pb2.S_Error,
+    packet_ids.S_MONSTER_SPAWN:    game_pb2.S_MonsterSpawn,
+    packet_ids.S_MONSTER_MOVE:     game_pb2.S_MonsterMove,
+    packet_ids.S_MONSTER_DESPAWN:  game_pb2.S_MonsterDespawn,
+    packet_ids.S_MONSTER_LIST:     game_pb2.S_MonsterList,
 }
 
 # Map message class -> PacketId (for sending)

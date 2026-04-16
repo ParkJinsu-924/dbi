@@ -41,6 +41,15 @@ class PlayerState:
     z: float = 0.0
 
 
+@dataclass
+class MonsterState:
+    guid: int = 0
+    name: str = ""
+    x: float = 0.0
+    y: float = 0.0
+    z: float = 0.0
+
+
 def make_vec3(x, y, z):
     v = common_pb2.Vector3()
     v.x, v.y, v.z = x, y, z
@@ -98,7 +107,7 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
 
     me = PlayerState(name=username)
     others: dict[int, PlayerState] = {}
-    monsters: dict[int, PlayerState] = {}  # placeholder for future
+    monsters: dict[int, MonsterState] = {}
     in_game = False
     pending_move = False
     last_send = 0.0
@@ -178,10 +187,30 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
             elif pkt_id == packet_ids.S_ERROR:
                 print(f"[game] server error: code={msg.code} src_pkt={msg.source_packet_id}")
 
+            # --- Monster packets ---
+            elif pkt_id == packet_ids.S_MONSTER_LIST:
+                for m in msg.monsters:
+                    monsters[m.guid] = MonsterState(
+                        guid=m.guid, name=m.name,
+                        x=m.position.x, y=m.position.y, z=m.position.z)
+
+            elif pkt_id == packet_ids.S_MONSTER_SPAWN:
+                monsters[msg.guid] = MonsterState(
+                    guid=msg.guid, name=msg.name,
+                    x=msg.position.x, y=msg.position.y, z=msg.position.z)
+
+            elif pkt_id == packet_ids.S_MONSTER_MOVE:
+                ms = monsters.get(msg.guid)
+                if ms:
+                    ms.x, ms.y, ms.z = msg.position.x, msg.position.y, msg.position.z
+
+            elif pkt_id == packet_ids.S_MONSTER_DESPAWN:
+                monsters.pop(msg.guid, None)
+
         # render
         status = [
             f"user={username}  id={me.player_id}  pos=({me.x:.1f}, {me.z:.1f})",
-            f"others={len(others)}  {'in-game' if in_game else 'entering...'}",
+            f"others={len(others)}  monsters={len(monsters)}  {'in-game' if in_game else 'entering...'}",
             "WASD to move,  ESC to quit",
         ]
         keys = pygame.key.get_pressed()

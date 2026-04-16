@@ -22,7 +22,7 @@ void GameLoop::AddService(GameService& service, float interval)
 void GameLoop::Start()
 {
 	// Route all packet dispatches through our job queue
-	PacketHandler::Instance().SetJobQueue(&jobQueue_);
+	GetPacketHandler().SetJobQueue(&jobQueue_);
 
 	thread_ = std::jthread([this](std::stop_token st) { Run(st); });
 	LOG_INFO("GameLoop started (" + std::to_string(tickRate_) + " Hz, "
@@ -37,7 +37,7 @@ void GameLoop::Stop()
 		thread_.join();
 
 		// Disconnect job queue so remaining I/O dispatches don't enqueue
-		PacketHandler::Instance().SetJobQueue(nullptr);
+		GetPacketHandler().SetJobQueue(nullptr);
 
 		LOG_INFO("GameLoop stopped");
 	}

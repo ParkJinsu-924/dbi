@@ -3,8 +3,8 @@
 
 
 Player::Player(int32 playerId, const std::string& name)
-	: playerId_(playerId)
-	, name_(name)
+	: GameObject(GameObjectType::Player, GetObjectGuidGenerator().Generate(), name)
+	, playerId_(playerId)
 {
 	position_.set_x(0.0f);
 	position_.set_y(0.0f);

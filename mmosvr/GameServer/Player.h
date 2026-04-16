@@ -1,12 +1,12 @@
 #pragma once
 
-#include "common.pb.h"
-#include <string>
+#include "GameObject.h"
 #include <memory>
 
 class GameSession;
 
-class Player
+
+class Player : public GameObject
 {
 public:
 	Player(int32 playerId, const std::string& name);
@@ -17,9 +17,8 @@ public:
 	Player(Player&&) = delete;
 	Player& operator=(Player&&) = delete;
 
-	// --- Identity (immutable) ---
+	// --- Identity ---
 	int32 GetPlayerId() const { return playerId_; }
-	const std::string& GetName() const { return name_; }
 
 	// --- Session Binding ---
 	void BindSession(std::shared_ptr<GameSession> session);
@@ -27,15 +26,9 @@ public:
 	std::shared_ptr<GameSession> GetSession() const;
 	bool IsOnline() const;
 
-	// --- Transform ---
-	const Proto::Vector3& GetPosition() const { return position_; }
-	void SetPosition(const Proto::Vector3& pos) { position_ = pos; }
+	// --- Transform (yaw only; position/zoneId are in GameObject) ---
 	float GetYaw() const { return yaw_; }
 	void SetYaw(float yaw) { yaw_ = yaw; }
-
-	// --- Zone ---
-	int32 GetZoneId() const { return zoneId_; }
-	void SetZoneId(int32 zoneId) { zoneId_ = zoneId; }
 
 	// --- Game State ---
 	int32 GetHp() const { return hp_; }
@@ -52,12 +45,9 @@ public:
 
 private:
 	const int32 playerId_;
-	const std::string name_;
 	std::weak_ptr<GameSession> session_;
 
-	Proto::Vector3 position_;
 	float yaw_ = 0.0f;
-	int32 zoneId_ = 0;
 
 	int32 hp_ = 100;
 	int32 maxHp_ = 100;

@@ -7,9 +7,7 @@
 #include <memory>
 #include <shared_mutex>
 
-class Player;
-class Monster;
-class Npc;
+class GameObject;
 
 
 class Zone
@@ -19,25 +17,21 @@ public:
 
 	int32 GetId() const { return id_; }
 
-	// Players
-	void AddPlayer(std::shared_ptr<Player> player);
-	void RemovePlayer(int32 playerId);
-	std::shared_ptr<Player> FindPlayer(int32 playerId) const;
+	// Unified API for all GameObject types
+	void Add(std::shared_ptr<GameObject> obj);
+	void Remove(long long guid);
+	std::shared_ptr<GameObject> Find(long long guid) const;
 
-	// Monsters
-	void AddMonster(std::shared_ptr<Monster> monster);
-	void RemoveMonster(long long guid);
+	template<typename T>
+	std::shared_ptr<T> FindAs(long long guid) const
+	{
+		return std::dynamic_pointer_cast<T>(Find(guid));
+	}
 
-	// Npcs
-	void AddNpc(std::shared_ptr<Npc> npc);
-	void RemoveNpc(long long guid);
-
-	// Broadcast to all players currently in this zone
+	// Broadcast to Players currently in this zone
 	void Broadcast(SendBufferChunkPtr chunk);
 
 private:
 	const int32 id_;
-	Synchronized<std::unordered_map<int32, std::shared_ptr<Player>>, std::shared_mutex> players_;
-	Synchronized<std::unordered_map<long long, std::shared_ptr<Monster>>, std::shared_mutex> monsters_;
-	Synchronized<std::unordered_map<long long, std::shared_ptr<Npc>>, std::shared_mutex> npcs_;
+	Synchronized<std::unordered_map<long long, std::shared_ptr<GameObject>>, std::shared_mutex> objects_;
 };

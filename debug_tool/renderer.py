@@ -81,6 +81,8 @@ class Renderer:
             half = MONSTER_SIZE // 2
             pygame.draw.rect(self.screen, MONSTER_COLOR,
                              (sx - half, sy - half, MONSTER_SIZE, MONSTER_SIZE))
+            if hasattr(m, 'name') and m.name:
+                self._label(m.name, sx, sy - half - 4)
 
         # Me (always on top, center)
         sx, sy = self.world_to_screen(cx, cz, cx, cz)

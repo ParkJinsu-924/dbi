@@ -5,6 +5,8 @@
 #include "Server/SessionManager.h"
 #include "Services/PlayerService.h"
 #include "Services/MapService.h"
+#include "Services/MonsterService.h"
+#include "Monster.h"
 #include "ZoneManager.h"
 
 
@@ -74,7 +76,7 @@ Proto::ErrorCode GamePacketHandler::SS_ValidateToken(std::shared_ptr<ServerSessi
 	// Put the player into the default zone
 	player->SetZoneId(DEFAULT_ZONE_ID);
 	if (auto* zone = GetZoneManager().GetZone(DEFAULT_ZONE_ID))
-		zone->AddPlayer(player);
+		zone->Add(player);
 
 	Proto::S_EnterGame response;
 	response.set_player_id(playerId);
@@ -94,6 +96,18 @@ Proto::ErrorCode GamePacketHandler::SS_ValidateToken(std::shared_ptr<ServerSessi
 		*info->mutable_position() = p->GetPosition();
 	}
 	gameSession->Send(playerListPkt);
+
+	// Send existing monsters in the zone
+	auto monstersInZone = GetMonsterService().GetMonstersInZone(DEFAULT_ZONE_ID);
+	Proto::S_MonsterList monsterListPkt;
+	for (const auto& m : monstersInZone)
+	{
+		auto* info = monsterListPkt.add_monsters();
+		info->set_guid(m->GetGuid());
+		info->set_name(m->GetName());
+		*info->mutable_position() = m->GetPosition();
+	}
+	gameSession->Send(monsterListPkt);
 
 	LOG_INFO("Player entered game: id=" + std::to_string(playerId) + " name=" + playerName);
 	return Proto::ErrorCode::OK;
