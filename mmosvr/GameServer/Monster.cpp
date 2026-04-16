@@ -28,6 +28,18 @@ namespace
 		chunk->SetSize(totalSize);
 		return chunk;
 	}
+
+	const char* StateIdToString(MonsterStateId id)
+	{
+		switch (id)
+		{
+		case MonsterStateId::Idle:    return "Idle";
+		case MonsterStateId::Chase:   return "Chase";
+		case MonsterStateId::Attack:  return "Attack";
+		case MonsterStateId::Return:  return "Return";
+		default:                      return "Unknown";
+		}
+	}
 }
 
 
@@ -36,148 +48,39 @@ void Monster::InitAI(const Proto::Vector3& spawnPos, Zone* zone)
 	spawnPos_ = spawnPos;
 	position_ = spawnPos;
 	zone_ = zone;
-	state_ = MonsterState::Idle;
-}
 
-void Monster::Update(float deltaTime)
-{
-	if (!zone_)
-		return;
+	// 상태 등록
+	fsm_.AddState<IdleState>(MonsterStateId::Idle);
+	fsm_.AddState<ChaseState>(MonsterStateId::Chase);
+	fsm_.AddState<AttackState>(MonsterStateId::Attack);
+	fsm_.AddState<ReturnState>(MonsterStateId::Return);
 
-	switch (state_)
-	{
-	case MonsterState::Idle:    UpdateIdle(deltaTime);    break;
-	case MonsterState::Chase:   UpdateChase(deltaTime);   break;
-	case MonsterState::Attack:  UpdateAttack(deltaTime);  break;
-	case MonsterState::Return:  UpdateReturn(deltaTime);  break;
-	}
-}
-
-// ---------------------------------------------------------------------------
-// State handlers
-// ---------------------------------------------------------------------------
-
-void Monster::UpdateIdle(float /*deltaTime*/)
-{
-	auto player = zone_->FindNearestPlayer(position_, detectRange_);
-	if (player)
-	{
-		targetGuid_ = player->GetGuid();
-		ChangeState(MonsterState::Chase);
-	}
-}
-
-void Monster::UpdateChase(float deltaTime)
-{
-	auto target = GetTarget();
-
-	// Target lost or leash exceeded
-	if (!target || !target->IsAlive() || DistanceToSpawn() > leashRange_)
-	{
-		targetGuid_ = 0;
-		ChangeState(MonsterState::Return);
-		return;
-	}
-
-	float dist = DistanceTo(target->GetPosition());
-
-	// Close enough to attack
-	if (dist <= attackRange_)
-	{
-		attackTimer_ = 0.0f;  // attack immediately on first contact
-		ChangeState(MonsterState::Attack);
-		return;
-	}
-
-	MoveToward(target->GetPosition(), deltaTime);
-}
-
-void Monster::UpdateAttack(float deltaTime)
-{
-	auto target = GetTarget();
-
-	// Target lost or leash exceeded
-	if (!target || !target->IsAlive() || DistanceToSpawn() > leashRange_)
-	{
-		targetGuid_ = 0;
-		ChangeState(MonsterState::Return);
-		return;
-	}
-
-	float dist = DistanceTo(target->GetPosition());
-
-	// Target moved out of attack range — chase again
-	if (dist > attackRange_)
-	{
-		ChangeState(MonsterState::Chase);
-		return;
-	}
-
-	// Attack on cooldown
-	attackTimer_ -= deltaTime;
-	if (attackTimer_ <= 0.0f)
-	{
-		if (false)
+	// 상태 전환 콜백 (로그 + 브로드캐스트)
+	fsm_.SetOnStateChanged([this](MonsterStateId prev, MonsterStateId next)
 		{
-			target->TakeDamage(attackDamage_);
+			BroadcastState(prev, next);
+			LOG_INFO("Monster [" + GetName() + "] " +
+				StateIdToString(prev) + " -> " + StateIdToString(next));
+		});
 
-			// Notify clients
-			BroadcastAttack(target->GetGuid(), attackDamage_);
-		}
-
-		// Send updated HP to the damaged player
-		Proto::S_PlayerHp hpPkt;
-		hpPkt.set_hp(target->GetHp());
-		hpPkt.set_max_hp(target->GetMaxHp());
-		target->Send(hpPkt);
-
-		attackTimer_ = attackCooldown_;
-
-		LOG_INFO("Monster [" + GetName() + "] attacks Player " +
-			std::to_string(target->GetPlayerId()) +
-			" for " + std::to_string(attackDamage_) + " dmg (HP: " +
-			std::to_string(target->GetHp()) + "/" +
-			std::to_string(target->GetMaxHp()) + ")");
-	}
+	// 시작
+	fsm_.Start(*this, MonsterStateId::Idle);
 }
 
-void Monster::UpdateReturn(float deltaTime)
+void Monster::Update(const float deltaTime)
 {
-	float dist = DistanceTo(spawnPos_);
-	if (dist <= 1.0f)
-	{
-		position_ = spawnPos_;
-		Heal(maxHp_);  // full HP on return
-		ChangeState(MonsterState::Idle);
-		return;
-	}
-
-	MoveToward(spawnPos_, deltaTime);
+	fsm_.Update(*this, deltaTime);
 }
 
 // ---------------------------------------------------------------------------
-// Helpers
+// Public utilities (상태 클래스에서 호출)
 // ---------------------------------------------------------------------------
 
-void Monster::ChangeState(MonsterState newState)
+std::shared_ptr<Player> Monster::GetTarget() const
 {
-	if (state_ == newState)
-		return;
-
-	state_ = newState;
-	BroadcastState();
-
-	LOG_INFO("Monster [" + GetName() + "] -> " + [&]
-		{
-			switch (newState)
-			{
-			case MonsterState::Idle:    return "Idle";
-			case MonsterState::Chase:   return "Chase";
-			case MonsterState::Attack:  return "Attack";
-			case MonsterState::Return:  return "Return";
-			default:                    return "Unknown";
-			}
-		}());
+	if (targetGuid_ == 0 || !zone_)
+		return nullptr;
+	return zone_->FindAs<Player>(targetGuid_);
 }
 
 float Monster::DistanceTo(const Proto::Vector3& target) const
@@ -212,24 +115,47 @@ void Monster::MoveToward(const Proto::Vector3& target, float deltaTime)
 	position_.set_z(position_.z() + nz * step);
 }
 
-std::shared_ptr<Player> Monster::GetTarget() const
+void Monster::DoAttack(Player& target)
 {
-	if (targetGuid_ == 0)
-		return nullptr;
-	return zone_->FindAs<Player>(targetGuid_);
+	if (false)  // damage temporarily disabled
+	{
+		target.TakeDamage(attackDamage_);
+		BroadcastAttack(target.GetGuid(), attackDamage_);
+	}
+
+	Proto::S_PlayerHp hpPkt;
+	hpPkt.set_hp(target.GetHp());
+	hpPkt.set_max_hp(target.GetMaxHp());
+	target.Send(hpPkt);
+
+	LOG_INFO("Monster [" + GetName() + "] attacks Player " +
+		std::to_string(target.GetPlayerId()) +
+		" for " + std::to_string(attackDamage_) + " dmg (HP: " +
+		std::to_string(target.GetHp()) + "/" +
+		std::to_string(target.GetMaxHp()) + ")");
 }
 
-void Monster::BroadcastState()
+// ---------------------------------------------------------------------------
+// Broadcasting
+// ---------------------------------------------------------------------------
+
+void Monster::BroadcastState(MonsterStateId /*prev*/, MonsterStateId next)
 {
+	if (!zone_)
+		return;
+
 	Proto::S_MonsterState pkt;
 	pkt.set_guid(GetGuid());
-	pkt.set_state(static_cast<uint32>(state_));
+	pkt.set_state(static_cast<uint32>(next));
 	pkt.set_target_guid(targetGuid_);
 	zone_->Broadcast(MakeChunk(pkt));
 }
 
 void Monster::BroadcastAttack(long long targetGuid, int32 damage)
 {
+	if (!zone_)
+		return;
+
 	Proto::S_MonsterAttack pkt;
 	pkt.set_monster_guid(GetGuid());
 	pkt.set_target_guid(targetGuid);

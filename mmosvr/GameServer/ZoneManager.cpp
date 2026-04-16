@@ -8,7 +8,7 @@ void ZoneManager::Init()
 	LOG_INFO("ZoneManager initialized (zone " + std::to_string(DEFAULT_ZONE_ID) + " created)");
 }
 
-void ZoneManager::Update(float deltaTime)
+void ZoneManager::Update(const float deltaTime)
 {
 	std::shared_lock lock(mutex_);
 	for (auto& [id, zone] : zones_)

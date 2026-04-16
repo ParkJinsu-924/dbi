@@ -75,7 +75,7 @@ void Zone::Update(float deltaTime)
 	if (monsterBroadcastAccum_ >= MONSTER_BROADCAST_INTERVAL)
 	{
 		monsterBroadcastAccum_ = 0.0f;
-		BroadcastMonsterPositions();
+		BroadcastMonsterPositions(); // 이동이 있을 경우에만 따로 전송하게 끔 변경. 각 몬스터가 책임지고 전송.
 	}
 }
 

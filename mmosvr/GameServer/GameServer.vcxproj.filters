@@ -1,29 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Player.cpp" />
-    <ClCompile Include="GameSession.cpp" />
-    <ClCompile Include="GamePacketHandler.cpp" />
-    <ClCompile Include="GamePacketRegister.cpp" />
-    <ClCompile Include="Monster.cpp" />
-    <ClCompile Include="Zone.cpp" />
-    <ClCompile Include="ZoneManager.cpp" />
-    <ClCompile Include="PlayerManager.cpp" />
-    <ClCompile Include="MapManager.cpp" />
-    <ClCompile Include="MonsterManager.cpp" />
+    <Filter Include="Entity">
+      <UniqueIdentifier>{B1000000-0000-0000-0000-000000000001}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="AI">
+      <UniqueIdentifier>{B1000000-0000-0000-0000-000000000002}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="World">
+      <UniqueIdentifier>{B1000000-0000-0000-0000-000000000003}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Network">
+      <UniqueIdentifier>{B1000000-0000-0000-0000-000000000004}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Player.h" />
-    <ClInclude Include="GameSession.h" />
-    <ClInclude Include="GamePacketHandler.h" />
-    <ClInclude Include="GameObject.h" />
-    <ClInclude Include="Monster.h" />
-    <ClInclude Include="Npc.h" />
-    <ClInclude Include="Zone.h" />
-    <ClInclude Include="ZoneManager.h" />
-    <ClInclude Include="PlayerManager.h" />
-    <ClInclude Include="MapManager.h" />
-    <ClInclude Include="MonsterManager.h" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="Player.cpp">
+      <Filter>Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerManager.cpp">
+      <Filter>Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="Monster.cpp">
+      <Filter>Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="MonsterManager.cpp">
+      <Filter>Entity</Filter>
+    </ClCompile>
+    <ClCompile Include="MonsterStates.cpp">
+      <Filter>AI</Filter>
+    </ClCompile>
+    <ClCompile Include="Zone.cpp">
+      <Filter>World</Filter>
+    </ClCompile>
+    <ClCompile Include="ZoneManager.cpp">
+      <Filter>World</Filter>
+    </ClCompile>
+    <ClCompile Include="MapManager.cpp">
+      <Filter>World</Filter>
+    </ClCompile>
+    <ClCompile Include="GameSession.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="GamePacketHandler.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="GamePacketRegister.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GameObject.h">
+      <Filter>Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Unit.h">
+      <Filter>Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Npc.h">
+      <Filter>Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerManager.h">
+      <Filter>Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster.h">
+      <Filter>Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="MonsterManager.h">
+      <Filter>Entity</Filter>
+    </ClInclude>
+    <ClInclude Include="FSM.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="MonsterStates.h">
+      <Filter>AI</Filter>
+    </ClInclude>
+    <ClInclude Include="Zone.h">
+      <Filter>World</Filter>
+    </ClInclude>
+    <ClInclude Include="ZoneManager.h">
+      <Filter>World</Filter>
+    </ClInclude>
+    <ClInclude Include="MapManager.h">
+      <Filter>World</Filter>
+    </ClInclude>
+    <ClInclude Include="GameSession.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="GamePacketHandler.h">
+      <Filter>Network</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
