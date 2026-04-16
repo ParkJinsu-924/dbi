@@ -39,8 +39,20 @@ class PlayerState:
     x: float = 0.0
     y: float = 0.0
     z: float = 0.0
+    tx: float = 0.0
+    ty: float = 0.0
+    tz: float = 0.0
     hp: int = 100
     max_hp: int = 100
+
+    def set_target(self, x, y, z):
+        self.tx, self.ty, self.tz = x, y, z
+
+    def lerp(self, dt, speed=15.0):
+        t = min(1.0, speed * dt)
+        self.x += (self.tx - self.x) * t
+        self.y += (self.ty - self.y) * t
+        self.z += (self.tz - self.z) * t
 
 
 @dataclass
@@ -185,15 +197,17 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
                 for p in msg.players:
                     if p.player_id == me.player_id:
                         continue
+                    px, py, pz = p.position.x, p.position.y, p.position.z
                     ps = others.setdefault(p.player_id, PlayerState(player_id=p.player_id))
                     ps.name = p.name
-                    ps.x, ps.y, ps.z = p.position.x, p.position.y, p.position.z
+                    ps.x, ps.y, ps.z = px, py, pz
+                    ps.tx, ps.ty, ps.tz = px, py, pz
 
             elif pkt_id == packet_ids.S_PLAYER_MOVE:
                 if msg.player_id == me.player_id:
                     continue
                 ps = others.setdefault(msg.player_id, PlayerState(player_id=msg.player_id))
-                ps.x, ps.y, ps.z = msg.position.x, msg.position.y, msg.position.z
+                ps.set_target(msg.position.x, msg.position.y, msg.position.z)
 
             elif pkt_id == packet_ids.S_PLAYER_LEAVE:
                 others.pop(msg.player_id, None)
@@ -254,8 +268,10 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
                 me.hp = msg.hp
                 me.max_hp = msg.max_hp
 
-        # interpolate monster positions
+        # interpolate positions
         dt_frame = 1 / 60.0
+        for ps in others.values():
+            ps.lerp(dt_frame)
         for ms in monsters.values():
             ms.lerp(dt_frame)
 

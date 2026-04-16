@@ -129,11 +129,6 @@ void ChaseState::OnUpdate(Monster& owner, float deltaTime)
 // Attack
 // ===========================================================================
 
-void AttackState::OnEnter(Monster& /*owner*/)
-{
-	attackTimer_ = 0.0f;   // 진입 즉시 첫 공격
-}
-
 void AttackState::OnUpdate(Monster& owner, const float deltaTime)
 {
 	auto target = owner.GetTarget();
@@ -152,11 +147,11 @@ void AttackState::OnUpdate(Monster& owner, const float deltaTime)
 		return;
 	}
 
-	attackTimer_ -= deltaTime;
-	if (attackTimer_ <= 0.0f)
+	const float now = GetTimeManager().GetTotalTime();
+	if (now - owner.GetLastAttackTime() >= owner.GetAttackCooldown())
 	{
 		owner.DoAttack(*target);
-		attackTimer_ = owner.GetAttackCooldown();
+		owner.SetLastAttackTime(now);
 	}
 }
 

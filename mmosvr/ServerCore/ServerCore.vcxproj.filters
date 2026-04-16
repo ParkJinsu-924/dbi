@@ -38,5 +38,6 @@
     <ClInclude Include="Server\ServerBase.h"><Filter>Server</Filter></ClInclude>
     <ClInclude Include="Server\SessionManager.h"><Filter>Server</Filter></ClInclude>
     <ClInclude Include="Utils\CsvParser.h"><Filter>Utils</Filter></ClInclude>
+    <ClInclude Include="Utils\TimeManager.h"><Filter>Utils</Filter></ClInclude>
   </ItemGroup>
 </Project>

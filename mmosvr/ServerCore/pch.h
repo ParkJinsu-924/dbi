@@ -42,6 +42,7 @@
 #include "Utils/Logger.h"
 #include "Utils/EnumUtils.h"
 #include "Utils/JsonUtils.h"
+#include "Utils/TimeManager.h"
 
 // magic enum
 #include <magic_enum.hpp>

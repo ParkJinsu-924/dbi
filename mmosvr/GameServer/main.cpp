@@ -84,10 +84,13 @@ private:
 			const float dt = std::chrono::duration<float>(now - lastTick).count();
 			lastTick = now;
 
-			// 1. Process queued packets from I/O threads
+			// 1. Advance game time
+			GetTimeManager().Tick(dt);
+
+			// 2. Process queued packets from I/O threads
 			packetQueue_.Flush();
 
-			// 2. Update world (zones tick all GameObjects)
+			// 3. Update world (zones tick all GameObjects)
 			GetZoneManager().Update(dt);
 
 			const auto elapsed = Clock::now() - now;
