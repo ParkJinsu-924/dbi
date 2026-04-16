@@ -28,10 +28,16 @@ public:
 		return std::dynamic_pointer_cast<T>(Find(guid));
 	}
 
+	// Tick all objects + broadcast monster positions periodically
+	void Update(float deltaTime);
+
 	// Broadcast to Players currently in this zone
 	void Broadcast(SendBufferChunkPtr chunk);
 
 private:
+	void BroadcastMonsterPositions();
+
 	const int32 id_;
 	Synchronized<std::unordered_map<long long, std::shared_ptr<GameObject>>, std::shared_mutex> objects_;
+	float monsterBroadcastAccum_ = 0.0f;
 };

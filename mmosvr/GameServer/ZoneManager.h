@@ -15,6 +15,9 @@ class ZoneManager : public TSingleton<ZoneManager>
 {
 public:
 	void Init();
+	void Update(float deltaTime);
+	void Shutdown();
+
 	Zone* CreateZone(int32 id);
 	Zone* GetZone(int32 id) const;
 	void RemoveZone(int32 id);

@@ -1,7 +1,6 @@
 #include "pch.h"
 #include "GameSession.h"
 #include "GamePacketHandler.h"
-#include "GameLoop.h"
 #include "ZoneManager.h"
 #include "Services/PlayerService.h"
 #include "Services/MapService.h"
@@ -11,14 +10,22 @@
 #include "Server/SessionManager.h"
 #include "Network/Connector.h"
 #include "Network/ServerSession.h"
+#include "Utils/JobQueue.h"
+#include "Packet/PacketHandler.h"
 
 
 class GameServer : public ServerBase
 {
 public:
-	GameServer(int32 port, int32 ioThreads)
+	GameServer(int32 port, int32 ioThreads, int32 tickRate = 100)
 		: ServerBase(port, ioThreads)
+		, tickRate_(tickRate)
 	{
+	}
+
+	~GameServer()
+	{
+		StopGameLoop();
 	}
 
 protected:
@@ -26,18 +33,10 @@ protected:
 	{
 		GetPlayerService().Init();
 		GetMapService().Init();
-		GetMonsterService().Init();
 		GetZoneManager().Init();
 
-		// Spawn test monsters in default zone
 		SpawnTestMonsters();
-
-		gameLoop_ = std::make_unique<GameLoop>(100);
-		gameLoop_->AddService(GetPlayerService(), 0.05f);   // 20 Hz
-		gameLoop_->AddService(GetMapService(), 0.01f);       // 100 Hz
-		gameLoop_->AddService(GetMonsterService(), 0.1f);    // 10 Hz (movement broadcast)
-		gameLoop_->Start();
-
+		StartGameLoop();
 		ConnectToLoginServer();
 
 		LOG_INFO("GameServer initialized on port " + std::to_string(port_));
@@ -51,6 +50,50 @@ protected:
 	}
 
 private:
+	// ------ Game Loop ------
+	void StartGameLoop()
+	{
+		GetPacketHandler().SetJobQueue(&jobQueue_);
+		gameThread_ = std::jthread([this](std::stop_token st) { RunGameLoop(st); });
+		LOG_INFO("GameLoop started (" + std::to_string(tickRate_) + " Hz)");
+	}
+
+	void StopGameLoop()
+	{
+		if (gameThread_.joinable())
+		{
+			gameThread_.request_stop();
+			gameThread_.join();
+			GetPacketHandler().SetJobQueue(nullptr);
+			LOG_INFO("GameLoop stopped");
+		}
+	}
+
+	void RunGameLoop(std::stop_token stopToken)
+	{
+		using Clock = std::chrono::steady_clock;
+		const auto tickInterval = std::chrono::milliseconds(1000 / tickRate_);
+		auto lastTick = Clock::now();
+
+		while (!stopToken.stop_requested())
+		{
+			const auto now = Clock::now();
+			const float dt = std::chrono::duration<float>(now - lastTick).count();
+			lastTick = now;
+
+			// 1. Process queued packets from I/O threads
+			jobQueue_.Flush();
+
+			// 2. Update world (zones tick all GameObjects)
+			GetZoneManager().Update(dt);
+
+			const auto elapsed = Clock::now() - now;
+			if (elapsed < tickInterval)
+				std::this_thread::sleep_for(tickInterval - elapsed);
+		}
+	}
+
+	// ------ Test ------
 	void SpawnTestMonsters()
 	{
 		auto makeVec = [](float x, float y, float z) {
@@ -59,7 +102,6 @@ private:
 			return v;
 		};
 
-		// Three monsters, each circling around a different center
 		GetMonsterService().Spawn(1, "Goblin",
 			makeVec(5.0f, 0.0f, 0.0f),   /*radius*/3.0f, /*angularSpeed*/0.8f, /*start*/0.0f);
 
@@ -70,10 +112,11 @@ private:
 			makeVec(0.0f, 0.0f, -6.0f),  /*radius*/4.0f, /*angularSpeed*/0.5f, /*start*/2.0f);
 	}
 
+	// ------ Server-to-Server ------
 	void ConnectToLoginServer()
 	{
 		auto& ioc = ioPool_.GetNextIoContext();
-		
+
 		Connector::Config config;
 		config.endpoint = tcp::endpoint(net::ip::make_address("127.0.0.1"), 9999);
 		config.interval = std::chrono::milliseconds(2000);
@@ -84,7 +127,7 @@ private:
 			};
 
 		loginConnector_ = Connector::Create(ioc, config);
-		
+
 		loginConnector_->SetOnConnected([](const SessionPtr& session)
 			{
 				auto serverSession = std::static_pointer_cast<ServerSession>(session);
@@ -101,7 +144,10 @@ private:
 		loginConnector_->Start();
 	}
 
-	std::unique_ptr<GameLoop> gameLoop_;
+	// ------ Members ------
+	int32 tickRate_;
+	JobQueue jobQueue_;
+	std::jthread gameThread_;
 	std::shared_ptr<Connector> loginConnector_;
 };
 

@@ -17,7 +17,7 @@ void Monster::InitCircularMovement(const Proto::Vector3& center,
 	position_.set_z(center.z() + radius * std::sin(angle_));
 }
 
-void Monster::UpdateMovement(float deltaTime)
+void Monster::Update(float deltaTime)
 {
 	if (radius_ <= 0.0f)
 		return;

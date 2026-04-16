@@ -1,6 +1,5 @@
 #pragma once
 
-#include "GameService.h"
 #include "../Monster.h"
 #include "Utils/Synchronized.h"
 #include "Utils/TSingleton.h"
@@ -10,13 +9,9 @@
 
 #define GetMonsterService() MonsterService::Instance()
 
-class MonsterService : public TSingleton<MonsterService>, public GameService
+class MonsterService : public TSingleton<MonsterService>
 {
 public:
-	void Init() override;
-	void Update(float deltaTime) override;
-	void Shutdown() override;
-
 	// Spawn a monster in a zone with circular test movement.
 	// Broadcasts S_MonsterSpawn to the zone.
 	std::shared_ptr<Monster> Spawn(int32 zoneId, const std::string& name,
@@ -32,7 +27,4 @@ public:
 
 private:
 	Synchronized<std::unordered_map<long long, std::shared_ptr<Monster>>, std::shared_mutex> monsters_;
-
-	// Broadcast throttle — Update may be called often; broadcast every N seconds
-	float broadcastAccumulator_ = 0.0f;
 };

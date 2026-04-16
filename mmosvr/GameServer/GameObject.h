@@ -31,6 +31,7 @@ public:
 	}
 
 	virtual ~GameObject() = default;
+	virtual void Update(float /*deltaTime*/) {}
 
 	GameObject(const GameObject&) = delete;
 	GameObject& operator=(const GameObject&) = delete;

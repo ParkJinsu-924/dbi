@@ -11,13 +11,14 @@ public:
 	{
 	}
 
+	void Update(float deltaTime) override;
+
 	int32 GetHp() const { return hp_; }
 	void SetHp(int32 hp) { hp_ = hp; }
 
 	// --- Test movement: walk in a circle around a fixed center ---
 	void InitCircularMovement(const Proto::Vector3& center,
 		float radius, float angularSpeedRad, float startAngleRad = 0.0f);
-	void UpdateMovement(float deltaTime);
 
 private:
 	int32 hp_ = 100;

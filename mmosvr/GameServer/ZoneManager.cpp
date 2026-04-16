@@ -1,11 +1,25 @@
 #include "pch.h"
 #include "ZoneManager.h"
 
+
 void ZoneManager::Init()
 {
-	// Auto-create default zone on first Instance() call
 	zones_[DEFAULT_ZONE_ID] = std::make_unique<Zone>(DEFAULT_ZONE_ID);
 	LOG_INFO("ZoneManager initialized (zone " + std::to_string(DEFAULT_ZONE_ID) + " created)");
+}
+
+void ZoneManager::Update(float deltaTime)
+{
+	std::shared_lock lock(mutex_);
+	for (auto& [id, zone] : zones_)
+		zone->Update(deltaTime);
+}
+
+void ZoneManager::Shutdown()
+{
+	std::unique_lock lock(mutex_);
+	zones_.clear();
+	LOG_INFO("ZoneManager shutdown");
 }
 
 Zone* ZoneManager::CreateZone(int32 id)
