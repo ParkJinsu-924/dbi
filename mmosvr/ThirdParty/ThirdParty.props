@@ -9,7 +9,7 @@
     <ItemDefinitionGroup>
         <ClCompile>
             <AdditionalIncludeDirectories>
-                $(ThirdPartyDir)boost\include;$(ThirdPartyDir)protobuf\include;$(ThirdPartyDir)nanodbc\include;$(ThirdPartyDir)recastnavigation\include;%(AdditionalIncludeDirectories)
+                $(ThirdPartyDir)boost\include;$(ThirdPartyDir)protobuf\include;$(ThirdPartyDir)nanodbc\include;$(ThirdPartyDir)recastnavigation\include;$(ThirdPartyDir)magic_enum\include;$(ThirdPartyDir)nlohmann_json\include;%(AdditionalIncludeDirectories)
             </AdditionalIncludeDirectories>
             <PreprocessorDefinitions>PROTOBUF_USE_DLLS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
             <DisableSpecificWarnings>4251;4267;4819;%(DisableSpecificWarnings)</DisableSpecificWarnings>

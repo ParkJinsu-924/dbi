@@ -40,3 +40,11 @@
 // Project common
 #include "Utils/Types.h"
 #include "Utils/Logger.h"
+#include "Utils/EnumUtils.h"
+#include "Utils/JsonUtils.h"
+
+// magic enum
+#include <magic_enum.hpp>
+
+// nlohmann json
+#include <nlohmann/json.hpp>

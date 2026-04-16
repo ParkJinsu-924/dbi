@@ -28,18 +28,6 @@ namespace
 		chunk->SetSize(totalSize);
 		return chunk;
 	}
-
-	const char* StateIdToString(MonsterStateId id)
-	{
-		switch (id)
-		{
-		case MonsterStateId::Idle:    return "Idle";
-		case MonsterStateId::Chase:   return "Chase";
-		case MonsterStateId::Attack:  return "Attack";
-		case MonsterStateId::Return:  return "Return";
-		default:                      return "Unknown";
-		}
-	}
 }
 
 
@@ -60,7 +48,7 @@ void Monster::InitAI(const Proto::Vector3& spawnPos, Zone* zone)
 		{
 			BroadcastState(prev, next);
 			LOG_INFO("Monster [" + GetName() + "] " +
-				StateIdToString(prev) + " -> " + StateIdToString(next));
+				EU::EnumToString(prev) + " -> " + EU::EnumToString(next));
 		});
 
 	// 시작
