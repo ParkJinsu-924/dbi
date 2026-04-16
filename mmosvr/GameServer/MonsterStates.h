@@ -75,7 +75,8 @@ public:
 	void OnEnter(Monster& owner) override;
 	void OnUpdate(Monster& owner, float deltaTime) override;
 
-private:
+private: // timer 에 버그가 있음. Enter 에서 0 으로 만들기 때문에, Chase상태로 갔다가 다시 AttackState 로 들어오게 된다면,
+	// 0으로 되기 때문에 바로 공격을 시도해서 2단 3단 공격이 되버리는 상황 발생.
 	float attackTimer_ = 0.0f;
 };
 
