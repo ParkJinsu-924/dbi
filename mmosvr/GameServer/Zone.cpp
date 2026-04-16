@@ -3,32 +3,12 @@
 #include "GameObject.h"
 #include "Player.h"
 #include "Network/Session.h"
-#include "Packet/PacketHeader.h"
-#include "Packet/PacketIdTraits.h"
-#include "Network/SendBuffer.h"
+#include "Network/PacketSession.h"
 #include "game.pb.h"
 
 
 namespace
 {
-	template<typename T>
-	SendBufferChunkPtr MakeChunk(const T& msg)
-	{
-		constexpr uint16 packetId = static_cast<uint16>(PacketIdTraits<T>::Id);
-		const int32 payloadSize = static_cast<int32>(msg.ByteSizeLong());
-		const int32 totalSize = PACKET_HEADER_SIZE + payloadSize;
-
-		auto chunk = std::make_shared<SendBufferChunk>(totalSize);
-
-		PacketHeader header;
-		header.size = static_cast<uint16>(totalSize);
-		header.id = packetId;
-		std::memcpy(chunk->Buffer(), &header, PACKET_HEADER_SIZE);
-		msg.SerializeToArray(chunk->Buffer() + PACKET_HEADER_SIZE, payloadSize);
-		chunk->SetSize(totalSize);
-		return chunk;
-	}
-
 	constexpr float MONSTER_BROADCAST_INTERVAL = 0.1f;  // 10 Hz
 }
 
@@ -75,11 +55,11 @@ void Zone::Update(float deltaTime)
 	if (monsterBroadcastAccum_ >= MONSTER_BROADCAST_INTERVAL)
 	{
 		monsterBroadcastAccum_ = 0.0f;
-		BroadcastMonsterPositions(); // ÀÌµ¿ÀÌ ÀÖÀ» °æ¿ì¿¡¸¸ µû·Î Àü¼ÛÇÏ°Ô ²û º¯°æ. °¢ ¸ó½ºÅÍ°¡ Ã¥ÀÓÁö°í Àü¼Û.
+		BroadcastMonsterPositions(); // ï¿½Ìµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ì¿¡ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï°ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½. ï¿½ï¿½ ï¿½ï¿½ï¿½Í°ï¿½ Ã¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 	}
 }
 
-void Zone::Broadcast(SendBufferChunkPtr chunk)
+void Zone::BroadcastChunk(SendBufferChunkPtr chunk)
 {
 	objects_.Read([&](const auto& m)
 		{
@@ -142,7 +122,7 @@ void Zone::BroadcastMonsterPositions()
 				Proto::S_MonsterMove pkt;
 				pkt.set_guid(guid);
 				*pkt.mutable_position() = obj->GetPosition();
-				Broadcast(MakeChunk(pkt));
+				Broadcast(pkt);
 			}
 		});
 }

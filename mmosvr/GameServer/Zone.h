@@ -7,6 +7,8 @@
 #include <unordered_map>
 #include <memory>
 #include <shared_mutex>
+#include "GameObject.h"
+#include "Network/PacketSession.h"
 
 class GameObject;
 class Player;
@@ -45,14 +47,19 @@ public:
 	// Tick all objects + broadcast monster positions periodically
 	void Update(float deltaTime);
 
-	// Broadcast to Players currently in this zone
-	void Broadcast(SendBufferChunkPtr chunk);
+	// Broadcast a protobuf message to all Players in this zone
+	template<typename T>
+	void Broadcast(const T& msg)
+	{
+		BroadcastChunk(PacketSession::MakeSendBuffer(msg));
+	}
 
 	// Find the nearest alive Player within maxRange of the given position.
 	// Returns nullptr if none found.
 	std::shared_ptr<Player> FindNearestPlayer(const Proto::Vector3& from, float maxRange) const;
 
 private:
+	void BroadcastChunk(SendBufferChunkPtr chunk); // For Broadcast function, use Broadcast() instead.
 	void BroadcastMonsterPositions();
 
 	const int32 id_;

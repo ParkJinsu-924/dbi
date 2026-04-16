@@ -20,6 +20,7 @@ MONSTER_COLOR = (60, 200, 90)
 MONSTER_CHASE_COLOR = (220, 180, 40)
 MONSTER_ATTACK_COLOR = (220, 50, 50)
 MONSTER_RETURN_COLOR = (120, 120, 120)
+DETECT_RANGE_COLOR = (60, 200, 90, 80)   # semi-transparent green for detect circle
 TEXT_COLOR = (220, 220, 220)
 HP_BAR_BG = (80, 20, 20)
 HP_BAR_FG = (220, 40, 40)
@@ -81,20 +82,34 @@ class Renderer:
                 self._label(p.name, sx, sy - OTHER_RADIUS - 4)
 
         # Monsters (squares, color reflects AI state)
+        # MonsterStateId: 0=Idle, 1=Patrol, 2=Chase, 3=Attack, 4=Return
         _MONSTER_STATE_COLORS = {
             0: MONSTER_COLOR,         # Idle
-            1: MONSTER_CHASE_COLOR,   # Chase
-            2: MONSTER_ATTACK_COLOR,  # Attack
-            3: MONSTER_RETURN_COLOR,  # Return
+            1: MONSTER_COLOR,         # Patrol (same color as Idle)
+            2: MONSTER_CHASE_COLOR,   # Chase
+            3: MONSTER_ATTACK_COLOR,  # Attack
+            4: MONSTER_RETURN_COLOR,  # Return
         }
-        _STATE_NAMES = {0: "", 1: "Chase", 2: "ATK", 3: "Return"}
+        _STATE_NAMES = {0: "Idle", 1: "Patrol", 2: "Chase", 3: "ATK", 4: "Return"}
         for gid, m in monsters.items():
             sx, sy = self.world_to_screen(m.x, m.z, cx, cz)
             half = MONSTER_SIZE // 2
-            color = _MONSTER_STATE_COLORS.get(getattr(m, 'state', 0), MONSTER_COLOR)
+            state = getattr(m, 'state', 0)
+            color = _MONSTER_STATE_COLORS.get(state, MONSTER_COLOR)
+
+            # Detect range circle (Idle/Patrol only)
+            if state in (0, 1):
+                detect_range = getattr(m, 'detect_range', 10.0)
+                radius_px = int(detect_range * PIXELS_PER_UNIT)
+                if radius_px > 0:
+                    circle_surface = pygame.Surface((radius_px * 2, radius_px * 2), pygame.SRCALPHA)
+                    pygame.draw.circle(circle_surface, DETECT_RANGE_COLOR,
+                                       (radius_px, radius_px), radius_px)
+                    self.screen.blit(circle_surface, (sx - radius_px, sy - radius_px))
+
             pygame.draw.rect(self.screen, color,
                              (sx - half, sy - half, MONSTER_SIZE, MONSTER_SIZE))
-            state_tag = _STATE_NAMES.get(getattr(m, 'state', 0), "")
+            state_tag = _STATE_NAMES.get(state, "")
             label = m.name if hasattr(m, 'name') and m.name else ""
             if state_tag:
                 label = f"{label} [{state_tag}]" if label else state_tag

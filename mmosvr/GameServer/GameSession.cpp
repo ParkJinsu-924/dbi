@@ -37,7 +37,7 @@ void GameSession::OnDisconnected()
 		Proto::S_PlayerLeave leavePkt;
 		leavePkt.set_player_id(playerId_);
 		if (auto* zone = GetZoneManager().GetZone(zoneId))
-			zone->Broadcast(MakeSendBuffer(leavePkt));
+			zone->Broadcast(leavePkt);
 	}
 
 	GetSessionManager().RemoveClientSession(shared_from_this());

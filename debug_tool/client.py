@@ -50,8 +50,9 @@ class MonsterState:
     x: float = 0.0
     y: float = 0.0
     z: float = 0.0
-    state: int = 0        # 0=Idle, 1=Chase, 2=Attack, 3=Return
+    state: int = 0        # 0=Idle, 1=Patrol, 2=Chase, 3=Attack, 4=Return
     target_guid: int = 0  # Chase/Attack target player GUID
+    detect_range: float = 10.0
 
 
 def make_vec3(x, y, z):

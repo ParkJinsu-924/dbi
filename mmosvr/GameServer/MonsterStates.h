@@ -7,6 +7,7 @@ class Monster;
 enum class MonsterStateId : uint8_t
 {
 	Idle,
+	Patrol,
 	Chase,
 	Attack,
 	Return
@@ -16,13 +17,42 @@ using MonsterFSM = StateMachine<Monster, MonsterStateId>;
 
 
 // ---------------------------------------------------------------------------
-// Idle — 스폰 지점 대기, detectRange 내 플레이어 탐색
+// GlobalDetectState — every tick, detect player within range -> Chase
+// Runs before the current state. Skips detection in Chase/Attack/Return.
+// ---------------------------------------------------------------------------
+class MonsterGlobalState : public IState<Monster>
+{
+public:
+	void OnUpdate(Monster& owner, float deltaTime) override;
+};
+
+
+// ---------------------------------------------------------------------------
+// Idle — spawn point standby
 // ---------------------------------------------------------------------------
 class IdleState : public IState<Monster>
 {
 public:
 	void OnEnter(Monster& owner) override;
 	void OnUpdate(Monster& owner, float deltaTime) override;
+	
+private:
+	float idleTime_ = 0.0f;
+};
+
+
+// ---------------------------------------------------------------------------
+// Patrol — patrol around spawn point in a circle
+// ---------------------------------------------------------------------------
+class PatrolState : public IState<Monster>
+{
+public:
+	void OnEnter(Monster& owner) override;
+	void OnUpdate(Monster& owner, float deltaTime) override;
+
+private:
+	float angle_ = 0.0f;
+	float patrolTime_ = 0.0f;
 };
 
 

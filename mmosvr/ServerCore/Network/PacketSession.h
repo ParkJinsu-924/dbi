@@ -19,7 +19,7 @@ public:
 	}
 
 	template<typename T>
-	SendBufferChunkPtr MakeSendBuffer(const T& msg)
+	static SendBufferChunkPtr MakeSendBuffer(const T& msg)
 	{
 		constexpr uint16 packetId = static_cast<uint16>(PacketIdTraits<T>::Id);
 		return MakeSendBufferRaw(packetId, msg);

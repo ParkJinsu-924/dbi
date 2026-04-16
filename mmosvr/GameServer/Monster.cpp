@@ -2,33 +2,8 @@
 #include "Monster.h"
 #include "Zone.h"
 #include "Player.h"
-#include "Packet/PacketHeader.h"
-#include "Packet/PacketIdTraits.h"
-#include "Network/SendBuffer.h"
 #include "game.pb.h"
 #include <cmath>
-
-
-namespace
-{
-	template<typename T>
-	SendBufferChunkPtr MakeChunk(const T& msg)
-	{
-		constexpr uint16 packetId = static_cast<uint16>(PacketIdTraits<T>::Id);
-		const int32 payloadSize = static_cast<int32>(msg.ByteSizeLong());
-		const int32 totalSize = PACKET_HEADER_SIZE + payloadSize;
-
-		auto chunk = std::make_shared<SendBufferChunk>(totalSize);
-
-		PacketHeader header;
-		header.size = static_cast<uint16>(totalSize);
-		header.id = packetId;
-		std::memcpy(chunk->Buffer(), &header, PACKET_HEADER_SIZE);
-		msg.SerializeToArray(chunk->Buffer() + PACKET_HEADER_SIZE, payloadSize);
-		chunk->SetSize(totalSize);
-		return chunk;
-	}
-}
 
 
 void Monster::InitAI(const Proto::Vector3& spawnPos, Zone* zone)
@@ -37,8 +12,12 @@ void Monster::InitAI(const Proto::Vector3& spawnPos, Zone* zone)
 	position_ = spawnPos;
 	zone_ = zone;
 
+	// GlobalState: detect player in Idle/Patrol -> Chase
+	fsm_.SetGlobalState<MonsterGlobalState>();
+
 	// 상태 등록
 	fsm_.AddState<IdleState>(MonsterStateId::Idle);
+	fsm_.AddState<PatrolState>(MonsterStateId::Patrol);
 	fsm_.AddState<ChaseState>(MonsterStateId::Chase);
 	fsm_.AddState<AttackState>(MonsterStateId::Attack);
 	fsm_.AddState<ReturnState>(MonsterStateId::Return);
@@ -51,13 +30,13 @@ void Monster::InitAI(const Proto::Vector3& spawnPos, Zone* zone)
 				EU::EnumToString(prev) + " -> " + EU::EnumToString(next));
 		});
 
-	// 시작
-	fsm_.Start(*this, MonsterStateId::Idle);
+	// 시작 (Patrol 상태로 시작)
+	fsm_.Start(*this, MonsterStateId::Patrol);
 }
 
 void Monster::Update(const float deltaTime)
 {
-	fsm_.Update(*this, deltaTime);
+	fsm_.Update(deltaTime);
 }
 
 // ---------------------------------------------------------------------------
@@ -83,7 +62,7 @@ float Monster::DistanceToSpawn() const
 	return DistanceTo(spawnPos_);
 }
 
-void Monster::MoveToward(const Proto::Vector3& target, float deltaTime)
+void Monster::MoveToward(const Proto::Vector3& target, const float deltaTime)
 {
 	float dx = target.x() - position_.x();
 	float dz = target.z() - position_.z();
@@ -136,7 +115,7 @@ void Monster::BroadcastState(MonsterStateId /*prev*/, MonsterStateId next)
 	pkt.set_guid(GetGuid());
 	pkt.set_state(static_cast<uint32>(next));
 	pkt.set_target_guid(targetGuid_);
-	zone_->Broadcast(MakeChunk(pkt));
+	zone_->Broadcast(pkt);
 }
 
 void Monster::BroadcastAttack(long long targetGuid, int32 damage)
@@ -148,5 +127,5 @@ void Monster::BroadcastAttack(long long targetGuid, int32 damage)
 	pkt.set_monster_guid(GetGuid());
 	pkt.set_target_guid(targetGuid);
 	pkt.set_damage(damage);
-	zone_->Broadcast(MakeChunk(pkt));
+	zone_->Broadcast(pkt);
 }

@@ -158,7 +158,7 @@ Proto::ErrorCode GamePacketHandler::C_PlayerMove(std::shared_ptr<GameSession> se
 	broadcast.set_yaw(pkt.yaw());
 
 	if (auto* zone = GetZoneManager().GetZone(player->GetZoneId()))
-		zone->Broadcast(session->MakeSendBuffer(broadcast));
+		zone->Broadcast(broadcast);
 	return Proto::ErrorCode::OK;
 }
 
@@ -174,7 +174,7 @@ Proto::ErrorCode GamePacketHandler::C_Chat(std::shared_ptr<GameSession> session,
 	broadcast.set_message(pkt.message());
 
 	if (auto* zone = GetZoneManager().GetZone(player->GetZoneId()))
-		zone->Broadcast(session->MakeSendBuffer(broadcast));
+		zone->Broadcast(broadcast);
 
 	LOG_INFO("[Chat] " + player->GetName() + ": " + pkt.message());
 	return Proto::ErrorCode::OK;

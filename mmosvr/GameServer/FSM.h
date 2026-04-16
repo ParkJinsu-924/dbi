@@ -73,34 +73,36 @@ public:
 	// ----- 라이프사이클 -----
 
 	// 초기 상태 설정. 모든 AddState 호출 후 한 번만 호출.
+	// owner 참조를 내부에 저장하므로, owner의 수명이 FSM보다 길어야 한다.
 	void Start(TOwner& owner, TStateId initialState)
 	{
+		owner_ = &owner;
 		currentId_ = initialState;
 		current_ = FindState(currentId_);
 
 		if (globalState_)
-			globalState_->OnEnter(owner);
+			globalState_->OnEnter(*owner_);
 		if (current_)
-			current_->OnEnter(owner);
+			current_->OnEnter(*owner_);
 
 		started_ = true;
 	}
 
 	// 매 틱 호출
-	void Update(TOwner& owner, float deltaTime)
+	void Update(float deltaTime)
 	{
 		if (!started_)
 			return;
 
 		if (globalState_)
-			globalState_->OnUpdate(owner, deltaTime);
+			globalState_->OnUpdate(*owner_, deltaTime);
 
 		if (current_)
-			current_->OnUpdate(owner, deltaTime);
+			current_->OnUpdate(*owner_, deltaTime);
 	}
 
 	// 상태 전환. Exit(old) -> Enter(new) 순서 보장.
-	void ChangeState(TOwner& owner, TStateId newState)
+	void ChangeState(TStateId newState)
 	{
 		if (newState == currentId_ && current_)
 			return;
@@ -108,13 +110,13 @@ public:
 		TStateId prevId = currentId_;
 
 		if (current_)
-			current_->OnExit(owner);
+			current_->OnExit(*owner_);
 
 		currentId_ = newState;
 		current_ = FindState(currentId_);
 
 		if (current_)
-			current_->OnEnter(owner);
+			current_->OnEnter(*owner_);
 
 		if (onStateChanged_)
 			onStateChanged_(prevId, currentId_);
@@ -149,6 +151,9 @@ private:
 				static_cast<std::underlying_type_t<TStateId>>(v));
 		}
 	};
+
+	// owner_: Start()에서 설정. FSM의 모든 라이프사이클에서 사용.
+	TOwner* owner_ = nullptr;
 
 	// states_: all registered states, keyed by TStateId.
 	//          Owns the state objects via unique_ptr.
