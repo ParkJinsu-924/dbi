@@ -49,7 +49,7 @@ void IdleState::OnEnter(Monster& owner)
 	idleTime_ = 0.0f;
 }
 
-void IdleState::OnUpdate(Monster& owner, float deltaTime)
+void IdleState::OnUpdate(Monster& owner, const float deltaTime)
 {
 	idleTime_ += deltaTime;
 	if (idleTime_ >= 1.0f)
