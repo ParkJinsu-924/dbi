@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Services/PlayerManager.h"
+#include "PlayerManager.h"
 
 
 std::shared_ptr<Player> PlayerManager::AddPlayer(const std::string& name)
@@ -22,6 +22,16 @@ void PlayerManager::RemovePlayer(int32 playerId)
 		{
 			m.erase(playerId);
 		});
+}
+
+std::shared_ptr<Player> PlayerManager::FindBySession(const std::shared_ptr<GameSession>& session) const
+{
+	if (session == nullptr)
+		return nullptr;
+	int32 playerId = session->GetPlayerId();
+	if (playerId == 0)
+		return nullptr;
+	return FindPlayer(playerId);
 }
 
 std::shared_ptr<Player> PlayerManager::FindPlayer(int32 playerId) const

@@ -8,6 +8,7 @@
 
 
 
+class Player;
 class GamePacketHandler
 {
 public:

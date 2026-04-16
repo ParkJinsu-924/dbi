@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "GameSession.h"
-#include "Services/PlayerManager.h"
+#include "PlayerManager.h"
 #include "Server/SessionManager.h"
 #include "ZoneManager.h"
 #include "game.pb.h"

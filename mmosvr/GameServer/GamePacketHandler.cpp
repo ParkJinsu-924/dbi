@@ -3,8 +3,8 @@
 #include "Packet/PacketUtils.h"
 #include "Packet/PacketHandler.h"
 #include "Server/SessionManager.h"
-#include "Services/PlayerManager.h"
-#include "Services/MapManager.h"
+#include "PlayerManager.h"
+#include "MapManager.h"
 #include "Monster.h"
 #include "ZoneManager.h"
 
@@ -116,11 +116,7 @@ Proto::ErrorCode GamePacketHandler::SS_ValidateToken(std::shared_ptr<ServerSessi
 
 Proto::ErrorCode GamePacketHandler::C_PlayerMove(std::shared_ptr<GameSession> session, const Proto::C_PlayerMove& pkt)
 {
-	const int32 playerId = session->GetPlayerId();
-	if (playerId == 0)
-		return Proto::ErrorCode::PLAYER_NOT_FOUND;
-
-	auto player = GetPlayerManager().FindPlayer(playerId);
+	auto player = GetPlayerManager().FindBySession(session);
 	if (!player)
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
 
@@ -157,7 +153,7 @@ Proto::ErrorCode GamePacketHandler::C_PlayerMove(std::shared_ptr<GameSession> se
 	player->SetYaw(pkt.yaw());
 
 	Proto::S_PlayerMove broadcast;
-	broadcast.set_player_id(playerId);
+	broadcast.set_player_id(player->GetPlayerId());
 	*broadcast.mutable_position() = validatedPos;
 	broadcast.set_yaw(pkt.yaw());
 
@@ -168,16 +164,12 @@ Proto::ErrorCode GamePacketHandler::C_PlayerMove(std::shared_ptr<GameSession> se
 
 Proto::ErrorCode GamePacketHandler::C_Chat(std::shared_ptr<GameSession> session, const Proto::C_Chat& pkt)
 {
-	const int32 playerId = session->GetPlayerId();
-	if (playerId == 0)
-		return Proto::ErrorCode::PLAYER_NOT_FOUND;
-
-	auto player = GetPlayerManager().FindPlayer(playerId);
+	auto player = GetPlayerManager().FindBySession(session);
 	if (!player)
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
 
 	Proto::S_Chat broadcast;
-	broadcast.set_player_id(playerId);
+	broadcast.set_player_id(player->GetPlayerId());
 	broadcast.set_sender(player->GetName());
 	broadcast.set_message(pkt.message());
 

@@ -1,6 +1,7 @@
 #pragma once
 
-#include "../Player.h"
+#include "Player.h"
+#include "GameSession.h"
 #include "Utils/Synchronized.h"
 #include "Utils/TSingleton.h"
 #include <unordered_map>
@@ -16,6 +17,7 @@ public:
 	std::shared_ptr<Player> AddPlayer(const std::string& name);
 	void RemovePlayer(int32 playerId);
 	std::shared_ptr<Player> FindPlayer(int32 playerId) const;
+	std::shared_ptr<Player> FindBySession(const std::shared_ptr<GameSession>& session) const;
 	std::vector<std::shared_ptr<Player>> GetAllPlayers() const;
 
 private:

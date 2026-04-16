@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../Monster.h"
+#include "Monster.h"
 #include "Utils/TSingleton.h"
 #include <memory>
 #include <string>

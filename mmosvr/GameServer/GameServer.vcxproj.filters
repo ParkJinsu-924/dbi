@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Services"><UniqueIdentifier>{63a1c5d0-0001-0001-0001-000000000001}</UniqueIdentifier></Filter>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="GameSession.cpp" />
     <ClCompile Include="GamePacketHandler.cpp" />
+    <ClCompile Include="GamePacketRegister.cpp" />
     <ClCompile Include="Monster.cpp" />
     <ClCompile Include="Zone.cpp" />
     <ClCompile Include="ZoneManager.cpp" />
-    <ClCompile Include="Services\PlayerManager.cpp"><Filter>Services</Filter></ClCompile>
-    <ClCompile Include="Services\MapManager.cpp"><Filter>Services</Filter></ClCompile>
-    <ClCompile Include="Services\MonsterManager.cpp"><Filter>Services</Filter></ClCompile>
+    <ClCompile Include="PlayerManager.cpp" />
+    <ClCompile Include="MapManager.cpp" />
+    <ClCompile Include="MonsterManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Player.h" />
@@ -24,8 +22,8 @@
     <ClInclude Include="Npc.h" />
     <ClInclude Include="Zone.h" />
     <ClInclude Include="ZoneManager.h" />
-    <ClInclude Include="Services\PlayerManager.h"><Filter>Services</Filter></ClInclude>
-    <ClInclude Include="Services\MapManager.h"><Filter>Services</Filter></ClInclude>
-    <ClInclude Include="Services\MonsterManager.h"><Filter>Services</Filter></ClInclude>
+    <ClInclude Include="PlayerManager.h" />
+    <ClInclude Include="MapManager.h" />
+    <ClInclude Include="MonsterManager.h" />
   </ItemGroup>
 </Project>
