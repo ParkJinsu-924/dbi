@@ -13,6 +13,9 @@
     <Filter Include="Network">
       <UniqueIdentifier>{B1000000-0000-0000-0000-000000000004}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data">
+      <UniqueIdentifier>{B1000000-0000-0000-0000-000000000005}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -48,6 +51,9 @@
     </ClCompile>
     <ClCompile Include="GamePacketRegister.cpp">
       <Filter>Network</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>Data</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -92,6 +98,15 @@
     </ClInclude>
     <ClInclude Include="GamePacketHandler.h">
       <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="MonsterTemplate.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="SpawnEntry.h">
+      <Filter>Data</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

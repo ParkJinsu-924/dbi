@@ -107,6 +107,7 @@ Proto::ErrorCode GamePacketHandler::SS_ValidateToken(std::shared_ptr<ServerSessi
 		info->set_guid(m->GetGuid());
 		info->set_name(m->GetName());
 		*info->mutable_position() = m->GetPosition();
+		info->set_detect_range(m->GetDetectRange());
 	}
 	gameSession->Send(monsterListPkt);
 

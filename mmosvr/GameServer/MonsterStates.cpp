@@ -4,6 +4,7 @@
 #include "Zone.h"
 #include "Player.h"
 #include <cmath>
+#include <random>
 
 
 // ===========================================================================
@@ -62,39 +63,37 @@ void IdleState::OnUpdate(Monster& owner, const float deltaTime)
 
 
 // ===========================================================================
-// Patrol — circular patrol around spawn point
+// Patrol — move to a random point within range of spawn, then go Idle
 // ===========================================================================
 
-void PatrolState::OnEnter(Monster& /*owner*/)
+void PatrolState::OnEnter(Monster& owner)
 {
-	angle_ = 0.0f;
-	patrolTime_ = 0.0f;
+	constexpr float PATROL_RANGE = 5.0f;
+
+	static thread_local std::mt19937 rng(std::random_device{}());
+	std::uniform_real_distribution<float> angleDist(0.0f, 6.28318530718f);
+	std::uniform_real_distribution<float> radiusDist(0.0f, PATROL_RANGE);
+
+	const float angle = angleDist(rng);
+	const float radius = radiusDist(rng);
+	const auto& spawn = owner.GetSpawnPos();
+
+	targetX_ = spawn.x() + radius * std::cos(angle);
+	targetZ_ = spawn.z() + radius * std::sin(angle);
 }
 
 void PatrolState::OnUpdate(Monster& owner, const float deltaTime)
 {
-	// Detection is handled by GlobalDetectState
-	
-	patrolTime_ += deltaTime;
-	if (patrolTime_ >= 1.0f)
+	Proto::Vector3 target;
+	target.set_x(targetX_);
+	target.set_y(owner.GetSpawnPos().y());
+	target.set_z(targetZ_);
+
+	if (owner.DistanceTo(target) <= 0.3f)
 	{
-		patrolTime_ = 0.0f;
 		owner.GetFSM().ChangeState(MonsterStateId::Idle);
 		return;
 	}
-
-	constexpr float PATROL_RADIUS = 3.0f;
-	constexpr float PATROL_SPEED  = 0.8f;   // radians per second
-
-	angle_ += PATROL_SPEED * deltaTime;
-	if (angle_ > 6.28318530718f)
-		angle_ -= 6.28318530718f;
-
-	const auto& spawn = owner.GetSpawnPos();
-	Proto::Vector3 target;
-	target.set_x(spawn.x() + PATROL_RADIUS * std::cos(angle_));
-	target.set_y(spawn.y());
-	target.set_z(spawn.z() + PATROL_RADIUS * std::sin(angle_));
 
 	owner.MoveToward(target, deltaTime);
 }
@@ -145,7 +144,7 @@ void AttackState::OnUpdate(Monster& owner, const float deltaTime)
 		return;
 	}
 
-	float dist = owner.DistanceTo(target->GetPosition());
+	const float dist = owner.DistanceTo(target->GetPosition());
 
 	if (dist > owner.GetAttackRange())
 	{

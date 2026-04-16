@@ -5,6 +5,9 @@
 #include "PlayerManager.h"
 #include "MapManager.h"
 #include "MonsterManager.h"
+#include "ResourceManager.h"
+#include "MonsterTemplate.h"
+#include "SpawnEntry.h"
 #include "common.pb.h"
 #include "Server/ServerBase.h"
 #include "Server/SessionManager.h"
@@ -31,10 +34,11 @@ public:
 protected:
 	void Init() override
 	{
+		GetResourceManager().Init();
 		GetMapManager().LoadNavMesh();
 		GetZoneManager().Init();
 
-		SpawnTestMonsters();
+		SpawnMonstersFromData();
 		StartGameLoop();
 		ConnectToLoginServer();
 
@@ -92,7 +96,26 @@ private:
 		}
 	}
 
-	// ------ Test ------
+	// ------ Spawn ------
+	void SpawnMonstersFromData()
+	{
+		const auto& spawns = GetResourceManager().Get<SpawnEntry>()->GetAll();
+		if (!spawns.empty())
+		{
+			for (const auto& e : spawns | std::views::values)
+			{
+				Proto::Vector3 pos;
+				pos.set_x(e.x); pos.set_y(e.y); pos.set_z(e.z);
+				GetMonsterManager().Spawn(e.zoneId, e.templateId, pos);
+			}
+		}
+		else
+		{
+			LOG_WARN("No spawn data found, using hardcoded test monsters");
+			SpawnTestMonsters();
+		}
+	}
+
 	void SpawnTestMonsters()
 	{
 		auto makeVec = [](float x, float y, float z) {

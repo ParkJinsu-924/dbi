@@ -78,6 +78,7 @@ message S_MonsterSpawn {
     int64 guid = 1;
     string name = 2;
     Vector3 position = 3;
+    float detect_range = 4;
 }
 
 message S_MonsterMove {
@@ -94,6 +95,7 @@ message S_MonsterList {
         int64 guid = 1;
         string name = 2;
         Vector3 position = 3;
+        float detect_range = 4;
     }
     repeated MonsterInfo monsters = 1;
 }

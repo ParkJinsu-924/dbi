@@ -14,5 +14,8 @@ public:
 	std::shared_ptr<Monster> Spawn(int32 zoneId, const std::string& name,
 		const Proto::Vector3& spawnPos);
 
+	std::shared_ptr<Monster> Spawn(int32 zoneId, int32 templateId,
+		const Proto::Vector3& spawnPos);
+
 	void Despawn(int32 zoneId, long long guid);
 };

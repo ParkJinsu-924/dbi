@@ -42,7 +42,7 @@ private:
 
 
 // ---------------------------------------------------------------------------
-// Patrol — patrol around spawn point in a circle
+// Patrol — move to a random point within range of spawn, then go Idle
 // ---------------------------------------------------------------------------
 class PatrolState : public IState<Monster>
 {
@@ -51,8 +51,8 @@ public:
 	void OnUpdate(Monster& owner, float deltaTime) override;
 
 private:
-	float angle_ = 0.0f;
-	float patrolTime_ = 0.0f;
+	float targetX_ = 0.0f;
+	float targetZ_ = 0.0f;
 };
 
 

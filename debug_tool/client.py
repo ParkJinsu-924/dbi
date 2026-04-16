@@ -197,12 +197,14 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
                 for m in msg.monsters:
                     monsters[m.guid] = MonsterState(
                         guid=m.guid, name=m.name,
-                        x=m.position.x, y=m.position.y, z=m.position.z)
+                        x=m.position.x, y=m.position.y, z=m.position.z,
+                        detect_range=m.detect_range if m.detect_range > 0 else 10.0)
 
             elif pkt_id == packet_ids.S_MONSTER_SPAWN:
                 monsters[msg.guid] = MonsterState(
                     guid=msg.guid, name=msg.name,
-                    x=msg.position.x, y=msg.position.y, z=msg.position.z)
+                    x=msg.position.x, y=msg.position.y, z=msg.position.z,
+                    detect_range=msg.detect_range if msg.detect_range > 0 else 10.0)
 
             elif pkt_id == packet_ids.S_MONSTER_MOVE:
                 ms = monsters.get(msg.guid)

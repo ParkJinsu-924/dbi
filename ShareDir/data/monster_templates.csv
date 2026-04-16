@@ -1,0 +1,5 @@
+tid,name,hp,maxHp,detectRange,attackRange,leashRange,moveSpeed,attackCooldown,attackDamage
+1001,Goblin,80,80,6.0,2.0,15.0,3.5,1.2,8
+1002,Orc,150,150,8.0,2.5,20.0,2.8,2.0,15
+1003,Slime,50,50,5.0,1.5,10.0,2.0,1.0,5
+1004,Sniper,50,50,5.0,1.5,10.0,2.0,1.0,5

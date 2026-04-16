@@ -50,6 +50,7 @@
             <LanguageStandard>stdcpp20</LanguageStandard>
             <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)ServerCore;$(SolutionDir)proto\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
             <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
+            <AdditionalOptions>/Zc:preprocessor %(AdditionalOptions)</AdditionalOptions>
         </ClCompile>
         <Link>
             <SubSystem>Console</SubSystem>
@@ -69,6 +70,7 @@
             <LanguageStandard>stdcpp20</LanguageStandard>
             <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)ServerCore;$(SolutionDir)proto\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
             <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
+            <AdditionalOptions>/Zc:preprocessor %(AdditionalOptions)</AdditionalOptions>
         </ClCompile>
         <Link>
             <SubSystem>Console</SubSystem>
@@ -92,9 +94,13 @@
         <ClCompile Include="PlayerManager.cpp"/>
         <ClCompile Include="MapManager.cpp"/>
         <ClCompile Include="MonsterManager.cpp"/>
+        <ClCompile Include="ResourceManager.cpp"/>
     </ItemGroup>
     <ItemGroup>
         <ClInclude Include="Unit.h"/>
+        <ClInclude Include="ResourceManager.h"/>
+        <ClInclude Include="MonsterTemplate.h"/>
+        <ClInclude Include="SpawnEntry.h"/>
         <ClInclude Include="Player.h"/>
         <ClInclude Include="GameSession.h"/>
         <ClInclude Include="GamePacketHandler.h"/>

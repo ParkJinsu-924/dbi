@@ -1,5 +1,4 @@
 using UnityEngine;
-using Proto;
 
 public class NetworkPlayerSync : MonoBehaviour
 {
@@ -44,7 +43,7 @@ public class NetworkPlayerSync : MonoBehaviour
         }
     }
 
-    private void HandleMoveCorrection(S_MoveCorrection pkt)
+    private void HandleMoveCorrection(Proto.S_MoveCorrection pkt)
     {
         // Server rejected our move; snap to corrected position
         var cc = GetComponent<CharacterController>();

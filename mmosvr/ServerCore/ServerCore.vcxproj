@@ -101,6 +101,7 @@
         <ClInclude Include="Utils\ObjectGuidGenerator.h"/>
         <ClInclude Include="Utils\EnumUtils.h"/>
         <ClInclude Include="Utils\JsonUtils.h"/>
+        <ClInclude Include="Utils\CsvParser.h"/>
         <ClInclude Include="Network\RecvBuffer.h"/>
         <ClInclude Include="Network\SendBuffer.h"/>
         <ClInclude Include="Network\Session.h"/>

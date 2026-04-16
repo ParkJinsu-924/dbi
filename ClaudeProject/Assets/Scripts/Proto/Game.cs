@@ -41,18 +41,19 @@ namespace Proto {
             "ChBTX01vdmVDb3JyZWN0aW9uEiAKCHBvc2l0aW9uGAEgASgLMg4uUHJvdG8u",
             "VmVjdG9yMyJTCgdTX0Vycm9yEhgKEHNvdXJjZV9wYWNrZXRfaWQYASABKA0S",
             "HgoEY29kZRgCIAEoDjIQLlByb3RvLkVycm9yQ29kZRIOCgZkZXRhaWwYAyAB",
-            "KAkiTgoOU19Nb25zdGVyU3Bhd24SDAoEZ3VpZBgBIAEoAxIMCgRuYW1lGAIg",
-            "ASgJEiAKCHBvc2l0aW9uGAMgASgLMg4uUHJvdG8uVmVjdG9yMyI/Cg1TX01v",
-            "bnN0ZXJNb3ZlEgwKBGd1aWQYASABKAMSIAoIcG9zaXRpb24YAiABKAsyDi5Q",
-            "cm90by5WZWN0b3IzIiAKEFNfTW9uc3RlckRlc3Bhd24SDAoEZ3VpZBgBIAEo",
-            "AyKQAQoNU19Nb25zdGVyTGlzdBIyCghtb25zdGVycxgBIAMoCzIgLlByb3Rv",
-            "LlNfTW9uc3Rlckxpc3QuTW9uc3RlckluZm8aSwoLTW9uc3RlckluZm8SDAoE",
-            "Z3VpZBgBIAEoAxIMCgRuYW1lGAIgASgJEiAKCHBvc2l0aW9uGAMgASgLMg4u",
-            "UHJvdG8uVmVjdG9yMyJCCg5TX01vbnN0ZXJTdGF0ZRIMCgRndWlkGAEgASgD",
-            "Eg0KBXN0YXRlGAIgASgNEhMKC3RhcmdldF9ndWlkGAMgASgDIkwKD1NfTW9u",
-            "c3RlckF0dGFjaxIUCgxtb25zdGVyX2d1aWQYASABKAMSEwoLdGFyZ2V0X2d1",
-            "aWQYAiABKAMSDgoGZGFtYWdlGAMgASgFIigKClNfUGxheWVySHASCgoCaHAY",
-            "ASABKAUSDgoGbWF4X2hwGAIgASgFYgZwcm90bzM="));
+            "KAkiZAoOU19Nb25zdGVyU3Bhd24SDAoEZ3VpZBgBIAEoAxIMCgRuYW1lGAIg",
+            "ASgJEiAKCHBvc2l0aW9uGAMgASgLMg4uUHJvdG8uVmVjdG9yMxIUCgxkZXRl",
+            "Y3RfcmFuZ2UYBCABKAIiPwoNU19Nb25zdGVyTW92ZRIMCgRndWlkGAEgASgD",
+            "EiAKCHBvc2l0aW9uGAIgASgLMg4uUHJvdG8uVmVjdG9yMyIgChBTX01vbnN0",
+            "ZXJEZXNwYXduEgwKBGd1aWQYASABKAMipgEKDVNfTW9uc3Rlckxpc3QSMgoI",
+            "bW9uc3RlcnMYASADKAsyIC5Qcm90by5TX01vbnN0ZXJMaXN0Lk1vbnN0ZXJJ",
+            "bmZvGmEKC01vbnN0ZXJJbmZvEgwKBGd1aWQYASABKAMSDAoEbmFtZRgCIAEo",
+            "CRIgCghwb3NpdGlvbhgDIAEoCzIOLlByb3RvLlZlY3RvcjMSFAoMZGV0ZWN0",
+            "X3JhbmdlGAQgASgCIkIKDlNfTW9uc3RlclN0YXRlEgwKBGd1aWQYASABKAMS",
+            "DQoFc3RhdGUYAiABKA0SEwoLdGFyZ2V0X2d1aWQYAyABKAMiTAoPU19Nb25z",
+            "dGVyQXR0YWNrEhQKDG1vbnN0ZXJfZ3VpZBgBIAEoAxITCgt0YXJnZXRfZ3Vp",
+            "ZBgCIAEoAxIOCgZkYW1hZ2UYAyABKAUiKAoKU19QbGF5ZXJIcBIKCgJocBgB",
+            "IAEoBRIOCgZtYXhfaHAYAiABKAViBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Proto.CommonReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
@@ -68,10 +69,10 @@ namespace Proto {
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_RequestUseSkill), global::Proto.S_RequestUseSkill.Parser, new[]{ "Range" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MoveCorrection), global::Proto.S_MoveCorrection.Parser, new[]{ "Position" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_Error), global::Proto.S_Error.Parser, new[]{ "SourcePacketId", "Code", "Detail" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterSpawn), global::Proto.S_MonsterSpawn.Parser, new[]{ "Guid", "Name", "Position" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterSpawn), global::Proto.S_MonsterSpawn.Parser, new[]{ "Guid", "Name", "Position", "DetectRange" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterMove), global::Proto.S_MonsterMove.Parser, new[]{ "Guid", "Position" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterDespawn), global::Proto.S_MonsterDespawn.Parser, new[]{ "Guid" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterList), global::Proto.S_MonsterList.Parser, new[]{ "Monsters" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterList.Types.MonsterInfo), global::Proto.S_MonsterList.Types.MonsterInfo.Parser, new[]{ "Guid", "Name", "Position" }, null, null, null, null)}),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterList), global::Proto.S_MonsterList.Parser, new[]{ "Monsters" }, null, null, null, new pbr::GeneratedClrTypeInfo[] { new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterList.Types.MonsterInfo), global::Proto.S_MonsterList.Types.MonsterInfo.Parser, new[]{ "Guid", "Name", "Position", "DetectRange" }, null, null, null, null)}),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterState), global::Proto.S_MonsterState.Parser, new[]{ "Guid", "State", "TargetGuid" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterAttack), global::Proto.S_MonsterAttack.Parser, new[]{ "MonsterGuid", "TargetGuid", "Damage" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_PlayerHp), global::Proto.S_PlayerHp.Parser, new[]{ "Hp", "MaxHp" }, null, null, null, null)
@@ -3115,6 +3116,7 @@ namespace Proto {
       guid_ = other.guid_;
       name_ = other.name_;
       position_ = other.position_ != null ? other.position_.Clone() : null;
+      detectRange_ = other.detectRange_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -3160,6 +3162,18 @@ namespace Proto {
       }
     }
 
+    /// <summary>Field number for the "detect_range" field.</summary>
+    public const int DetectRangeFieldNumber = 4;
+    private float detectRange_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float DetectRange {
+      get { return detectRange_; }
+      set {
+        detectRange_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -3178,6 +3192,7 @@ namespace Proto {
       if (Guid != other.Guid) return false;
       if (Name != other.Name) return false;
       if (!object.Equals(Position, other.Position)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(DetectRange, other.DetectRange)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -3188,6 +3203,7 @@ namespace Proto {
       if (Guid != 0L) hash ^= Guid.GetHashCode();
       if (Name.Length != 0) hash ^= Name.GetHashCode();
       if (position_ != null) hash ^= Position.GetHashCode();
+      if (DetectRange != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(DetectRange);
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -3218,6 +3234,10 @@ namespace Proto {
         output.WriteRawTag(26);
         output.WriteMessage(Position);
       }
+      if (DetectRange != 0F) {
+        output.WriteRawTag(37);
+        output.WriteFloat(DetectRange);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -3240,6 +3260,10 @@ namespace Proto {
         output.WriteRawTag(26);
         output.WriteMessage(Position);
       }
+      if (DetectRange != 0F) {
+        output.WriteRawTag(37);
+        output.WriteFloat(DetectRange);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -3258,6 +3282,9 @@ namespace Proto {
       }
       if (position_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Position);
+      }
+      if (DetectRange != 0F) {
+        size += 1 + 4;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -3282,6 +3309,9 @@ namespace Proto {
           Position = new global::Proto.Vector3();
         }
         Position.MergeFrom(other.Position);
+      }
+      if (other.DetectRange != 0F) {
+        DetectRange = other.DetectRange;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -3317,6 +3347,10 @@ namespace Proto {
             input.ReadMessage(Position);
             break;
           }
+          case 37: {
+            DetectRange = input.ReadFloat();
+            break;
+          }
         }
       }
     #endif
@@ -3349,6 +3383,10 @@ namespace Proto {
               Position = new global::Proto.Vector3();
             }
             input.ReadMessage(Position);
+            break;
+          }
+          case 37: {
+            DetectRange = input.ReadFloat();
             break;
           }
         }
@@ -4028,6 +4066,7 @@ namespace Proto {
           guid_ = other.guid_;
           name_ = other.name_;
           position_ = other.position_ != null ? other.position_.Clone() : null;
+          detectRange_ = other.detectRange_;
           _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
         }
 
@@ -4073,6 +4112,18 @@ namespace Proto {
           }
         }
 
+        /// <summary>Field number for the "detect_range" field.</summary>
+        public const int DetectRangeFieldNumber = 4;
+        private float detectRange_;
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+        [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+        public float DetectRange {
+          get { return detectRange_; }
+          set {
+            detectRange_ = value;
+          }
+        }
+
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
         [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
         public override bool Equals(object other) {
@@ -4091,6 +4142,7 @@ namespace Proto {
           if (Guid != other.Guid) return false;
           if (Name != other.Name) return false;
           if (!object.Equals(Position, other.Position)) return false;
+          if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(DetectRange, other.DetectRange)) return false;
           return Equals(_unknownFields, other._unknownFields);
         }
 
@@ -4101,6 +4153,7 @@ namespace Proto {
           if (Guid != 0L) hash ^= Guid.GetHashCode();
           if (Name.Length != 0) hash ^= Name.GetHashCode();
           if (position_ != null) hash ^= Position.GetHashCode();
+          if (DetectRange != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(DetectRange);
           if (_unknownFields != null) {
             hash ^= _unknownFields.GetHashCode();
           }
@@ -4131,6 +4184,10 @@ namespace Proto {
             output.WriteRawTag(26);
             output.WriteMessage(Position);
           }
+          if (DetectRange != 0F) {
+            output.WriteRawTag(37);
+            output.WriteFloat(DetectRange);
+          }
           if (_unknownFields != null) {
             _unknownFields.WriteTo(output);
           }
@@ -4153,6 +4210,10 @@ namespace Proto {
             output.WriteRawTag(26);
             output.WriteMessage(Position);
           }
+          if (DetectRange != 0F) {
+            output.WriteRawTag(37);
+            output.WriteFloat(DetectRange);
+          }
           if (_unknownFields != null) {
             _unknownFields.WriteTo(ref output);
           }
@@ -4171,6 +4232,9 @@ namespace Proto {
           }
           if (position_ != null) {
             size += 1 + pb::CodedOutputStream.ComputeMessageSize(Position);
+          }
+          if (DetectRange != 0F) {
+            size += 1 + 4;
           }
           if (_unknownFields != null) {
             size += _unknownFields.CalculateSize();
@@ -4195,6 +4259,9 @@ namespace Proto {
               Position = new global::Proto.Vector3();
             }
             Position.MergeFrom(other.Position);
+          }
+          if (other.DetectRange != 0F) {
+            DetectRange = other.DetectRange;
           }
           _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
         }
@@ -4230,6 +4297,10 @@ namespace Proto {
                 input.ReadMessage(Position);
                 break;
               }
+              case 37: {
+                DetectRange = input.ReadFloat();
+                break;
+              }
             }
           }
         #endif
@@ -4262,6 +4333,10 @@ namespace Proto {
                   Position = new global::Proto.Vector3();
                 }
                 input.ReadMessage(Position);
+                break;
+              }
+              case 37: {
+                DetectRange = input.ReadFloat();
                 break;
               }
             }
