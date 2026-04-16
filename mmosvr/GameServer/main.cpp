@@ -2,9 +2,9 @@
 #include "GameSession.h"
 #include "GamePacketHandler.h"
 #include "ZoneManager.h"
-#include "Services/PlayerService.h"
-#include "Services/MapService.h"
-#include "Services/MonsterService.h"
+#include "Services/PlayerManager.h"
+#include "Services/MapManager.h"
+#include "Services/MonsterManager.h"
 #include "common.pb.h"
 #include "Server/ServerBase.h"
 #include "Server/SessionManager.h"
@@ -31,8 +31,7 @@ public:
 protected:
 	void Init() override
 	{
-		GetPlayerService().Init();
-		GetMapService().Init();
+		GetMapManager().LoadNavMesh();
 		GetZoneManager().Init();
 
 		SpawnTestMonsters();
@@ -45,7 +44,7 @@ protected:
 	SessionPtr CreateSession(tcp::socket socket, net::io_context& ioc) override
 	{
 		auto session = std::make_shared<GameSession>(std::move(socket), ioc);
-		GetSessionManager().AddGameSession(session);
+		GetSessionManager().AddClientSession(session);
 		return session;
 	}
 
@@ -53,7 +52,7 @@ private:
 	// ------ Game Loop ------
 	void StartGameLoop()
 	{
-		GetPacketHandler().SetJobQueue(&jobQueue_);
+		GetPacketHandler().SetJobQueue(&packetQueue_);
 		gameThread_ = std::jthread([this](std::stop_token st) { RunGameLoop(st); });
 		LOG_INFO("GameLoop started (" + std::to_string(tickRate_) + " Hz)");
 	}
@@ -82,7 +81,7 @@ private:
 			lastTick = now;
 
 			// 1. Process queued packets from I/O threads
-			jobQueue_.Flush();
+			packetQueue_.Flush();
 
 			// 2. Update world (zones tick all GameObjects)
 			GetZoneManager().Update(dt);
@@ -102,13 +101,13 @@ private:
 			return v;
 		};
 
-		GetMonsterService().Spawn(1, "Goblin",
+		GetMonsterManager().Spawn(1, "Goblin",
 			makeVec(5.0f, 0.0f, 0.0f),   /*radius*/3.0f, /*angularSpeed*/0.8f, /*start*/0.0f);
 
-		GetMonsterService().Spawn(1, "Orc",
+		GetMonsterManager().Spawn(1, "Orc",
 			makeVec(-5.0f, 0.0f, 3.0f),  /*radius*/2.5f, /*angularSpeed*/-1.2f, /*start*/1.0f);
 
-		GetMonsterService().Spawn(1, "Slime",
+		GetMonsterManager().Spawn(1, "Slime",
 			makeVec(0.0f, 0.0f, -6.0f),  /*radius*/4.0f, /*angularSpeed*/0.5f, /*start*/2.0f);
 	}
 
@@ -146,7 +145,7 @@ private:
 
 	// ------ Members ------
 	int32 tickRate_;
-	JobQueue jobQueue_;
+	JobQueue packetQueue_;
 	std::jthread gameThread_;
 	std::shared_ptr<Connector> loginConnector_;
 };

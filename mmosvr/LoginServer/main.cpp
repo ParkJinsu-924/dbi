@@ -21,7 +21,7 @@ protected:
 	SessionPtr CreateSession(tcp::socket socket, net::io_context& ioc) override
 	{
 		auto session = std::make_shared<LoginSession>(std::move(socket), ioc);
-		GetSessionManager().AddGameSession(session);
+		GetSessionManager().AddClientSession(session);
 		return session;
 	}
 

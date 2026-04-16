@@ -46,7 +46,7 @@ void ServerBase::Stop()
 	if (acceptor_)
 		acceptor_->Stop();
 
-	GetSessionManager().ClearGameSessions();
+	GetSessionManager().ClearClientSessions();
 	ioPool_.Stop();
 
 	acceptorWorkGuard_.reset();

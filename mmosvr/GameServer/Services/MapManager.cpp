@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "Services/MapService.h"
+#include "Services/MapManager.h"
 #include "Recast.h"
 #include "DetourNavMesh.h"
 #include "DetourNavMeshBuilder.h"
@@ -57,7 +57,7 @@ namespace
 	}
 }
 
-void MapService::Init()
+void MapManager::LoadNavMesh()
 {
 	std::string mapPath = FindMapFile();
 	if (mapPath.empty())
@@ -86,29 +86,7 @@ void MapService::Init()
 	LOG_INFO("MapService: NavMesh built successfully");
 }
 
-void MapService::Update(float /*deltaTime*/)
-{
-}
-
-void MapService::Shutdown()
-{
-	if (navQuery_)
-	{
-		dtFreeNavMeshQuery(navQuery_);
-		navQuery_ = nullptr;
-	}
-	if (navMesh_)
-	{
-		dtFreeNavMesh(navMesh_);
-		navMesh_ = nullptr;
-	}
-	vertices_.clear();
-	triangles_.clear();
-
-	LOG_INFO("MapService shutdown");
-}
-
-bool MapService::LoadSceneGeometry(const std::string& path)
+bool MapManager::LoadSceneGeometry(const std::string& path)
 {
 	std::ifstream file(path, std::ios::binary);
 	if (!file.is_open())
@@ -149,7 +127,7 @@ bool MapService::LoadSceneGeometry(const std::string& path)
 	return file.good() || file.eof();
 }
 
-bool MapService::BuildNavMesh()
+bool MapManager::BuildNavMesh()
 {
 	// Calculate bounding box
 	float bmin[3] = { vertices_[0], vertices_[1], vertices_[2] };
@@ -377,7 +355,7 @@ bool MapService::BuildNavMesh()
 	return true;
 }
 
-bool MapService::IsOnNavMesh(float x, float y, float z) const
+bool MapManager::IsOnNavMesh(float x, float y, float z) const
 {
 	if (!navQuery_)
 		return true; // No map loaded, allow all movement
@@ -405,7 +383,7 @@ bool MapService::IsOnNavMesh(float x, float y, float z) const
 	return distSq < (ON_MESH_TOLERANCE * ON_MESH_TOLERANCE);
 }
 
-bool MapService::FindNearestValidPosition(float x, float y, float z,
+bool MapManager::FindNearestValidPosition(float x, float y, float z,
 	float& outX, float& outY, float& outZ,
 	float searchRadius) const
 {

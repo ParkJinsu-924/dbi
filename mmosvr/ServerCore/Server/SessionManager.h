@@ -29,11 +29,11 @@ class SessionManager : public TSingleton<SessionManager>
 {
 public:
 	// Client sessions
-	void AddGameSession(SessionPtr session);
-	void RemoveGameSession(SessionPtr session);
-	void BroadcastToGameSessions(SendBufferChunkPtr chunk);
-	int32 GetGameSessionsCount() const;
-	void ClearGameSessions();
+	void AddClientSession(SessionPtr session);
+	void RemoveClientSession(SessionPtr session);
+	void BroadcastToClientSessions(SendBufferChunkPtr chunk);
+	int32 GetClientSessionsCount() const;
+	void ClearClientSessions();
 
 	// Server-to-server sessions
 	void SetServerSession(ServerType type, std::shared_ptr<ServerSession> session);

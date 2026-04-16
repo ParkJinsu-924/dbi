@@ -3,7 +3,7 @@
 #include "Network/ServerSession.h"
 
 
-void SessionManager::AddGameSession(SessionPtr session)
+void SessionManager::AddClientSession(SessionPtr session)
 {
 	sessions_.Write([&](auto& set)
 		{
@@ -11,7 +11,7 @@ void SessionManager::AddGameSession(SessionPtr session)
 		});
 }
 
-void SessionManager::RemoveGameSession(SessionPtr session)
+void SessionManager::RemoveClientSession(SessionPtr session)
 {
 	sessions_.Write([&](auto& set)
 		{
@@ -19,7 +19,7 @@ void SessionManager::RemoveGameSession(SessionPtr session)
 		});
 }
 
-void SessionManager::BroadcastToGameSessions(SendBufferChunkPtr chunk)
+void SessionManager::BroadcastToClientSessions(SendBufferChunkPtr chunk)
 {
 	sessions_.Read([&](const auto& set)
 		{
@@ -33,7 +33,7 @@ void SessionManager::BroadcastToGameSessions(SendBufferChunkPtr chunk)
 		});
 }
 
-int32 SessionManager::GetGameSessionsCount() const
+int32 SessionManager::GetClientSessionsCount() const
 {
 	return sessions_.Read([](const auto& set)
 		{
@@ -41,7 +41,7 @@ int32 SessionManager::GetGameSessionsCount() const
 		});
 }
 
-void SessionManager::ClearGameSessions()
+void SessionManager::ClearClientSessions()
 {
 	sessions_.Write([](auto& set)
 		{

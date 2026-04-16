@@ -3,9 +3,8 @@
 #include "Packet/PacketUtils.h"
 #include "Packet/PacketHandler.h"
 #include "Server/SessionManager.h"
-#include "Services/PlayerService.h"
-#include "Services/MapService.h"
-#include "Services/MonsterService.h"
+#include "Services/PlayerManager.h"
+#include "Services/MapManager.h"
 #include "Monster.h"
 #include "ZoneManager.h"
 
@@ -67,7 +66,7 @@ Proto::ErrorCode GamePacketHandler::SS_ValidateToken(std::shared_ptr<ServerSessi
 	}
 	
 	const std::string playerName = pkt.username();
-	const auto player = GetPlayerService().AddPlayer(playerName);
+	const auto player = GetPlayerManager().AddPlayer(playerName);
 	const int32 playerId = player->GetPlayerId();
 
 	gameSession->SetPlayerId(playerId);
@@ -86,7 +85,7 @@ Proto::ErrorCode GamePacketHandler::SS_ValidateToken(std::shared_ptr<ServerSessi
 	spawnPos->set_z(0.0f);
 	gameSession->Send(response);
 
-	auto allPlayers = GetPlayerService().GetAllPlayers();
+	auto allPlayers = GetPlayerManager().GetAllPlayers();
 	Proto::S_PlayerList playerListPkt;
 	for (const auto& p : allPlayers)
 	{
@@ -98,7 +97,9 @@ Proto::ErrorCode GamePacketHandler::SS_ValidateToken(std::shared_ptr<ServerSessi
 	gameSession->Send(playerListPkt);
 
 	// Send existing monsters in the zone
-	auto monstersInZone = GetMonsterService().GetMonstersInZone(DEFAULT_ZONE_ID);
+	auto* defaultZone = GetZoneManager().GetZone(DEFAULT_ZONE_ID);
+	auto monstersInZone = defaultZone ? defaultZone->GetObjectsByType<Monster>()
+		: std::vector<std::shared_ptr<Monster>>{};
 	Proto::S_MonsterList monsterListPkt;
 	for (const auto& m : monstersInZone)
 	{
@@ -119,13 +120,13 @@ Proto::ErrorCode GamePacketHandler::C_PlayerMove(std::shared_ptr<GameSession> se
 	if (playerId == 0)
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
 
-	auto player = GetPlayerService().FindPlayer(playerId);
+	auto player = GetPlayerManager().FindPlayer(playerId);
 	if (!player)
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
 
 	Proto::Vector3 validatedPos = pkt.position();
 
-	auto& mapService = GetMapService();
+	auto& mapService = GetMapManager();
 	if (mapService.IsLoaded())
 	{
 		const float x = pkt.position().x();
@@ -171,7 +172,7 @@ Proto::ErrorCode GamePacketHandler::C_Chat(std::shared_ptr<GameSession> session,
 	if (playerId == 0)
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
 
-	auto player = GetPlayerService().FindPlayer(playerId);
+	auto player = GetPlayerManager().FindPlayer(playerId);
 	if (!player)
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
 

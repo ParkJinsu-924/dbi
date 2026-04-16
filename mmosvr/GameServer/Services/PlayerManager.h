@@ -1,7 +1,6 @@
 #pragma once
 
-#include "GameService.h"
-#include "Player.h"
+#include "../Player.h"
 #include "Utils/Synchronized.h"
 #include "Utils/TSingleton.h"
 #include <unordered_map>
@@ -9,15 +8,11 @@
 #include <string>
 
 
-#define GetPlayerService() PlayerService::Instance()
+#define GetPlayerManager() PlayerManager::Instance()
 
-class PlayerService : public TSingleton<PlayerService>, public GameService
+class PlayerManager : public TSingleton<PlayerManager>
 {
 public:
-	void Init() override;
-	void Update(float deltaTime) override;
-	void Shutdown() override;
-
 	std::shared_ptr<Player> AddPlayer(const std::string& name);
 	void RemovePlayer(int32 playerId);
 	std::shared_ptr<Player> FindPlayer(int32 playerId) const;

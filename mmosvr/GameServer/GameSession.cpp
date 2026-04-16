@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "GameSession.h"
-#include "Services/PlayerService.h"
+#include "Services/PlayerManager.h"
 #include "Server/SessionManager.h"
 #include "ZoneManager.h"
 #include "game.pb.h"
@@ -17,7 +17,7 @@ void GameSession::OnDisconnected()
 
 	if (playerId_ != 0)
 	{
-		auto& playerService = GetPlayerService();
+		auto& playerService = GetPlayerManager();
 		int32 zoneId = 0;
 		long long guid = 0;
 
@@ -40,7 +40,7 @@ void GameSession::OnDisconnected()
 			zone->Broadcast(MakeSendBuffer(leavePkt));
 	}
 
-	GetSessionManager().RemoveGameSession(shared_from_this());
+	GetSessionManager().RemoveClientSession(shared_from_this());
 }
 
 void GameSession::OnRecvPacket(uint16 packetId, const char* payload, int32 payloadSize)

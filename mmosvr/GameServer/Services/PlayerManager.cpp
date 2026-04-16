@@ -1,27 +1,8 @@
 #include "pch.h"
-#include "Services/PlayerService.h"
+#include "Services/PlayerManager.h"
 
 
-void PlayerService::Init()
-{
-	LOG_INFO("PlayerService initialized");
-}
-
-void PlayerService::Update(float /*deltaTime*/)
-{
-	// Tick-based game logic (future use)
-}
-
-void PlayerService::Shutdown()
-{
-	players_.Write([](auto& m)
-		{
-			m.clear();
-		});
-	LOG_INFO("PlayerService shutdown");
-}
-
-std::shared_ptr<Player> PlayerService::AddPlayer(const std::string& name)
+std::shared_ptr<Player> PlayerManager::AddPlayer(const std::string& name)
 {
 	int32 id = nextPlayerId_.fetch_add(1);
 	auto player = std::make_shared<Player>(id, name);
@@ -35,7 +16,7 @@ std::shared_ptr<Player> PlayerService::AddPlayer(const std::string& name)
 	return player;
 }
 
-void PlayerService::RemovePlayer(int32 playerId)
+void PlayerManager::RemovePlayer(int32 playerId)
 {
 	players_.Write([&](auto& m)
 		{
@@ -43,7 +24,7 @@ void PlayerService::RemovePlayer(int32 playerId)
 		});
 }
 
-std::shared_ptr<Player> PlayerService::FindPlayer(int32 playerId) const
+std::shared_ptr<Player> PlayerManager::FindPlayer(int32 playerId) const
 {
 	return players_.Read([&](const auto& m) -> std::shared_ptr<Player>
 		{
@@ -54,7 +35,7 @@ std::shared_ptr<Player> PlayerService::FindPlayer(int32 playerId) const
 		});
 }
 
-std::vector<std::shared_ptr<Player>> PlayerService::GetAllPlayers() const
+std::vector<std::shared_ptr<Player>> PlayerManager::GetAllPlayers() const
 {
 	return players_.Read([](const auto& m)
 		{

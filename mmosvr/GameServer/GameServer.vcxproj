@@ -88,9 +88,9 @@
         <ClCompile Include="Monster.cpp"/>
         <ClCompile Include="Zone.cpp"/>
         <ClCompile Include="ZoneManager.cpp"/>
-        <ClCompile Include="Services\PlayerService.cpp"/>
-        <ClCompile Include="Services\MapService.cpp"/>
-        <ClCompile Include="Services\MonsterService.cpp"/>
+        <ClCompile Include="Services\PlayerManager.cpp"/>
+        <ClCompile Include="Services\MapManager.cpp"/>
+        <ClCompile Include="Services\MonsterManager.cpp"/>
     </ItemGroup>
     <ItemGroup>
         <ClInclude Include="Player.h"/>
@@ -101,10 +101,9 @@
         <ClInclude Include="Npc.h"/>
         <ClInclude Include="Zone.h"/>
         <ClInclude Include="ZoneManager.h"/>
-        <ClInclude Include="Services\GameService.h"/>
-        <ClInclude Include="Services\PlayerService.h"/>
-        <ClInclude Include="Services\MapService.h"/>
-        <ClInclude Include="Services\MonsterService.h"/>
+        <ClInclude Include="Services\PlayerManager.h"/>
+        <ClInclude Include="Services\MapManager.h"/>
+        <ClInclude Include="Services\MonsterManager.h"/>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\ServerCore\ServerCore.vcxproj">

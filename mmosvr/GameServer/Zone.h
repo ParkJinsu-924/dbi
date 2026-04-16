@@ -28,6 +28,19 @@ public:
 		return std::dynamic_pointer_cast<T>(Find(guid));
 	}
 
+	template<typename T>
+	std::vector<std::shared_ptr<T>> GetObjectsByType() const
+	{
+		return objects_.Read([](const auto& m)
+			{
+				std::vector<std::shared_ptr<T>> result;
+				for (const auto& [guid, obj] : m)
+					if (auto casted = std::dynamic_pointer_cast<T>(obj))
+						result.push_back(std::move(casted));
+				return result;
+			});
+	}
+
 	// Tick all objects + broadcast monster positions periodically
 	void Update(float deltaTime);
 

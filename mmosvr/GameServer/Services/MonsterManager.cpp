@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "MonsterService.h"
+#include "MonsterManager.h"
 #include "../ZoneManager.h"
 #include "../Zone.h"
 #include "Packet/PacketHeader.h"
@@ -30,17 +30,12 @@ namespace
 }
 
 
-std::shared_ptr<Monster> MonsterService::Spawn(int32 zoneId, const std::string& name,
+std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, const std::string& name,
 	const Proto::Vector3& center, float radius, float angularSpeedRad, float startAngleRad)
 {
 	auto monster = std::make_shared<Monster>(name);
 	monster->SetZoneId(zoneId);
 	monster->InitCircularMovement(center, radius, angularSpeedRad, startAngleRad);
-
-	monsters_.Write([&](auto& m)
-		{
-			m[monster->GetGuid()] = monster;
-		});
 
 	if (auto* zone = GetZoneManager().GetZone(zoneId))
 	{
@@ -58,51 +53,16 @@ std::shared_ptr<Monster> MonsterService::Spawn(int32 zoneId, const std::string& 
 	return monster;
 }
 
-void MonsterService::Despawn(long long guid)
+void MonsterManager::Despawn(int32 zoneId, long long guid)
 {
-	std::shared_ptr<Monster> monster;
-	monsters_.Write([&](auto& m)
-		{
-			auto it = m.find(guid);
-			if (it == m.end()) return;
-			monster = it->second;
-			m.erase(it);
-		});
+	auto* zone = GetZoneManager().GetZone(zoneId);
+	if (!zone) return;
 
-	if (!monster) return;
+	zone->Remove(guid);
 
-	if (auto* zone = GetZoneManager().GetZone(monster->GetZoneId()))
-	{
-		zone->Remove(guid);
-
-		Proto::S_MonsterDespawn pkt;
-		pkt.set_guid(guid);
-		zone->Broadcast(MakeChunk(pkt));
-	}
+	Proto::S_MonsterDespawn pkt;
+	pkt.set_guid(guid);
+	zone->Broadcast(MakeChunk(pkt));
 
 	LOG_INFO("Monster despawned: guid=" + std::to_string(guid));
-}
-
-std::shared_ptr<Monster> MonsterService::Find(long long guid) const
-{
-	return monsters_.Read([&](const auto& m) -> std::shared_ptr<Monster>
-		{
-			auto it = m.find(guid);
-			if (it == m.end()) return nullptr;
-			return it->second;
-		});
-}
-
-std::vector<std::shared_ptr<Monster>> MonsterService::GetMonstersInZone(int32 zoneId) const
-{
-	return monsters_.Read([&](const auto& m)
-		{
-			std::vector<std::shared_ptr<Monster>> result;
-			for (const auto& [guid, monster] : m)
-			{
-				if (monster->GetZoneId() == zoneId)
-					result.push_back(monster);
-			}
-			return result;
-		});
 }
