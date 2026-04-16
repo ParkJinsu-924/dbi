@@ -39,6 +39,8 @@ class PlayerState:
     x: float = 0.0
     y: float = 0.0
     z: float = 0.0
+    hp: int = 100
+    max_hp: int = 100
 
 
 @dataclass
@@ -48,6 +50,8 @@ class MonsterState:
     x: float = 0.0
     y: float = 0.0
     z: float = 0.0
+    state: int = 0        # 0=Idle, 1=Chase, 2=Attack, 3=Return
+    target_guid: int = 0  # Chase/Attack target player GUID
 
 
 def make_vec3(x, y, z):
@@ -207,9 +211,24 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
             elif pkt_id == packet_ids.S_MONSTER_DESPAWN:
                 monsters.pop(msg.guid, None)
 
+            elif pkt_id == packet_ids.S_MONSTER_STATE:
+                ms = monsters.get(msg.guid)
+                if ms:
+                    ms.state = msg.state
+                    ms.target_guid = msg.target_guid
+
+            elif pkt_id == packet_ids.S_MONSTER_ATTACK:
+                ms = monsters.get(msg.monster_guid)
+                if ms:
+                    print(f"[game] {ms.name} attacks player (dmg={msg.damage})")
+
+            elif pkt_id == packet_ids.S_PLAYER_HP:
+                me.hp = msg.hp
+                me.max_hp = msg.max_hp
+
         # render
         status = [
-            f"user={username}  id={me.player_id}  pos=({me.x:.1f}, {me.z:.1f})",
+            f"user={username}  id={me.player_id}  pos=({me.x:.1f}, {me.z:.1f})  HP={me.hp}/{me.max_hp}",
             f"others={len(others)}  monsters={len(monsters)}  {'in-game' if in_game else 'entering...'}",
             "WASD to move,  ESC to quit",
         ]

@@ -31,22 +31,23 @@ namespace
 
 
 std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, const std::string& name,
-	const Proto::Vector3& center, float radius, float angularSpeedRad, float startAngleRad)
+	const Proto::Vector3& spawnPos)
 {
+	auto* zone = GetZoneManager().GetZone(zoneId);
+	if (!zone)
+		return nullptr;
+
 	auto monster = std::make_shared<Monster>(name);
 	monster->SetZoneId(zoneId);
-	monster->InitCircularMovement(center, radius, angularSpeedRad, startAngleRad);
+	monster->InitAI(spawnPos, zone);
 
-	if (auto* zone = GetZoneManager().GetZone(zoneId))
-	{
-		zone->Add(monster);
+	zone->Add(monster);
 
-		Proto::S_MonsterSpawn pkt;
-		pkt.set_guid(monster->GetGuid());
-		pkt.set_name(monster->GetName());
-		*pkt.mutable_position() = monster->GetPosition();
-		zone->Broadcast(MakeChunk(pkt));
-	}
+	Proto::S_MonsterSpawn pkt;
+	pkt.set_guid(monster->GetGuid());
+	pkt.set_name(monster->GetName());
+	*pkt.mutable_position() = monster->GetPosition();
+	zone->Broadcast(MakeChunk(pkt));
 
 	LOG_INFO("Monster spawned: guid=" + std::to_string(monster->GetGuid())
 		+ " name=" + name + " zone=" + std::to_string(zoneId));

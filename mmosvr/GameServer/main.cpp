@@ -53,7 +53,7 @@ private:
 	void StartGameLoop()
 	{
 		GetPacketHandler().SetJobQueue(&packetQueue_);
-		gameThread_ = std::jthread([this](std::stop_token st) { RunGameLoop(st); });
+		gameThread_ = std::jthread([this](std::stop_token st) { GameLoopThread(st); });
 		LOG_INFO("GameLoop started (" + std::to_string(tickRate_) + " Hz)");
 	}
 
@@ -68,7 +68,7 @@ private:
 		}
 	}
 
-	void RunGameLoop(std::stop_token stopToken)
+	void GameLoopThread(std::stop_token stopToken)
 	{
 		using Clock = std::chrono::steady_clock;
 		const auto tickInterval = std::chrono::milliseconds(1000 / tickRate_);
@@ -101,14 +101,9 @@ private:
 			return v;
 		};
 
-		GetMonsterManager().Spawn(1, "Goblin",
-			makeVec(5.0f, 0.0f, 0.0f),   /*radius*/3.0f, /*angularSpeed*/0.8f, /*start*/0.0f);
-
-		GetMonsterManager().Spawn(1, "Orc",
-			makeVec(-5.0f, 0.0f, 3.0f),  /*radius*/2.5f, /*angularSpeed*/-1.2f, /*start*/1.0f);
-
-		GetMonsterManager().Spawn(1, "Slime",
-			makeVec(0.0f, 0.0f, -6.0f),  /*radius*/4.0f, /*angularSpeed*/0.5f, /*start*/2.0f);
+		GetMonsterManager().Spawn(1, "Goblin",  makeVec(5.0f, 0.0f, 0.0f));
+		GetMonsterManager().Spawn(1, "Orc",     makeVec(-5.0f, 0.0f, 3.0f));
+		GetMonsterManager().Spawn(1, "Slime",   makeVec(0.0f, 0.0f, -6.0f));
 	}
 
 	// ------ Server-to-Server ------

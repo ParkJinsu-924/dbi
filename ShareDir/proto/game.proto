@@ -97,3 +97,20 @@ message S_MonsterList {
     }
     repeated MonsterInfo monsters = 1;
 }
+
+message S_MonsterState {
+    int64 guid = 1;
+    uint32 state = 2;           // 0=Idle, 1=Chase, 2=Attack, 3=Return
+    int64 target_guid = 3;      // Chase/Attack target player GUID
+}
+
+message S_MonsterAttack {
+    int64 monster_guid = 1;
+    int64 target_guid = 2;
+    int32 damage = 3;
+}
+
+message S_PlayerHp {
+    int32 hp = 1;
+    int32 max_hp = 2;
+}

@@ -19,4 +19,7 @@ namespace Proto
     public partial class S_MonsterMove { public const uint PacketId = 16; }
     public partial class S_MonsterDespawn { public const uint PacketId = 17; }
     public partial class S_MonsterList { public const uint PacketId = 18; }
+    public partial class S_MonsterState { public const uint PacketId = 19; }
+    public partial class S_MonsterAttack { public const uint PacketId = 20; }
+    public partial class S_PlayerHp { public const uint PacketId = 21; }
 }

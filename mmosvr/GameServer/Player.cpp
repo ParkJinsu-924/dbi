@@ -3,7 +3,7 @@
 
 
 Player::Player(int32 playerId, const std::string& name)
-	: GameObject(GameObjectType::Player, GetObjectGuidGenerator().Generate(), name)
+	: Unit(GameObjectType::Player, GetObjectGuidGenerator().Generate(), name)
 	, playerId_(playerId)
 {
 	position_.set_x(0.0f);

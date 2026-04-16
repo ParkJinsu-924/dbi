@@ -3,12 +3,13 @@
 #include "Utils/Synchronized.h"
 #include "Utils/Types.h"
 #include "Network/SendBuffer.h"
+#include "common.pb.h"
 #include <unordered_map>
 #include <memory>
 #include <shared_mutex>
 
 class GameObject;
-
+class Player;
 
 class Zone
 {
@@ -46,6 +47,10 @@ public:
 
 	// Broadcast to Players currently in this zone
 	void Broadcast(SendBufferChunkPtr chunk);
+
+	// Find the nearest alive Player within maxRange of the given position.
+	// Returns nullptr if none found.
+	std::shared_ptr<Player> FindNearestPlayer(const Proto::Vector3& from, float maxRange) const;
 
 private:
 	void BroadcastMonsterPositions();

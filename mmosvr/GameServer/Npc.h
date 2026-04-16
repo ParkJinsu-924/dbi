@@ -1,13 +1,19 @@
 #pragma once
 
-#include "GameObject.h"
+#include "Unit.h"
 
 
-class Npc : public GameObject
+class Npc : public Unit
 {
 public:
 	explicit Npc(std::string name)
-		: GameObject(GameObjectType::Npc, std::move(name))
+		: Unit(GameObjectType::Npc, std::move(name))
+	{
+	}
+
+protected:
+	Npc(GameObjectType type, std::string name)
+		: Unit(type, std::move(name))
 	{
 	}
 };

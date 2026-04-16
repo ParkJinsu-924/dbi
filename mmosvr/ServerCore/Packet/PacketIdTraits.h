@@ -24,6 +24,9 @@ namespace Proto
 	class S_MonsterMove;
 	class S_MonsterDespawn;
 	class S_MonsterList;
+	class S_MonsterState;
+	class S_MonsterAttack;
+	class S_PlayerHp;
 	class SS_ValidateToken;
 	class SS_ValidateTokenResult;
 }
@@ -53,6 +56,9 @@ PACKET_ID_TRAIT(S_MonsterSpawn, S_MONSTER_SPAWN)
 PACKET_ID_TRAIT(S_MonsterMove, S_MONSTER_MOVE)
 PACKET_ID_TRAIT(S_MonsterDespawn, S_MONSTER_DESPAWN)
 PACKET_ID_TRAIT(S_MonsterList, S_MONSTER_LIST)
+PACKET_ID_TRAIT(S_MonsterState, S_MONSTER_STATE)
+PACKET_ID_TRAIT(S_MonsterAttack, S_MONSTER_ATTACK)
+PACKET_ID_TRAIT(S_PlayerHp, S_PLAYER_HP)
 PACKET_ID_TRAIT(SS_ValidateToken, SS_VALIDATE_TOKEN)
 PACKET_ID_TRAIT(SS_ValidateTokenResult, SS_VALIDATE_TOKEN_RESULT)
 

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "GameObject.h"
+#include "Unit.h"
 #include <memory>
 
 class GameSession;
 
 
-class Player : public GameObject
+class Player : public Unit
 {
 public:
 	Player(int32 playerId, const std::string& name);
@@ -26,18 +26,13 @@ public:
 	std::shared_ptr<GameSession> GetSession() const;
 	bool IsOnline() const;
 
-	// --- Transform (yaw only; position/zoneId are in GameObject) ---
+	// --- Transform (yaw only; position/zoneId are in Unit/GameObject) ---
 	float GetYaw() const { return yaw_; }
 	void SetYaw(float yaw) { yaw_ = yaw; }
 
-	// --- Game State ---
-	int32 GetHp() const { return hp_; }
-	void SetHp(int32 hp) { hp_ = hp; }
-	int32 GetMaxHp() const { return maxHp_; }
-	void SetMaxHp(int32 maxHp) { maxHp_ = maxHp; }
+	// --- Game State (hp/maxHp/IsAlive are in Unit) ---
 	int32 GetLevel() const { return level_; }
 	void SetLevel(int32 level) { level_ = level; }
-	bool IsAlive() const { return hp_ > 0; }
 
 	// --- Network Helper ---
 	template<typename T>
@@ -48,9 +43,6 @@ private:
 	std::weak_ptr<GameSession> session_;
 
 	float yaw_ = 0.0f;
-
-	int32 hp_ = 100;
-	int32 maxHp_ = 100;
 	int32 level_ = 1;
 };
 

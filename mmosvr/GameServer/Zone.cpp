@@ -98,6 +98,38 @@ void Zone::Broadcast(SendBufferChunkPtr chunk)
 		});
 }
 
+std::shared_ptr<Player> Zone::FindNearestPlayer(const Proto::Vector3& from, float maxRange) const
+{
+	std::shared_ptr<Player> nearest;
+	float nearestDistSq = maxRange * maxRange;
+
+	objects_.Read([&](const auto& m)
+		{
+			for (const auto& [guid, obj] : m)
+			{
+				if (obj->GetType() != GameObjectType::Player)
+					continue;
+
+				auto player = std::static_pointer_cast<Player>(obj);
+				if (!player->IsAlive())
+					continue;
+
+				const auto& pos = obj->GetPosition();
+				float dx = pos.x() - from.x();
+				float dz = pos.z() - from.z();
+				float distSq = dx * dx + dz * dz;
+
+				if (distSq < nearestDistSq)
+				{
+					nearestDistSq = distSq;
+					nearest = player;
+				}
+			}
+		});
+
+	return nearest;
+}
+
 void Zone::BroadcastMonsterPositions()
 {
 	objects_.Read([&](const auto& m)

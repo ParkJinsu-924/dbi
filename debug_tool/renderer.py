@@ -17,7 +17,12 @@ GRID_COLOR = (55, 55, 65)
 ME_COLOR = (220, 60, 60)
 OTHER_COLOR = (60, 120, 220)
 MONSTER_COLOR = (60, 200, 90)
+MONSTER_CHASE_COLOR = (220, 180, 40)
+MONSTER_ATTACK_COLOR = (220, 50, 50)
+MONSTER_RETURN_COLOR = (120, 120, 120)
 TEXT_COLOR = (220, 220, 220)
+HP_BAR_BG = (80, 20, 20)
+HP_BAR_FG = (220, 40, 40)
 
 ME_RADIUS = 10
 OTHER_RADIUS = 8
@@ -75,18 +80,41 @@ class Renderer:
             if p.name:
                 self._label(p.name, sx, sy - OTHER_RADIUS - 4)
 
-        # Monsters (squares)
+        # Monsters (squares, color reflects AI state)
+        _MONSTER_STATE_COLORS = {
+            0: MONSTER_COLOR,         # Idle
+            1: MONSTER_CHASE_COLOR,   # Chase
+            2: MONSTER_ATTACK_COLOR,  # Attack
+            3: MONSTER_RETURN_COLOR,  # Return
+        }
+        _STATE_NAMES = {0: "", 1: "Chase", 2: "ATK", 3: "Return"}
         for gid, m in monsters.items():
             sx, sy = self.world_to_screen(m.x, m.z, cx, cz)
             half = MONSTER_SIZE // 2
-            pygame.draw.rect(self.screen, MONSTER_COLOR,
+            color = _MONSTER_STATE_COLORS.get(getattr(m, 'state', 0), MONSTER_COLOR)
+            pygame.draw.rect(self.screen, color,
                              (sx - half, sy - half, MONSTER_SIZE, MONSTER_SIZE))
-            if hasattr(m, 'name') and m.name:
-                self._label(m.name, sx, sy - half - 4)
+            state_tag = _STATE_NAMES.get(getattr(m, 'state', 0), "")
+            label = m.name if hasattr(m, 'name') and m.name else ""
+            if state_tag:
+                label = f"{label} [{state_tag}]" if label else state_tag
+            if label:
+                self._label(label, sx, sy - half - 4)
 
         # Me (always on top, center)
         sx, sy = self.world_to_screen(cx, cz, cx, cz)
         pygame.draw.circle(self.screen, ME_COLOR, (sx, sy), ME_RADIUS)
+
+        # HP bar above local player
+        max_hp = getattr(my_player, 'max_hp', 100) or 100
+        hp = getattr(my_player, 'hp', max_hp)
+        bar_w, bar_h = 40, 5
+        bar_x = sx - bar_w // 2
+        bar_y = sy - ME_RADIUS - 8
+        pygame.draw.rect(self.screen, HP_BAR_BG, (bar_x, bar_y, bar_w, bar_h))
+        fill_w = int(bar_w * max(0, hp) / max_hp)
+        if fill_w > 0:
+            pygame.draw.rect(self.screen, HP_BAR_FG, (bar_x, bar_y, fill_w, bar_h))
 
         self._draw_status(status_lines)
         pygame.display.flip()
