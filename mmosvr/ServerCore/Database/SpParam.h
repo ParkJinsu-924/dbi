@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 // OUTPUT parameter wrapper
 template<typename T>

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Database/DbConnection.h"
 #include "Database/DbResult.h"

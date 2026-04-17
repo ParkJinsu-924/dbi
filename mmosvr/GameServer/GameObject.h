@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "common.pb.h"
 #include "Utils/Types.h"

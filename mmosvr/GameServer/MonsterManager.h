@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Monster.h"
 #include "Utils/TSingleton.h"

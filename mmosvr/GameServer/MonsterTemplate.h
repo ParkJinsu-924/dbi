@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "ResourceManager.h"
 #include "AttackTypes.h"

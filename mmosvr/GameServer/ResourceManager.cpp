@@ -1,4 +1,4 @@
-#include "pch.h"
+﻿#include "pch.h"
 #include "ResourceManager.h"
 #include "MonsterTemplate.h"
 #include "SpawnEntry.h"

@@ -1,4 +1,4 @@
-#include "GamePacketHandler.h"
+﻿#include "GamePacketHandler.h"
 #include "Packet/PacketHandler.h"
 
 // All handlers return Proto::ErrorCode. On non-OK return, the dispatcher

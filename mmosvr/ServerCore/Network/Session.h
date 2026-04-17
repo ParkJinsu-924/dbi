@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Network/RecvBuffer.h"
 #include "Network/SendBuffer.h"

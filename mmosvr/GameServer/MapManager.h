@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Utils/TSingleton.h"
 #include <vector>

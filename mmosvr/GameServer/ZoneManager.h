@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Zone.h"
 #include "Utils/TSingleton.h"

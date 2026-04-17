@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Network/Session.h"
 #include "Packet/PacketHeader.h"

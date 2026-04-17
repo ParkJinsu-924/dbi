@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Npc.h"
 #include "MonsterStates.h"

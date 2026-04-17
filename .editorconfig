@@ -1,0 +1,23 @@
+root = true
+
+# Default — UTF-8 BOM + CRLF for C/C++ sources so MSVC always parses them as UTF-8
+[*.{h,hpp,c,cc,cpp,cxx,ixx}]
+charset = utf-8-bom
+end_of_line = crlf
+indent_style = tab
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+# Python / proto / data stay utf-8 without BOM (standard for those ecosystems)
+[*.{py,proto}]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 4
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.{csv,json,yml,yaml}]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true

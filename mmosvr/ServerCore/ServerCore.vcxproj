@@ -48,6 +48,7 @@
             <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
             <ConformanceMode>true</ConformanceMode>
             <LanguageStandard>stdcpp20</LanguageStandard>
+            <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
             <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)proto\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
             <PrecompiledHeader>Use</PrecompiledHeader>
             <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -65,6 +66,7 @@
             <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
             <ConformanceMode>true</ConformanceMode>
             <LanguageStandard>stdcpp20</LanguageStandard>
+            <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
             <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)proto\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
             <PrecompiledHeader>Use</PrecompiledHeader>
             <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>

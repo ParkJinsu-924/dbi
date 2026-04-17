@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "Packet/PacketHeader.h"
 #include "Packet/PacketIdTraits.h"

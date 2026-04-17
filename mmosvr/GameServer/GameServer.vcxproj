@@ -50,7 +50,7 @@
             <LanguageStandard>stdcpp20</LanguageStandard>
             <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)ServerCore;$(SolutionDir)proto\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
             <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
-            <AdditionalOptions>/Zc:preprocessor %(AdditionalOptions)</AdditionalOptions>
+            <AdditionalOptions>/utf-8 /Zc:preprocessor %(AdditionalOptions)</AdditionalOptions>
         </ClCompile>
         <Link>
             <SubSystem>Console</SubSystem>
@@ -70,7 +70,7 @@
             <LanguageStandard>stdcpp20</LanguageStandard>
             <AdditionalIncludeDirectories>$(ProjectDir);$(SolutionDir)ServerCore;$(SolutionDir)proto\generated;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
             <ForcedIncludeFiles>pch.h</ForcedIncludeFiles>
-            <AdditionalOptions>/Zc:preprocessor %(AdditionalOptions)</AdditionalOptions>
+            <AdditionalOptions>/utf-8 /Zc:preprocessor %(AdditionalOptions)</AdditionalOptions>
         </ClCompile>
         <Link>
             <SubSystem>Console</SubSystem>
