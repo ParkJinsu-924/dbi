@@ -89,7 +89,7 @@ void Monster::DoAttack(Player& target)
 	case AttackType::Melee:
 	case AttackType::Hitscan:
 	{
-		// target.TakeDamage(attackDamage_); 임시 처리
+		target.TakeDamage(attackDamage_);
 
 		if (attackType_ == AttackType::Hitscan)
 		{
@@ -109,7 +109,8 @@ void Monster::DoAttack(Player& target)
 		Proto::S_PlayerHp hpPkt;
 		hpPkt.set_hp(target.GetHp());
 		hpPkt.set_max_hp(target.GetMaxHp());
-		target.Send(hpPkt);
+		hpPkt.set_guid(target.GetGuid());
+		zone_->Broadcast(hpPkt);
 
 		LOG_INFO("Monster [" + GetName() + "] attacks Player " +
 			std::to_string(target.GetPlayerId()) +

@@ -60,20 +60,21 @@ namespace Proto {
             "DWF0dGFja2VyX2d1aWQYASABKAMSEwoLdGFyZ2V0X2d1aWQYAiABKAMSJgoO",
             "c3RhcnRfcG9zaXRpb24YAyABKAsyDi5Qcm90by5WZWN0b3IzEiQKDGhpdF9w",
             "b3NpdGlvbhgEIAEoCzIOLlByb3RvLlZlY3RvcjMSDgoGZGFtYWdlGAUgASgF",
-            "IigKClNfUGxheWVySHASCgoCaHAYASABKAUSDgoGbWF4X2hwGAIgASgFIvcB",
-            "ChFTX1Byb2plY3RpbGVTcGF3bhIMCgRndWlkGAEgASgDEhIKCm93bmVyX2d1",
-            "aWQYAiABKAMSIwoEa2luZBgDIAEoDjIVLlByb3RvLlByb2plY3RpbGVLaW5k",
-            "EiEKCXN0YXJ0X3BvcxgEIAEoCzIOLlByb3RvLlZlY3RvcjMSDQoFc3BlZWQY",
-            "BSABKAISEwoLdGFyZ2V0X2d1aWQYBiABKAMSGwoDZGlyGAcgASgLMg4uUHJv",
-            "dG8uVmVjdG9yMxIOCgZyYWRpdXMYCCABKAISEQoJbWF4X3JhbmdlGAkgASgC",
-            "EhQKDG1heF9saWZldGltZRgKIAEoAiJwCg9TX1Byb2plY3RpbGVIaXQSFwoP",
-            "cHJvamVjdGlsZV9ndWlkGAEgASgDEhMKC3RhcmdldF9ndWlkGAIgASgDEg4K",
-            "BmRhbWFnZRgDIAEoBRIfCgdoaXRfcG9zGAQgASgLMg4uUHJvdG8uVmVjdG9y",
-            "MyKSAQoTU19Qcm9qZWN0aWxlRGVzdHJveRIXCg9wcm9qZWN0aWxlX2d1aWQY",
-            "ASABKAMSMQoGcmVhc29uGAIgASgOMiEuUHJvdG8uU19Qcm9qZWN0aWxlRGVz",
-            "dHJveS5SZWFzb24iLwoGUmVhc29uEgsKB0VYUElSRUQQABIPCgtUQVJHRVRf",
-            "TE9TVBABEgcKA0hJVBACKkEKDlByb2plY3RpbGVLaW5kEhUKEVBST0pFQ1RJ",
-            "TEVfSE9NSU5HEAASGAoUUFJPSkVDVElMRV9TS0lMTFNIT1QQAWIGcHJvdG8z"));
+            "IjYKClNfUGxheWVySHASCgoCaHAYASABKAUSDgoGbWF4X2hwGAIgASgFEgwK",
+            "BGd1aWQYAyABKAMi9wEKEVNfUHJvamVjdGlsZVNwYXduEgwKBGd1aWQYASAB",
+            "KAMSEgoKb3duZXJfZ3VpZBgCIAEoAxIjCgRraW5kGAMgASgOMhUuUHJvdG8u",
+            "UHJvamVjdGlsZUtpbmQSIQoJc3RhcnRfcG9zGAQgASgLMg4uUHJvdG8uVmVj",
+            "dG9yMxINCgVzcGVlZBgFIAEoAhITCgt0YXJnZXRfZ3VpZBgGIAEoAxIbCgNk",
+            "aXIYByABKAsyDi5Qcm90by5WZWN0b3IzEg4KBnJhZGl1cxgIIAEoAhIRCglt",
+            "YXhfcmFuZ2UYCSABKAISFAoMbWF4X2xpZmV0aW1lGAogASgCInAKD1NfUHJv",
+            "amVjdGlsZUhpdBIXCg9wcm9qZWN0aWxlX2d1aWQYASABKAMSEwoLdGFyZ2V0",
+            "X2d1aWQYAiABKAMSDgoGZGFtYWdlGAMgASgFEh8KB2hpdF9wb3MYBCABKAsy",
+            "Di5Qcm90by5WZWN0b3IzIpIBChNTX1Byb2plY3RpbGVEZXN0cm95EhcKD3By",
+            "b2plY3RpbGVfZ3VpZBgBIAEoAxIxCgZyZWFzb24YAiABKA4yIS5Qcm90by5T",
+            "X1Byb2plY3RpbGVEZXN0cm95LlJlYXNvbiIvCgZSZWFzb24SCwoHRVhQSVJF",
+            "RBAAEg8KC1RBUkdFVF9MT1NUEAESBwoDSElUEAIqQQoOUHJvamVjdGlsZUtp",
+            "bmQSFQoRUFJPSkVDVElMRV9IT01JTkcQABIYChRQUk9KRUNUSUxFX1NLSUxM",
+            "U0hPVBABYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Proto.CommonReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Proto.ProjectileKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -97,7 +98,7 @@ namespace Proto {
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterState), global::Proto.S_MonsterState.Parser, new[]{ "Guid", "State", "TargetGuid" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterAttack), global::Proto.S_MonsterAttack.Parser, new[]{ "MonsterGuid", "TargetGuid", "Damage" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_HitscanAttack), global::Proto.S_HitscanAttack.Parser, new[]{ "AttackerGuid", "TargetGuid", "StartPosition", "HitPosition", "Damage" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_PlayerHp), global::Proto.S_PlayerHp.Parser, new[]{ "Hp", "MaxHp" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_PlayerHp), global::Proto.S_PlayerHp.Parser, new[]{ "Hp", "MaxHp", "Guid" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_ProjectileSpawn), global::Proto.S_ProjectileSpawn.Parser, new[]{ "Guid", "OwnerGuid", "Kind", "StartPos", "Speed", "TargetGuid", "Dir", "Radius", "MaxRange", "MaxLifetime" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_ProjectileHit), global::Proto.S_ProjectileHit.Parser, new[]{ "ProjectileGuid", "TargetGuid", "Damage", "HitPos" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_ProjectileDestroy), global::Proto.S_ProjectileDestroy.Parser, new[]{ "ProjectileGuid", "Reason" }, null, new[]{ typeof(global::Proto.S_ProjectileDestroy.Types.Reason) }, null, null)
@@ -5829,6 +5830,7 @@ namespace Proto {
     public S_PlayerHp(S_PlayerHp other) : this() {
       hp_ = other.hp_;
       maxHp_ = other.maxHp_;
+      guid_ = other.guid_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -5862,6 +5864,21 @@ namespace Proto {
       }
     }
 
+    /// <summary>Field number for the "guid" field.</summary>
+    public const int GuidFieldNumber = 3;
+    private long guid_;
+    /// <summary>
+    /// 누구의 HP인지 (GameObject GUID). Zone 전체 broadcast.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long Guid {
+      get { return guid_; }
+      set {
+        guid_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -5879,6 +5896,7 @@ namespace Proto {
       }
       if (Hp != other.Hp) return false;
       if (MaxHp != other.MaxHp) return false;
+      if (Guid != other.Guid) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -5888,6 +5906,7 @@ namespace Proto {
       int hash = 1;
       if (Hp != 0) hash ^= Hp.GetHashCode();
       if (MaxHp != 0) hash ^= MaxHp.GetHashCode();
+      if (Guid != 0L) hash ^= Guid.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -5914,6 +5933,10 @@ namespace Proto {
         output.WriteRawTag(16);
         output.WriteInt32(MaxHp);
       }
+      if (Guid != 0L) {
+        output.WriteRawTag(24);
+        output.WriteInt64(Guid);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -5932,6 +5955,10 @@ namespace Proto {
         output.WriteRawTag(16);
         output.WriteInt32(MaxHp);
       }
+      if (Guid != 0L) {
+        output.WriteRawTag(24);
+        output.WriteInt64(Guid);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -5947,6 +5974,9 @@ namespace Proto {
       }
       if (MaxHp != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(MaxHp);
+      }
+      if (Guid != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(Guid);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -5965,6 +5995,9 @@ namespace Proto {
       }
       if (other.MaxHp != 0) {
         MaxHp = other.MaxHp;
+      }
+      if (other.Guid != 0L) {
+        Guid = other.Guid;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -5993,6 +6026,10 @@ namespace Proto {
             MaxHp = input.ReadInt32();
             break;
           }
+          case 24: {
+            Guid = input.ReadInt64();
+            break;
+          }
         }
       }
     #endif
@@ -6018,6 +6055,10 @@ namespace Proto {
           }
           case 16: {
             MaxHp = input.ReadInt32();
+            break;
+          }
+          case 24: {
+            Guid = input.ReadInt64();
             break;
           }
         }

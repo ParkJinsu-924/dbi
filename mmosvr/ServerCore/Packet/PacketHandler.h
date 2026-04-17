@@ -28,6 +28,7 @@ public:
 	// processing (GameLoop thread). When null, handlers execute immediately on
 	// the calling I/O thread (LoginServer path).
 	void SetJobQueue(JobQueue* queue) { jobQueue_ = queue; }
+	JobQueue* GetJobQueue() const { return jobQueue_; }
 
 	template<ProtoMessage MsgT, PacketSessionType SessionT>
 	void Register(Proto::ErrorCode (*handler)(std::shared_ptr<SessionT>, const MsgT&))

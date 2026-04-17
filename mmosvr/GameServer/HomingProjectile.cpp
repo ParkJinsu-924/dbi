@@ -13,13 +13,7 @@ namespace
 
 void HomingProjectile::Step(const float dt)
 {
-	if (!zone_)
-	{
-		DestroyWith(Proto::S_ProjectileDestroy_Reason_TARGET_LOST);
-		return;
-	}
-
-	auto target = zone_->FindAs<Unit>(targetGuid_);
+	auto target = zone_.FindAs<Unit>(targetGuid_);
 	if (!target || !target->IsAlive())
 	{
 		DestroyWith(Proto::S_ProjectileDestroy_Reason_TARGET_LOST);

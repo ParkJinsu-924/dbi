@@ -2,6 +2,8 @@
 #include "SkillshotProjectile.h"
 #include "Zone.h"
 #include "Unit.h"
+#include "Player.h"
+#include "Monster.h"
 
 
 namespace
@@ -25,29 +27,30 @@ void SkillshotProjectile::Step(const float dt)
 
 void SkillshotProjectile::CheckHit()
 {
-	if (!zone_)
-		return;
-
 	const float r = radius_ + TARGET_HIT_RADIUS;
 	const float r2 = r * r;
 
-	auto units = zone_->GetObjectsByType<Unit>();
-	for (const auto& unit : units)
-	{
-		if (consumed_)
-			return;
-		if (!IsHostile(*unit))
-			continue;
-		if (!unit->IsAlive())
-			continue;
-
-		const auto& tp = unit->GetPosition();
-		const float dx = tp.x() - position_.x();
-		const float dz = tp.z() - position_.z();
-		if (dx * dx + dz * dz < r2)
+	// owner type 에 따라 적대 진영 컨테이너만 직접 조회.
+	auto checkUnits = [&](auto&& candidates)
 		{
-			ApplyHit(*unit, position_);
-			return;  // 첫 적중 후 소멸
-		}
-	}
+			for (const auto& unit : candidates)
+			{
+				if (consumed_) return;
+				if (!unit->IsAlive()) continue;
+
+				const auto& tp = unit->GetPosition();
+				const float dx = tp.x() - position_.x();
+				const float dz = tp.z() - position_.z();
+				if (dx * dx + dz * dz < r2)
+				{
+					ApplyHit(*unit, position_);
+					return;  // 첫 적중 후 소멸
+				}
+			}
+		};
+
+	if (ownerType_ == GameObjectType::Monster)
+		checkUnits(zone_.GetObjectsByType<Player>());
+	else if (ownerType_ == GameObjectType::Player)
+		checkUnits(zone_.GetObjectsByType<Monster>());
 }

@@ -8,7 +8,7 @@ class SkillshotProjectile : public Projectile
 public:
 	SkillshotProjectile(long long ownerGuid, GameObjectType ownerType,
 	                    float dirX, float dirZ,
-	                    int32 damage, float speed, float radius, float range, Zone* zone)
+	                    int32 damage, float speed, float radius, float range, Zone& zone)
 		// lifetimeLimit = range / speed + buffer (안전장치)
 		: Projectile(ownerGuid, ownerType, damage, speed,
 		             (speed > 0.0f && range > 0.0f) ? range / speed + 0.5f : 5.0f,

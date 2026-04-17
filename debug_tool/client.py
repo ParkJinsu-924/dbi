@@ -337,8 +337,15 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
                 print(f"[game] {name} hitscan -> player (dmg={msg.damage})")
 
             elif pkt_id == packet_ids.S_PLAYER_HP:
-                me.hp = msg.hp
-                me.max_hp = msg.max_hp
+                if msg.guid == me.guid or msg.guid == 0:
+                    me.hp = msg.hp
+                    me.max_hp = msg.max_hp
+                else:
+                    for p in others.values():
+                        if p.guid == msg.guid:
+                            p.hp = msg.hp
+                            p.max_hp = msg.max_hp
+                            break
 
             # --- Projectile packets ---
             elif pkt_id == packet_ids.S_PROJECTILE_SPAWN:

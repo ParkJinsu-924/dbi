@@ -25,36 +25,32 @@ void Projectile::Update(const float dt)
 
 void Projectile::ApplyHit(Unit& target, const Proto::Vector3& hitPos)
 {
+	const auto hpBefore = target.GetHp();
 	target.TakeDamage(damage_);
 
-	if (zone_)
-	{
-		Proto::S_ProjectileHit pkt;
-		pkt.set_projectile_guid(GetGuid());
-		pkt.set_target_guid(target.GetGuid());
-		pkt.set_damage(damage_);
-		*pkt.mutable_hit_pos() = hitPos;
-		zone_->Broadcast(pkt);
-	}
+	Proto::S_ProjectileHit pkt;
+	pkt.set_projectile_guid(GetGuid());
+	pkt.set_target_guid(target.GetGuid());
+	pkt.set_damage(damage_);
+	*pkt.mutable_hit_pos() = hitPos;
+	zone_.Broadcast(pkt);
 
-	if (target.GetType() == GameObjectType::Player)
+	if (target.GetHp() != hpBefore &&   // only sync when HP actually changed
+		target.GetType() == GameObjectType::Player)
 	{
-		auto& player = static_cast<Player&>(target);
 		Proto::S_PlayerHp hpPkt;
-		hpPkt.set_hp(player.GetHp());
-		hpPkt.set_max_hp(player.GetMaxHp());
-		player.Send(hpPkt);
+		hpPkt.set_hp(target.GetHp());
+		hpPkt.set_max_hp(target.GetMaxHp());
+		hpPkt.set_guid(target.GetGuid());
+		zone_.Broadcast(hpPkt);
 	}
 
 	consumed_ = true;
 
-	if (zone_)
-	{
-		Proto::S_ProjectileDestroy destroyPkt;
-		destroyPkt.set_projectile_guid(GetGuid());
-		destroyPkt.set_reason(Proto::S_ProjectileDestroy_Reason_HIT);
-		zone_->Broadcast(destroyPkt);
-	}
+	Proto::S_ProjectileDestroy destroyPkt;
+	destroyPkt.set_projectile_guid(GetGuid());
+	destroyPkt.set_reason(Proto::S_ProjectileDestroy_Reason_HIT);
+	zone_.Broadcast(destroyPkt);
 }
 
 void Projectile::DestroyWith(Proto::S_ProjectileDestroy_Reason reason)
@@ -63,13 +59,10 @@ void Projectile::DestroyWith(Proto::S_ProjectileDestroy_Reason reason)
 		return;
 	consumed_ = true;
 
-	if (zone_)
-	{
-		Proto::S_ProjectileDestroy pkt;
-		pkt.set_projectile_guid(GetGuid());
-		pkt.set_reason(reason);
-		zone_->Broadcast(pkt);
-	}
+	Proto::S_ProjectileDestroy pkt;
+	pkt.set_projectile_guid(GetGuid());
+	pkt.set_reason(reason);
+	zone_.Broadcast(pkt);
 }
 
 bool Projectile::IsHostile(const GameObject& other) const

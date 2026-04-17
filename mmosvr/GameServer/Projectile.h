@@ -11,7 +11,7 @@ class Projectile : public GameObject
 {
 public:
 	Projectile(long long ownerGuid, GameObjectType ownerType,
-	           int32 damage, float speed, float lifetimeLimit, Zone* zone)
+	           int32 damage, float speed, float lifetimeLimit, Zone& zone)
 		: GameObject(GameObjectType::Projectile)
 		, ownerGuid_(ownerGuid)
 		, ownerType_(ownerType)
@@ -48,5 +48,5 @@ protected:
 	float          lifetime_      = 0.0f;
 	float          lifetimeLimit_;        // 0 이하 = 비활성 (구 maxLifetime_ — max 매크로 충돌 회피)
 	bool           consumed_      = false;
-	Zone*          zone_          = nullptr;
+	Zone&          zone_;                 // 생성자에서 Zone::this 바인딩, 수명 동안 고정
 };

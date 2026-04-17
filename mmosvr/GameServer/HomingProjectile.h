@@ -8,7 +8,7 @@ class HomingProjectile : public Projectile
 public:
 	HomingProjectile(long long ownerGuid, GameObjectType ownerType,
 	                 long long targetGuid,
-	                 int32 damage, float speed, float lifetimeLimit, Zone* zone)
+	                 int32 damage, float speed, float lifetimeLimit, Zone& zone)
 		: Projectile(ownerGuid, ownerType, damage, speed, lifetimeLimit, zone)
 		, targetGuid_(targetGuid)
 	{

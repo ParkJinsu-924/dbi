@@ -1,13 +1,11 @@
 #pragma once
 
-#include "Utils/Synchronized.h"
 #include "Utils/Types.h"
 #include "Network/SendBuffer.h"
 #include "common.pb.h"
 #include <unordered_map>
 #include <memory>
-#include <mutex>
-#include <shared_mutex>
+#include <type_traits>
 #include <vector>
 #include "GameObject.h"
 #include "Network/PacketSession.h"
@@ -15,17 +13,19 @@
 class GameObject;
 class Player;
 class Monster;
+class Npc;
+class Projectile;
 class HomingProjectile;
 class SkillshotProjectile;
 
 class Zone
 {
 public:
-	explicit Zone(int32 id) : id_(id) {}
+	explicit Zone(const int32 id) : id_(id) {}
 
 	int32 GetId() const { return id_; }
 
-	// Unified API for all GameObject types — 즉시 처리 (외부 스레드에서 안전)
+	// Unified API for all GameObject types.
 	void Add(std::shared_ptr<GameObject> obj);
 	void Remove(long long guid);
 	std::shared_ptr<GameObject> Find(long long guid) const;
@@ -36,17 +36,42 @@ public:
 		return std::dynamic_pointer_cast<T>(Find(guid));
 	}
 
+	// Compile-time T -> GameObjectType mapping (IIFE + if constexpr).
+	// Walks only the matching bucket of objectsByType_, so no dynamic_pointer_cast.
+	// To support a new type, add one more if-constexpr branch below.
 	template<typename T>
 	std::vector<std::shared_ptr<T>> GetObjectsByType() const
 	{
-		return objects_.Read([](const auto& m)
+		constexpr GameObjectType type = []() {
+			if      constexpr (std::is_same_v<T, Player>)     return GameObjectType::Player;
+			else if constexpr (std::is_same_v<T, Monster>)    return GameObjectType::Monster;
+			else if constexpr (std::is_same_v<T, Npc>)        return GameObjectType::Npc;
+			else if constexpr (std::is_same_v<T, Projectile>) return GameObjectType::Projectile;
+			else
 			{
-				std::vector<std::shared_ptr<T>> result;
-				for (const auto& [guid, obj] : m)
-					if (auto casted = std::dynamic_pointer_cast<T>(obj))
-						result.push_back(std::move(casted));
-				return result;
-			});
+				static_assert(sizeof(T) == 0, "Zone::GetObjectsByType: unsupported type");
+				return GameObjectType::Player; // unreachable, for return-type deduction
+			}
+		}();
+
+		std::vector<std::shared_ptr<T>> result;
+		const auto it = objectsByType_.find(type);
+		if (it == objectsByType_.end())
+			return result;
+		result.reserve(it->second.size());
+		for (const auto& kv : it->second)
+			result.push_back(std::static_pointer_cast<T>(kv.second));
+		return result;
+	}
+
+	// Iterate all objects of one type without allocating (hot path: broadcast/find).
+	template<typename Func>
+	void ForEachOfType(const GameObjectType type, Func&& fn) const
+	{
+		const auto it = objectsByType_.find(type);
+		if (it == objectsByType_.end()) return;
+		for (const auto& [guid, obj] : it->second)
+			fn(guid, obj);
 	}
 
 	// Tick all objects + broadcast monster positions periodically
@@ -89,17 +114,28 @@ public:
 		int32 damage, float speed, float radius, float range);
 
 private:
-	void BroadcastChunk(SendBufferChunkPtr chunk); // For Broadcast function, use Broadcast() instead.
-	void BroadcastChunkExcept(SendBufferChunkPtr chunk, long long excludeGuid);
+	void BroadcastChunk(const SendBufferChunkPtr& chunk) const; // For Broadcast function, use Broadcast() instead.
+	void BroadcastChunkExcept(const SendBufferChunkPtr& chunk, long long excludeGuid) const;
 	void BroadcastMonsterPositions();
 	void FlushPending();              // pending Add/Remove 일괄 적용
 
-	const int32 id_;
-	Synchronized<std::unordered_map<long long, std::shared_ptr<GameObject>>, std::shared_mutex> objects_;
+	void insertObject(std::shared_ptr<GameObject> obj);  // objects_ + objectsByType_ 동시 갱신
+	void eraseObject(long long guid);
 
-	// Update 중에 발생한 등록/소멸 요청을 한 틱 끝에서 일괄 반영.
-	Synchronized<std::vector<std::shared_ptr<GameObject>>, std::mutex> pendingAdd_;
-	Synchronized<std::vector<long long>, std::mutex> pendingRemove_;
+	const int32 id_;
+
+	// guid 직접 검색용 (Find / FindAs) — O(1).
+	std::unordered_map<long long, std::shared_ptr<GameObject>> objects_;
+
+	// 타입별 순회용 (Broadcast / FindNearest / Projectile cleanup) — O(N_type).
+	// 같은 객체를 두 자료구조가 공유 (control block 공유, 추가 비용은 포인터 사이즈 정도).
+	std::unordered_map<GameObjectType,
+		std::unordered_map<long long, std::shared_ptr<GameObject>>> objectsByType_;
+
+	// Zone 은 단일 GameLoopThread 에서만 접근되므로 락 없음.
+	// Update 순회 중 objects_ 직접 수정 시 iterator invalidation 방지용 pending 큐.
+	std::vector<std::shared_ptr<GameObject>> pendingAdd_;
+	std::vector<long long>                   pendingRemove_;
 
 	float monsterBroadcastAccum_ = 0.0f;
 };

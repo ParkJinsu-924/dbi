@@ -7,7 +7,6 @@
 #include "HomingProjectile.h"
 #include "SkillshotProjectile.h"
 #include "Network/Session.h"
-#include "Network/PacketSession.h"
 #include "game.pb.h"
 
 
@@ -19,55 +18,54 @@ namespace
 
 void Zone::Add(std::shared_ptr<GameObject> obj)
 {
-	long long guid = obj->GetGuid();
-	objects_.Write([&](auto& m)
-		{
-			m[guid] = std::move(obj);
-		});
+	insertObject(std::move(obj));
 }
 
 void Zone::Remove(long long guid)
 {
-	objects_.Write([&](auto& m)
-		{
-			m.erase(guid);
-		});
+	eraseObject(guid);
 }
 
-std::shared_ptr<GameObject> Zone::Find(long long guid) const
+std::shared_ptr<GameObject> Zone::Find(const long long guid) const
 {
-	return objects_.Read([&](const auto& m) -> std::shared_ptr<GameObject>
-		{
-			auto it = m.find(guid);
-			if (it == m.end())
-				return nullptr;
-			return it->second;
-		});
+	const auto it = objects_.find(guid);
+	if (it == objects_.end())
+		return nullptr;
+	return it->second;
 }
 
-void Zone::Update(float deltaTime)
+void Zone::insertObject(std::shared_ptr<GameObject> obj)
+{
+	const long long guid = obj->GetGuid();
+	const GameObjectType type = obj->GetType();
+	objects_[guid] = obj;
+	objectsByType_[type][guid] = std::move(obj);
+}
+
+void Zone::eraseObject(const long long guid)
+{
+	const auto it = objects_.find(guid);
+	if (it == objects_.end()) return;
+	const GameObjectType type = it->second->GetType();
+	const auto bucketIt = objectsByType_.find(type);
+	if (bucketIt != objectsByType_.end())
+		bucketIt->second.erase(guid);
+	objects_.erase(it);
+}
+
+void Zone::Update(const float deltaTime)
 {
 	// 1. Tick all objects
-	objects_.Read([&](const auto& m)
-		{
-			for (const auto& [guid, obj] : m)
-				obj->Update(deltaTime);
-		});
-
+	for (const auto& obj : objects_ | std::views::values)
+		obj->Update(deltaTime);
+	
 	// 2. Auto-cleanup consumed projectiles (Update 중 적중/만료된 것)
-	objects_.Read([&](const auto& m)
-		{
-			for (const auto& [guid, obj] : m)
-			{
-				if (obj->GetType() != GameObjectType::Projectile)
-					continue;
-				auto p = std::static_pointer_cast<Projectile>(obj);
-				if (p->IsConsumed())
-				{
-					pendingRemove_.WithLock([&](auto& v) { v.push_back(guid); });
-				}
-			}
-		});
+	ForEachOfType(GameObjectType::Projectile, [&](const long long guid, const std::shared_ptr<GameObject>& obj)
+	{
+		const auto p = std::static_pointer_cast<Projectile>(obj);
+		if (p->IsConsumed())
+			pendingRemove_.push_back(guid);
+	});
 
 	// 3. Flush pending Add/Remove (Spawn 호출 결과 + 위 cleanup)
 	FlushPending();
@@ -83,61 +81,43 @@ void Zone::Update(float deltaTime)
 
 void Zone::FlushPending()
 {
-	std::vector<std::shared_ptr<GameObject>> toAdd;
-	std::vector<long long> toRemove;
-	pendingAdd_.WithLock([&](auto& v) { toAdd.swap(v); });
-	pendingRemove_.WithLock([&](auto& v) { toRemove.swap(v); });
-
-	if (toAdd.empty() && toRemove.empty())
+	if (pendingAdd_.empty() && pendingRemove_.empty())
 		return;
 
-	objects_.Write([&](auto& m)
-		{
-			for (auto& obj : toAdd)
-				m[obj->GetGuid()] = std::move(obj);
-			for (auto guid : toRemove)
-				m.erase(guid);
-		});
+	for (auto& obj : pendingAdd_)
+		insertObject(std::move(obj));
+	for (const auto guid : pendingRemove_)
+		eraseObject(guid);
+
+	pendingAdd_.clear();
+	pendingRemove_.clear();
 }
 
-void Zone::BroadcastChunk(SendBufferChunkPtr chunk)
+void Zone::BroadcastChunk(const SendBufferChunkPtr& chunk) const
 {
-	objects_.Read([&](const auto& m)
+	ForEachOfType(GameObjectType::Player, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
+	{
+		auto player = std::static_pointer_cast<Player>(obj);
+		if (auto session = player->GetSession())
 		{
-			for (const auto& [guid, obj] : m)
-			{
-				if (obj->GetType() != GameObjectType::Player)
-					continue;
-
-				auto player = std::static_pointer_cast<Player>(obj);
-				if (auto session = player->GetSession())
-				{
-					if (session->IsConnected())
-						std::static_pointer_cast<Session>(session)->Send(chunk);
-				}
-			}
-		});
+			if (session->IsConnected())
+				std::static_pointer_cast<Session>(session)->Send(chunk);
+		}
+	});
 }
 
-void Zone::BroadcastChunkExcept(SendBufferChunkPtr chunk, long long excludeGuid)
+void Zone::BroadcastChunkExcept(const SendBufferChunkPtr& chunk, long long excludeGuid) const
 {
-	objects_.Read([&](const auto& m)
+	ForEachOfType(GameObjectType::Player, [&](long long guid, const std::shared_ptr<GameObject>& obj)
+	{
+		if (guid == excludeGuid) return;
+		auto player = std::static_pointer_cast<Player>(obj);
+		if (auto session = player->GetSession())
 		{
-			for (const auto& [guid, obj] : m)
-			{
-				if (guid == excludeGuid)
-					continue;
-				if (obj->GetType() != GameObjectType::Player)
-					continue;
-
-				auto player = std::static_pointer_cast<Player>(obj);
-				if (auto session = player->GetSession())
-				{
-					if (session->IsConnected())
-						std::static_pointer_cast<Session>(session)->Send(chunk);
-				}
-			}
-		});
+			if (session->IsConnected())
+				std::static_pointer_cast<Session>(session)->Send(chunk);
+		}
+	});
 }
 
 std::shared_ptr<Player> Zone::FindNearestPlayer(const Proto::Vector3& from, float maxRange) const
@@ -145,29 +125,22 @@ std::shared_ptr<Player> Zone::FindNearestPlayer(const Proto::Vector3& from, floa
 	std::shared_ptr<Player> nearest;
 	float nearestDistSq = maxRange * maxRange;
 
-	objects_.Read([&](const auto& m)
+	ForEachOfType(GameObjectType::Player, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
+	{
+		auto player = std::static_pointer_cast<Player>(obj);
+		if (!player->IsAlive()) return;
+
+		const auto& pos = obj->GetPosition();
+		float dx = pos.x() - from.x();
+		float dz = pos.z() - from.z();
+		float distSq = dx * dx + dz * dz;
+
+		if (distSq < nearestDistSq)
 		{
-			for (const auto& [guid, obj] : m)
-			{
-				if (obj->GetType() != GameObjectType::Player)
-					continue;
-
-				auto player = std::static_pointer_cast<Player>(obj);
-				if (!player->IsAlive())
-					continue;
-
-				const auto& pos = obj->GetPosition();
-				float dx = pos.x() - from.x();
-				float dz = pos.z() - from.z();
-				float distSq = dx * dx + dz * dz;
-
-				if (distSq < nearestDistSq)
-				{
-					nearestDistSq = distSq;
-					nearest = player;
-				}
-			}
-		});
+			nearestDistSq = distSq;
+			nearest = player;
+		}
+	});
 
 	return nearest;
 }
@@ -177,48 +150,35 @@ std::shared_ptr<Monster> Zone::FindNearestMonster(const Proto::Vector3& from, fl
 	std::shared_ptr<Monster> nearest;
 	float nearestDistSq = maxRange * maxRange;
 
-	objects_.Read([&](const auto& m)
+	ForEachOfType(GameObjectType::Monster, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
+	{
+		const auto monster = std::static_pointer_cast<Monster>(obj);
+		if (!monster->IsAlive()) return;
+
+		const auto& pos = obj->GetPosition();
+		const float dx = pos.x() - from.x();
+		const float dz = pos.z() - from.z();
+		const float distSq = dx * dx + dz * dz;
+
+		if (distSq < nearestDistSq)
 		{
-			for (const auto& [guid, obj] : m)
-			{
-				if (obj->GetType() != GameObjectType::Monster)
-					continue;
-
-				auto monster = std::static_pointer_cast<Monster>(obj);
-				if (!monster->IsAlive())
-					continue;
-
-				const auto& pos = obj->GetPosition();
-				float dx = pos.x() - from.x();
-				float dz = pos.z() - from.z();
-				float distSq = dx * dx + dz * dz;
-
-				if (distSq < nearestDistSq)
-				{
-					nearestDistSq = distSq;
-					nearest = monster;
-				}
-			}
-		});
+			nearestDistSq = distSq;
+			nearest = monster;
+		}
+	});
 
 	return nearest;
 }
 
 void Zone::BroadcastMonsterPositions()
 {
-	objects_.Read([&](const auto& m)
-		{
-			for (const auto& [guid, obj] : m)
-			{
-				if (obj->GetType() != GameObjectType::Monster)
-					continue;
-
-				Proto::S_MonsterMove pkt;
-				pkt.set_guid(guid);
-				*pkt.mutable_position() = obj->GetPosition();
-				Broadcast(pkt);
-			}
-		});
+	ForEachOfType(GameObjectType::Monster, [&](long long guid, const std::shared_ptr<GameObject>& obj)
+	{
+		Proto::S_MonsterMove pkt;
+		pkt.set_guid(guid);
+		*pkt.mutable_position() = obj->GetPosition();
+		Broadcast(pkt);
+	});
 }
 
 std::shared_ptr<HomingProjectile> Zone::SpawnHomingProjectile(
@@ -228,11 +188,11 @@ std::shared_ptr<HomingProjectile> Zone::SpawnHomingProjectile(
 {
 	auto p = std::make_shared<HomingProjectile>(
 		ownerGuid, ownerType, targetGuid,
-		damage, speed, lifetime, this);
+		damage, speed, lifetime, *this);
 	p->SetPosition(startPos);
 	p->SetZoneId(id_);
 
-	pendingAdd_.WithLock([&](auto& v) { v.push_back(p); });
+	pendingAdd_.push_back(p);
 
 	Proto::S_ProjectileSpawn pkt;
 	pkt.set_guid(p->GetGuid());
@@ -255,11 +215,11 @@ std::shared_ptr<SkillshotProjectile> Zone::SpawnSkillshotProjectile(
 {
 	auto p = std::make_shared<SkillshotProjectile>(
 		ownerGuid, ownerType, dirX, dirZ,
-		damage, speed, radius, range, this);
+		damage, speed, radius, range, *this);
 	p->SetPosition(startPos);
 	p->SetZoneId(id_);
 
-	pendingAdd_.WithLock([&](auto& v) { v.push_back(p); });
+	pendingAdd_.push_back(p);
 
 	Proto::S_ProjectileSpawn pkt;
 	pkt.set_guid(p->GetGuid());

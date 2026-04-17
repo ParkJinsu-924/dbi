@@ -136,6 +136,7 @@ message S_HitscanAttack {
 message S_PlayerHp {
     int32 hp = 1;
     int32 max_hp = 2;
+    int64 guid = 3;        // 누구의 HP인지 (GameObject GUID). Zone 전체 broadcast.
 }
 
 // --- Projectile ---
