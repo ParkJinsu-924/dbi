@@ -59,6 +59,14 @@ public:
 		BroadcastChunk(PacketSession::MakeSendBuffer(msg));
 	}
 
+	// Broadcast to all Players in the zone except the one with `excludeGuid`.
+	// 신규 입장 알림처럼 "본인은 이미 자기 정보를 알고 있는" 경우에 사용.
+	template<typename T>
+	void BroadcastExcept(const T& msg, long long excludeGuid)
+	{
+		BroadcastChunkExcept(PacketSession::MakeSendBuffer(msg), excludeGuid);
+	}
+
 	// Find the nearest alive Player within maxRange of the given position.
 	// Returns nullptr if none found.
 	std::shared_ptr<Player> FindNearestPlayer(const Proto::Vector3& from, float maxRange) const;
@@ -82,6 +90,7 @@ public:
 
 private:
 	void BroadcastChunk(SendBufferChunkPtr chunk); // For Broadcast function, use Broadcast() instead.
+	void BroadcastChunkExcept(SendBufferChunkPtr chunk, long long excludeGuid);
 	void BroadcastMonsterPositions();
 	void FlushPending();              // pending Add/Remove 일괄 적용
 

@@ -30,6 +30,7 @@ _MSG_CLASS_MAP = {
     packet_ids.S_PLAYER_MOVE:         game_pb2.S_PlayerMove,
     packet_ids.S_CHAT:                game_pb2.S_Chat,
     packet_ids.S_PLAYER_LEAVE:        game_pb2.S_PlayerLeave,
+    packet_ids.S_PLAYER_SPAWN:        game_pb2.S_PlayerSpawn,
     packet_ids.S_MOVE_CORRECTION:     game_pb2.S_MoveCorrection,
     packet_ids.S_ERROR:               game_pb2.S_Error,
     packet_ids.S_MONSTER_SPAWN:       game_pb2.S_MonsterSpawn,

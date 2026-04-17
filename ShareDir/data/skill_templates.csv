@@ -1,4 +1,4 @@
 # kind: Homing | Skillshot  (대소문자 무관, 숫자도 허용 — 0=Homing, 1=Skillshot)
 sid,name,kind,speed,radius,range,lifetime,cooldown,damage
 2001,auto_attack,Homing,12.0,0.0,0.0,5.0,0.6,15
-2002,bolt,Skillshot,18.0,0.6,20.0,0.0,1.5,30
+2002,bolt,Skillshot,18.0,0.6,16.0,0.0,1.5,30

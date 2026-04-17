@@ -30,8 +30,8 @@ void Monster::InitAI(const Proto::Vector3& spawnPos, Zone* zone)
 			BroadcastState(prev, next);
 		});
 
-	// 시작 (Patrol 상태로 시작)
-	fsm_.Start(*this, MonsterStateId::Patrol);
+	// 시작 (Idle 상태로 시작)
+	fsm_.Start(*this, MonsterStateId::Idle);
 }
 
 void Monster::Update(const float deltaTime)
@@ -89,7 +89,7 @@ void Monster::DoAttack(Player& target)
 	case AttackType::Melee:
 	case AttackType::Hitscan:
 	{
-		target.TakeDamage(attackDamage_);
+		// target.TakeDamage(attackDamage_); 임시 처리
 
 		if (attackType_ == AttackType::Hitscan)
 		{
@@ -140,7 +140,7 @@ void Monster::DoAttack(Player& target)
 				GetGuid(), GameObjectType::Monster, target.GetGuid(),
 				GetPosition(), dmg, sk->speed, sk->lifetime);
 		}
-		else
+		else if (attackType_ == AttackType::Skillshot)
 		{
 			// 발사 시점의 타겟 방향으로 직진
 			float dx = target.GetPosition().x() - GetPosition().x();

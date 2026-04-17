@@ -17,6 +17,7 @@ namespace Proto
 	class S_PlayerMove;
 	class S_Chat;
 	class S_PlayerLeave;
+	class S_PlayerSpawn;
 	class S_RequestUseSkill;
 	class S_MoveCorrection;
 	class S_Error;
@@ -53,6 +54,7 @@ PACKET_ID_TRAIT(S_PlayerList, S_PLAYER_LIST)
 PACKET_ID_TRAIT(S_PlayerMove, S_PLAYER_MOVE)
 PACKET_ID_TRAIT(S_Chat, S_CHAT)
 PACKET_ID_TRAIT(S_PlayerLeave, S_PLAYER_LEAVE)
+PACKET_ID_TRAIT(S_PlayerSpawn, S_PLAYER_SPAWN)
 PACKET_ID_TRAIT(S_RequestUseSkill, S_REQUEST_USE_SKILL)
 PACKET_ID_TRAIT(S_MoveCorrection, S_MOVE_CORRECTION)
 PACKET_ID_TRAIT(S_Error, S_ERROR)

@@ -35,6 +35,7 @@ LOGIN_PORT = 9999
 @dataclass
 class PlayerState:
     player_id: int = 0
+    guid: int = 0        # 서버 GameObject GUID (Projectile target_guid 매칭용)
     name: str = ""
     x: float = 0.0
     y: float = 0.0
@@ -100,13 +101,16 @@ class ProjectileState:
 
 
 def _projectile_target_pos(target_guid: int, me, others: dict, monsters: dict):
-    """Lookup the homing target's current position. Falls back to me when not found
-    (server uses GameObject GUIDs which don't match the client's player_id)."""
+    """Lookup the homing target's current position by server GUID."""
     if target_guid in monsters:
         m = monsters[target_guid]
         return (m.x, m.z)
-    # other players' guids aren't tracked client-side yet; fallback to me
-    return (me.x, me.z)
+    if me.guid != 0 and target_guid == me.guid:
+        return (me.x, me.z)
+    for p in others.values():
+        if p.guid == target_guid:
+            return (p.x, p.z)
+    return None
 
 
 def make_vec3(x, y, z):
@@ -242,11 +246,12 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
 
             if pkt_id == packet_ids.S_ENTER_GAME:
                 me.player_id = msg.player_id
+                me.guid = msg.guid
                 me.x = msg.spawn_position.x
                 me.y = msg.spawn_position.y
                 me.z = msg.spawn_position.z
                 in_game = True
-                print(f"[game] entered as playerId={me.player_id} at ({me.x:.1f}, {me.z:.1f})")
+                print(f"[game] entered as playerId={me.player_id} guid={me.guid} at ({me.x:.1f}, {me.z:.1f})")
 
             elif pkt_id == packet_ids.S_PLAYER_LIST:
                 for p in msg.players:
@@ -255,6 +260,7 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
                     px, py, pz = p.position.x, p.position.y, p.position.z
                     ps = others.setdefault(p.player_id, PlayerState(player_id=p.player_id))
                     ps.name = p.name
+                    ps.guid = p.guid
                     ps.x, ps.y, ps.z = px, py, pz
                     ps.tx, ps.ty, ps.tz = px, py, pz
 
@@ -263,6 +269,17 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
                     continue
                 ps = others.setdefault(msg.player_id, PlayerState(player_id=msg.player_id))
                 ps.set_target(msg.position.x, msg.position.y, msg.position.z)
+
+            elif pkt_id == packet_ids.S_PLAYER_SPAWN:
+                if msg.player_id != me.player_id:
+                    px, py, pz = msg.position.x, msg.position.y, msg.position.z
+                    ps = others.setdefault(msg.player_id,
+                                           PlayerState(player_id=msg.player_id))
+                    ps.name = msg.name
+                    ps.guid = msg.guid
+                    ps.x, ps.y, ps.z = px, py, pz
+                    ps.tx, ps.ty, ps.tz = px, py, pz
+                    print(f"[game] player joined: id={msg.player_id} name={msg.name}")
 
             elif pkt_id == packet_ids.S_PLAYER_LEAVE:
                 others.pop(msg.player_id, None)
@@ -342,8 +359,12 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
                 projectiles.pop(msg.projectile_guid, None)
                 if msg.target_guid in monsters:
                     print(f"[hit] {monsters[msg.target_guid].name} took {msg.damage} dmg")
-                else:
+                elif msg.target_guid == me.guid:
                     print(f"[hit] you took {msg.damage} dmg")
+                else:
+                    other = next((p for p in others.values() if p.guid == msg.target_guid), None)
+                    tag = other.name if other else f"guid={msg.target_guid}"
+                    print(f"[hit] {tag} took {msg.damage} dmg")
 
             elif pkt_id == packet_ids.S_PROJECTILE_DESTROY:
                 projectiles.pop(msg.projectile_guid, None)
@@ -367,15 +388,19 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
                 if p.max_range > 0 and p.traveled >= p.max_range:
                     expired_proj.append(pid)
             else:             # Homing
-                tx, tz = _projectile_target_pos(p.target_guid, me, others, monsters)
-                ddx = tx - p.x
-                ddz = tz - p.z
-                d = (ddx * ddx + ddz * ddz) ** 0.5
-                if d > 1e-3:
-                    p.x += ddx / d * step
-                    p.z += ddz / d * step
-                if now_t - p.spawned_at > p.max_lifetime + 0.5:
+                target = _projectile_target_pos(p.target_guid, me, others, monsters)
+                if target is None:
                     expired_proj.append(pid)
+                else:
+                    tx, tz = target
+                    ddx = tx - p.x
+                    ddz = tz - p.z
+                    d = (ddx * ddx + ddz * ddz) ** 0.5
+                    if d > 1e-3:
+                        p.x += ddx / d * step
+                        p.z += ddz / d * step
+                    if now_t - p.spawned_at > p.max_lifetime + 0.5:
+                        expired_proj.append(pid)
         for pid in expired_proj:
             projectiles.pop(pid, None)
 

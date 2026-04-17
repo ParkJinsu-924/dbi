@@ -78,10 +78,24 @@ Proto::ErrorCode GamePacketHandler::SS_ValidateToken(std::shared_ptr<ServerSessi
 	// Put the player into the default zone
 	player->SetZoneId(DEFAULT_ZONE_ID);
 	if (auto* zone = GetZoneManager().GetZone(DEFAULT_ZONE_ID))
+	{
 		zone->Add(player);
+
+		// Notify existing players in the zone about the new arrival.
+		// 본인은 아직 S_EnterGame 도 못 받은 시점이라 제외한다
+		// (그냥 Broadcast 하면 본인 세션에 S_PlayerSpawn 이 S_EnterGame 보다 먼저 도착해서
+		//  클라가 자기 자신을 others 에 등록하는 버그 발생).
+		Proto::S_PlayerSpawn spawnPkt;
+		spawnPkt.set_player_id(playerId);
+		spawnPkt.set_name(playerName);
+		*spawnPkt.mutable_position() = player->GetPosition();
+		spawnPkt.set_guid(player->GetGuid());
+		zone->BroadcastExcept(spawnPkt, player->GetGuid());
+	}
 
 	Proto::S_EnterGame response;
 	response.set_player_id(playerId);
+	response.set_guid(player->GetGuid());
 	auto* spawnPos = response.mutable_spawn_position();
 	spawnPos->set_x(0.0f);
 	spawnPos->set_y(0.0f);
@@ -96,6 +110,7 @@ Proto::ErrorCode GamePacketHandler::SS_ValidateToken(std::shared_ptr<ServerSessi
 		info->set_player_id(p->GetPlayerId());
 		info->set_name(p->GetName());
 		*info->mutable_position() = p->GetPosition();
+		info->set_guid(p->GetGuid());
 	}
 	gameSession->Send(playerListPkt);
 

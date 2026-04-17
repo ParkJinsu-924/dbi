@@ -119,6 +119,27 @@ void Zone::BroadcastChunk(SendBufferChunkPtr chunk)
 		});
 }
 
+void Zone::BroadcastChunkExcept(SendBufferChunkPtr chunk, long long excludeGuid)
+{
+	objects_.Read([&](const auto& m)
+		{
+			for (const auto& [guid, obj] : m)
+			{
+				if (guid == excludeGuid)
+					continue;
+				if (obj->GetType() != GameObjectType::Player)
+					continue;
+
+				auto player = std::static_pointer_cast<Player>(obj);
+				if (auto session = player->GetSession())
+				{
+					if (session->IsConnected())
+						std::static_pointer_cast<Session>(session)->Send(chunk);
+				}
+			}
+		});
+}
+
 std::shared_ptr<Player> Zone::FindNearestPlayer(const Proto::Vector3& from, float maxRange) const
 {
 	std::shared_ptr<Player> nearest;

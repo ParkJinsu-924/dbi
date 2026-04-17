@@ -30,6 +30,7 @@ message C_RequestUseSkill {
 message S_EnterGame {
     int32 player_id = 1;
     Vector3 spawn_position = 2;
+    int64 guid = 3;              // 본인 GameObject GUID — 서버 측 식별자 (Projectile target_guid 매칭용)
 }
 
 message S_PlayerList {
@@ -37,6 +38,7 @@ message S_PlayerList {
         int32 player_id = 1;
         string name = 2;
         Vector3 position = 3;
+        int64 guid = 4;          // 해당 플레이어의 GameObject GUID
     }
     repeated PlayerInfo players = 1;
 }
@@ -55,6 +57,15 @@ message S_Chat {
 
 message S_PlayerLeave {
     int32 player_id = 1;
+}
+
+// 신규 유저가 Zone에 입장했음을 Zone 내 기존 유저들에게 알림.
+// 본인도 같은 패킷을 받으므로 클라는 자기 player_id 는 skip.
+message S_PlayerSpawn {
+    int32 player_id = 1;
+    string name = 2;
+    Vector3 position = 3;
+    int64 guid = 4;
 }
 
 message S_RequestUseSkill {
