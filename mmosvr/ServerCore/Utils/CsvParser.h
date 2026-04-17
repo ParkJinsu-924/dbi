@@ -1,5 +1,7 @@
 #pragma once
 
+#include "EnumUtils.h"
+
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -42,6 +44,13 @@ namespace Csv
 				}
 				else if constexpr (std::is_same_v<T, std::string>)
 					return it->second;
+				else if constexpr (std::is_enum_v<T>)
+				{
+					// 이름(문자열) 먼저 시도 — 실패 시 숫자로 fallback (기존 CSV 호환).
+					if (auto parsed = EU::TryStringToEnum<T>(it->second))
+						return *parsed;
+					return static_cast<T>(std::stoi(it->second));
+				}
 				else
 					return defaultValue;
 			}

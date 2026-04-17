@@ -205,7 +205,7 @@ Proto::ErrorCode GamePacketHandler::C_RequestUseSkill(std::shared_ptr<GameSessio
 	if (!player->TryConsumeCooldown(sk->name, sk->cooldown))
 		return Proto::ErrorCode::OK;  // 쿨다운 중 — 조용히 무시
 
-	if (sk->kind == 0)  // Homing
+	if (sk->kind == SkillKind::Homing)
 	{
 		std::shared_ptr<Monster> target;
 		if (pkt.target_guid() != 0)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ResourceManager.h"
+#include "AttackTypes.h"
 
 
 class SkillTable;
@@ -12,7 +13,7 @@ struct SkillTemplate
 
 	int32       sid          = 0;
 	std::string name;
-	int32       kind         = 0;     // 0=Homing, 1=Skillshot (Proto::ProjectileKind 와 일치)
+	SkillKind   kind         = SkillKind::Homing;  // Proto::ProjectileKind 와 값 일치
 	float       speed        = 10.0f;
 	float       radius       = 0.5f;  // Skillshot 충돌 반경
 	float       range        = 0.0f;  // Skillshot 사거리 (구 maxRange — max/min 매크로 충돌 회피)

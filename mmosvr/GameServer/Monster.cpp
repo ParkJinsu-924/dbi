@@ -86,12 +86,12 @@ void Monster::DoAttack(Player& target)
 {
 	switch (attackType_)
 	{
-	case 0:  // Melee — 즉시 데미지
-	case 1:  // Hitscan — 즉시 데미지 + 광선 시각화
+	case AttackType::Melee:
+	case AttackType::Hitscan:
 	{
 		target.TakeDamage(attackDamage_);
 
-		if (attackType_ == 1)
+		if (attackType_ == AttackType::Hitscan)
 		{
 			Proto::S_HitscanAttack pkt;
 			pkt.set_attacker_guid(GetGuid());
@@ -118,8 +118,8 @@ void Monster::DoAttack(Player& target)
 			std::to_string(target.GetMaxHp()) + ")");
 		break;
 	}
-	case 2:  // Homing Projectile — 데미지는 ApplyHit 시점에
-	case 3:  // Skillshot Projectile
+	case AttackType::Homing:
+	case AttackType::Skillshot:
 	{
 		if (!zone_) break;
 		const auto* skTable = GetResourceManager().Get<SkillTemplate>();
@@ -127,14 +127,14 @@ void Monster::DoAttack(Player& target)
 		if (!sk)
 		{
 			LOG_WARN("Monster [" + GetName() + "] has attackType=" +
-				std::to_string(attackType_) + " but skillId=" +
+				std::to_string(static_cast<int32>(attackType_)) + " but skillId=" +
 				std::to_string(skillId_) + " not found in SkillTable");
 			break;
 		}
 
 		const int32 dmg = sk->damage > 0 ? sk->damage : attackDamage_;
 
-		if (attackType_ == 2)
+		if (attackType_ == AttackType::Homing)
 		{
 			zone_->SpawnHomingProjectile(
 				GetGuid(), GameObjectType::Monster, target.GetGuid(),
@@ -160,7 +160,8 @@ void Monster::DoAttack(Player& target)
 		break;
 	}
 	default:
-		LOG_WARN("Monster [" + GetName() + "] unknown attackType=" + std::to_string(attackType_));
+		LOG_WARN("Monster [" + GetName() + "] unknown attackType=" +
+			std::to_string(static_cast<int32>(attackType_)));
 		break;
 	}
 }

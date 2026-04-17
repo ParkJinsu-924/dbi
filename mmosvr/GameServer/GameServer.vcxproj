@@ -121,6 +121,7 @@
         <ClInclude Include="HomingProjectile.h"/>
         <ClInclude Include="SkillshotProjectile.h"/>
         <ClInclude Include="SkillTemplate.h"/>
+        <ClInclude Include="AttackTypes.h"/>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\ServerCore\ServerCore.vcxproj">
