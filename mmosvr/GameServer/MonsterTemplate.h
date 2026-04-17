@@ -20,14 +20,15 @@ struct MonsterTemplate
 	float       moveSpeed      = 3.0f;
 	float       attackCooldown = 1.5f;
 	int32       attackDamage   = 10;
-	int32       attackType     = 0;    // 0=Melee, 1=Hitscan
+	int32       attackType     = 0;    // 0=Melee, 1=Hitscan, 2=HomingProjectile, 3=SkillshotProjectile
+	int32       skillId        = 0;    // attackType=2,3 일 때 SkillTemplate.sid (0=미사용)
 
 	KeyType GetKey() const { return tid; }
 
 	CSV_DEFINE_TYPE(MonsterTemplate,
 		tid, name, hp, maxHp,
 		detectRange, attackRange, leashRange,
-		moveSpeed, attackCooldown, attackDamage, attackType)
+		moveSpeed, attackCooldown, attackDamage, attackType, skillId)
 };
 
 

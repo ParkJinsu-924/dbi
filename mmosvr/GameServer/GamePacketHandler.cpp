@@ -7,6 +7,9 @@
 #include "MapManager.h"
 #include "Monster.h"
 #include "ZoneManager.h"
+#include "ResourceManager.h"
+#include "SkillTemplate.h"
+#include <cmath>
 
 
 Synchronized<std::unordered_map<std::string, std::weak_ptr<GameSession>>, std::mutex> GamePacketHandler::sPendingValidations;
@@ -178,5 +181,66 @@ Proto::ErrorCode GamePacketHandler::C_Chat(std::shared_ptr<GameSession> session,
 		zone->Broadcast(broadcast);
 
 	LOG_INFO("[Chat] " + player->GetName() + ": " + pkt.message());
+	return Proto::ErrorCode::OK;
+}
+
+Proto::ErrorCode GamePacketHandler::C_RequestUseSkill(std::shared_ptr<GameSession> session, const Proto::C_RequestUseSkill& pkt)
+{
+	auto player = GetPlayerManager().FindBySession(session);
+	if (!player)
+		return Proto::ErrorCode::PLAYER_NOT_FOUND;
+
+	auto* zone = GetZoneManager().GetZone(player->GetZoneId());
+	if (!zone)
+		return Proto::ErrorCode::INTERNAL_ERROR;
+
+	const auto* skTable = GetResourceManager().Get<SkillTemplate>();
+	const SkillTemplate* sk = skTable ? skTable->FindByName(pkt.skill_name()) : nullptr;
+	if (!sk)
+	{
+		LOG_WARN("C_RequestUseSkill: unknown skill name '" + pkt.skill_name() + "'");
+		return Proto::ErrorCode::INVALID_REQUEST;
+	}
+
+	if (!player->TryConsumeCooldown(sk->name, sk->cooldown))
+		return Proto::ErrorCode::OK;  // 쿨다운 중 — 조용히 무시
+
+	if (sk->kind == 0)  // Homing
+	{
+		std::shared_ptr<Monster> target;
+		if (pkt.target_guid() != 0)
+		{
+			target = zone->FindAs<Monster>(pkt.target_guid());
+		}
+		else
+		{
+			target = zone->FindNearestMonster(player->GetPosition(), 30.0f);
+		}
+
+		if (!target || !target->IsAlive())
+			return Proto::ErrorCode::OK;  // 적 없음 — 조용히 무시
+
+		zone->SpawnHomingProjectile(
+			player->GetGuid(), GameObjectType::Player, target->GetGuid(),
+			player->GetPosition(), sk->damage, sk->speed, sk->lifetime);
+	}
+	else  // Skillshot
+	{
+		float dx = pkt.dir().x();
+		float dz = pkt.dir().z();
+		const float len = std::sqrt(dx * dx + dz * dz);
+		if (len < 1e-4f)
+			return Proto::ErrorCode::INVALID_REQUEST;
+		dx /= len;
+		dz /= len;
+
+		zone->SpawnSkillshotProjectile(
+			player->GetGuid(), GameObjectType::Player,
+			player->GetPosition(), dx, dz,
+			sk->damage, sk->speed, sk->radius, sk->range);
+	}
+
+	LOG_INFO("Player " + std::to_string(player->GetPlayerId()) +
+		" cast skill: " + sk->name);
 	return Proto::ErrorCode::OK;
 }

@@ -2,6 +2,8 @@
 
 #include "Unit.h"
 #include <memory>
+#include <string>
+#include <unordered_map>
 
 class GameSession;
 
@@ -34,6 +36,11 @@ public:
 	int32 GetLevel() const { return level_; }
 	void SetLevel(int32 level) { level_ = level; }
 
+	// --- Skill Cooldown ---
+	// 마지막 사용 시각 + cooldown 이 현재 시각 이하면 사용 가능 → 시간 갱신 후 true.
+	// 그 외엔 false (사용 거절).
+	bool TryConsumeCooldown(const std::string& skillName, float cooldownSec);
+
 	// --- Network Helper ---
 	template<typename T>
 	void Send(const T& pkt);
@@ -44,6 +51,8 @@ private:
 
 	float yaw_ = 0.0f;
 	int32 level_ = 1;
+
+	std::unordered_map<std::string, float> skillCooldowns_;  // name -> next-usable time (TimeManager.totalTime)
 };
 
 // Send<T> requires full GameSession definition for PacketSession::Send<T>

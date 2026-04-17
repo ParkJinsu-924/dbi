@@ -24,30 +24,34 @@ HEADER_SIZE = struct.calcsize(HEADER_FMT)  # 6
 
 # Map PacketId -> protobuf class (for parsing incoming packets)
 _MSG_CLASS_MAP = {
-    packet_ids.S_LOGIN:            login_pb2.S_Login,
-    packet_ids.S_ENTER_GAME:       game_pb2.S_EnterGame,
-    packet_ids.S_PLAYER_LIST:      game_pb2.S_PlayerList,
-    packet_ids.S_PLAYER_MOVE:      game_pb2.S_PlayerMove,
-    packet_ids.S_CHAT:             game_pb2.S_Chat,
-    packet_ids.S_PLAYER_LEAVE:     game_pb2.S_PlayerLeave,
-    packet_ids.S_MOVE_CORRECTION:  game_pb2.S_MoveCorrection,
-    packet_ids.S_ERROR:            game_pb2.S_Error,
-    packet_ids.S_MONSTER_SPAWN:    game_pb2.S_MonsterSpawn,
-    packet_ids.S_MONSTER_MOVE:     game_pb2.S_MonsterMove,
-    packet_ids.S_MONSTER_DESPAWN:  game_pb2.S_MonsterDespawn,
-    packet_ids.S_MONSTER_LIST:     game_pb2.S_MonsterList,
-    packet_ids.S_MONSTER_STATE:    game_pb2.S_MonsterState,
-    packet_ids.S_MONSTER_ATTACK:   game_pb2.S_MonsterAttack,
-    packet_ids.S_HITSCAN_ATTACK:   game_pb2.S_HitscanAttack,
-    packet_ids.S_PLAYER_HP:        game_pb2.S_PlayerHp,
+    packet_ids.S_LOGIN:               login_pb2.S_Login,
+    packet_ids.S_ENTER_GAME:          game_pb2.S_EnterGame,
+    packet_ids.S_PLAYER_LIST:         game_pb2.S_PlayerList,
+    packet_ids.S_PLAYER_MOVE:         game_pb2.S_PlayerMove,
+    packet_ids.S_CHAT:                game_pb2.S_Chat,
+    packet_ids.S_PLAYER_LEAVE:        game_pb2.S_PlayerLeave,
+    packet_ids.S_MOVE_CORRECTION:     game_pb2.S_MoveCorrection,
+    packet_ids.S_ERROR:               game_pb2.S_Error,
+    packet_ids.S_MONSTER_SPAWN:       game_pb2.S_MonsterSpawn,
+    packet_ids.S_MONSTER_MOVE:        game_pb2.S_MonsterMove,
+    packet_ids.S_MONSTER_DESPAWN:     game_pb2.S_MonsterDespawn,
+    packet_ids.S_MONSTER_LIST:        game_pb2.S_MonsterList,
+    packet_ids.S_MONSTER_STATE:       game_pb2.S_MonsterState,
+    packet_ids.S_MONSTER_ATTACK:      game_pb2.S_MonsterAttack,
+    packet_ids.S_HITSCAN_ATTACK:      game_pb2.S_HitscanAttack,
+    packet_ids.S_PLAYER_HP:           game_pb2.S_PlayerHp,
+    packet_ids.S_PROJECTILE_SPAWN:    game_pb2.S_ProjectileSpawn,
+    packet_ids.S_PROJECTILE_HIT:      game_pb2.S_ProjectileHit,
+    packet_ids.S_PROJECTILE_DESTROY:  game_pb2.S_ProjectileDestroy,
 }
 
 # Map message class -> PacketId (for sending)
 _ID_MAP = {
-    login_pb2.C_Login:        packet_ids.C_LOGIN,
-    game_pb2.C_EnterGame:     packet_ids.C_ENTER_GAME,
-    game_pb2.C_PlayerMove:    packet_ids.C_PLAYER_MOVE,
-    game_pb2.C_Chat:          packet_ids.C_CHAT,
+    login_pb2.C_Login:           packet_ids.C_LOGIN,
+    game_pb2.C_EnterGame:        packet_ids.C_ENTER_GAME,
+    game_pb2.C_PlayerMove:       packet_ids.C_PLAYER_MOVE,
+    game_pb2.C_Chat:             packet_ids.C_CHAT,
+    game_pb2.C_RequestUseSkill:  packet_ids.C_REQUEST_USE_SKILL,
 }
 
 

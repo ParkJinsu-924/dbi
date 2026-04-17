@@ -11,6 +11,7 @@ enum class GameObjectType
 	Player,
 	Monster,
 	Npc,
+	Projectile,
 };
 
 class GameObject

@@ -70,6 +70,21 @@ DRAKE_WING = (200, 70, 50)
 DRAKE_BELLY = (220, 180, 80)
 DRAKE_EYE = (255, 220, 50)
 
+ARCHER_CLOAK = (45, 80, 55)
+ARCHER_TUNIC = (90, 140, 80)
+ARCHER_SKIN = (220, 200, 170)
+ARCHER_BOW = (120, 80, 40)
+ARCHER_ARROW = (240, 200, 80)
+ARCHER_ARROW_GLOW = (255, 240, 160)
+
+CASTER_ROBE = (70, 45, 110)
+CASTER_ROBE_DARK = (45, 25, 80)
+CASTER_HOOD = (35, 20, 60)
+CASTER_STAFF = (90, 70, 50)
+CASTER_CRYSTAL = (120, 180, 255)
+CASTER_BOLT = (180, 220, 255)
+CASTER_EYE = (150, 220, 255)
+
 # State indicator colors
 STATE_IDLE_COLOR = (60, 200, 90)
 STATE_CHASE_COLOR = (220, 180, 40)
@@ -721,6 +736,276 @@ class Renderer:
             pygame.draw.circle(self.screen, (255, 200, 50),
                                (gun_end_x, gun_end_y), int(flash_r * 0.6))
 
+    def _draw_homing_archer(self, sx, sy, state, anim_id):
+        """Elven forest archer with a magical homing bow."""
+        t = self._t + anim_id * 1.6
+        s = CHAR_SCALE
+
+        self._draw_shadow(sx, int(sy + 9 * s), int(8 * s), int(3 * s))
+
+        breathe = math.sin(t * 2.2) * 0.8
+
+        # Cloak (behind body)
+        cloak_w = int(14 * s)
+        cloak_h = int(12 * s)
+        cloak_x = sx - cloak_w // 2
+        cloak_y = int(sy - 2 * s + breathe)
+        pygame.draw.ellipse(self.screen, ARCHER_CLOAK,
+                            (cloak_x, cloak_y, cloak_w, cloak_h))
+
+        # Tunic (front)
+        body_w = int(10 * s)
+        body_h = int(9 * s)
+        body_x = sx - body_w // 2
+        body_y = int(sy - 1 * s + breathe)
+        pygame.draw.rect(self.screen, ARCHER_TUNIC,
+                         (body_x, body_y, body_w, body_h),
+                         border_radius=int(3 * s))
+        # Leather belt
+        pygame.draw.rect(self.screen, (70, 50, 30),
+                         (body_x, body_y + int(5 * s), body_w, int(2 * s)))
+        # Cross-chest strap
+        pygame.draw.line(self.screen, (80, 55, 35),
+                         (body_x, body_y + int(1 * s)),
+                         (body_x + body_w, body_y + int(5 * s)), 2)
+
+        # Legs
+        leg_y = body_y + body_h - int(2 * s)
+        walk = math.sin(t * 5) * 1.2 * s if state in (1, 2, 4) else 0
+        pygame.draw.rect(self.screen, ARCHER_CLOAK,
+                         (sx - int(4 * s), int(leg_y + walk * 0.3), int(3 * s), int(5 * s)),
+                         border_radius=1)
+        pygame.draw.rect(self.screen, ARCHER_CLOAK,
+                         (sx + int(1 * s), int(leg_y - walk * 0.3), int(3 * s), int(5 * s)),
+                         border_radius=1)
+
+        # Hood
+        head_r = int(5 * s)
+        head_y = int(body_y - head_r + 2 * s + breathe * 0.3)
+        hood_r = int(6 * s)
+        pygame.draw.circle(self.screen, ARCHER_CLOAK, (sx, head_y), hood_r)
+        # Leafy tip
+        pygame.draw.polygon(self.screen, ARCHER_TUNIC, [
+            (sx, head_y - hood_r - int(1 * s)),
+            (sx - int(2 * s), head_y - hood_r - int(4 * s)),
+            (sx + int(2 * s), head_y - hood_r - int(3 * s)),
+        ])
+        # Face
+        pygame.draw.circle(self.screen, ARCHER_SKIN,
+                           (sx, head_y + int(1 * s)), int(4 * s))
+        # Hood rim
+        pygame.draw.arc(self.screen, ARCHER_CLOAK,
+                        (sx - hood_r, head_y - hood_r, hood_r * 2, hood_r * 2),
+                        0.2, math.pi - 0.2, int(3 * s))
+
+        # Elf ears
+        pygame.draw.polygon(self.screen, ARCHER_SKIN, [
+            (sx - int(4 * s), head_y),
+            (sx - int(6 * s), head_y - int(1 * s)),
+            (sx - int(4 * s), head_y + int(1 * s)),
+        ])
+        pygame.draw.polygon(self.screen, ARCHER_SKIN, [
+            (sx + int(4 * s), head_y),
+            (sx + int(6 * s), head_y - int(1 * s)),
+            (sx + int(4 * s), head_y + int(1 * s)),
+        ])
+
+        # Keen green eyes
+        eye_y = head_y + int(0.5 * s)
+        eye_sep = int(2.2 * s)
+        pygame.draw.circle(self.screen, (50, 100, 60),
+                           (sx - eye_sep, eye_y), int(1.0 * s))
+        pygame.draw.circle(self.screen, (50, 100, 60),
+                           (sx + eye_sep, eye_y), int(1.0 * s))
+
+        # Quiver on back
+        quiv_x = body_x + body_w - int(2 * s)
+        quiv_y = body_y - int(3 * s)
+        pygame.draw.rect(self.screen, (90, 65, 40),
+                         (quiv_x, quiv_y, int(3 * s), int(5 * s)),
+                         border_radius=1)
+        for i in range(3):
+            pygame.draw.line(self.screen, (210, 210, 190),
+                             (quiv_x + int(i * 1 * s), quiv_y),
+                             (quiv_x + int(i * 1 * s), quiv_y - int(2 * s)), 1)
+
+        # ── Bow (vertical, held to the right) ──
+        bow_x = sx + int(8 * s)
+        bow_y = int(sy - 1 * s + breathe)
+
+        draw_amt = 0.0
+        if state == 3:
+            draw_amt = 0.9 + math.sin(t * 3) * 0.1
+        elif state == 2:
+            draw_amt = 0.3
+
+        # Recurved bow outline
+        upper_top = (bow_x, bow_y - int(9 * s))
+        upper_mid = (bow_x + int(3 * s), bow_y - int(4 * s))
+        grip = (bow_x, bow_y)
+        lower_mid = (bow_x + int(3 * s), bow_y + int(4 * s))
+        lower_bot = (bow_x, bow_y + int(9 * s))
+        pygame.draw.lines(self.screen, ARCHER_BOW, False,
+                          [upper_top, upper_mid, grip, lower_mid, lower_bot],
+                          int(2 * s))
+
+        # Bowstring (pulled back when drawing)
+        pull_x = bow_x - int(draw_amt * 5 * s)
+        pygame.draw.lines(self.screen, (220, 220, 200), False,
+                          [upper_top, (pull_x, bow_y), lower_bot], 1)
+
+        # Glowing magic arrow
+        if state in (2, 3):
+            glow = _pulse(4.0, 0.6, 1.0)
+            arrow_color = _lerp_color(ARCHER_ARROW, ARCHER_ARROW_GLOW, glow)
+            tip_x = bow_x + int(6 * s)
+            tail_x = pull_x - int(1 * s)
+            ay = bow_y
+            pygame.draw.line(self.screen, arrow_color,
+                             (tail_x, ay), (tip_x, ay), 2)
+            pygame.draw.polygon(self.screen, ARCHER_ARROW_GLOW, [
+                (tip_x + int(2 * s), ay),
+                (tip_x, ay - int(1.5 * s)),
+                (tip_x, ay + int(1.5 * s)),
+            ])
+            pygame.draw.polygon(self.screen, ARCHER_TUNIC, [
+                (tail_x, ay),
+                (tail_x - int(2 * s), ay - int(1.5 * s)),
+                (tail_x - int(1 * s), ay),
+                (tail_x - int(2 * s), ay + int(1.5 * s)),
+            ])
+            # Magic halo around arrowhead
+            halo_r = int(4 * s)
+            halo_surf = pygame.Surface((halo_r * 2, halo_r * 2), pygame.SRCALPHA)
+            alpha = int(120 * glow)
+            pygame.draw.circle(halo_surf, (255, 240, 150, alpha),
+                               (halo_r, halo_r), halo_r)
+            self.screen.blit(halo_surf, (tip_x - halo_r, ay - halo_r))
+
+    def _draw_bolt_caster(self, sx, sy, state, anim_id):
+        """Hooded spellcaster wielding a crystal staff that arcs with lightning."""
+        t = self._t + anim_id * 2.1
+        s = CHAR_SCALE
+
+        self._draw_shadow(sx, int(sy + 10 * s), int(9 * s), int(4 * s))
+
+        breathe = math.sin(t * 1.8) * 1.0
+        sway = math.sin(t * 1.2) * 1.0 if state in (2, 3) else 0
+
+        # Robe (trapezoidal flowy silhouette)
+        robe_top_y = int(sy - 4 * s + breathe)
+        robe_bot_y = int(sy + 9 * s)
+        pygame.draw.polygon(self.screen, CASTER_ROBE, [
+            (sx - int(6 * s), robe_top_y),
+            (sx + int(6 * s), robe_top_y),
+            (sx + int(9 * s), robe_bot_y),
+            (sx - int(9 * s), robe_bot_y),
+        ])
+        # Inner vertical shading
+        pygame.draw.polygon(self.screen, CASTER_ROBE_DARK, [
+            (sx - int(3 * s), robe_top_y + int(1 * s)),
+            (sx + int(3 * s), robe_top_y + int(1 * s)),
+            (sx + int(4 * s), robe_bot_y),
+            (sx - int(4 * s), robe_bot_y),
+        ])
+        # Hem rune line
+        pygame.draw.line(self.screen, CASTER_BOLT,
+                         (sx - int(9 * s), robe_bot_y - int(1 * s)),
+                         (sx + int(9 * s), robe_bot_y - int(1 * s)), 1)
+
+        # Sleeves
+        sleeve_y = robe_top_y + int(6 * s)
+        pygame.draw.ellipse(self.screen, CASTER_ROBE,
+                            (sx - int(9 * s), sleeve_y, int(5 * s), int(4 * s)))
+        pygame.draw.ellipse(self.screen, CASTER_ROBE,
+                            (sx + int(4 * s), sleeve_y, int(5 * s), int(4 * s)))
+
+        # Hood
+        head_r = int(5 * s)
+        head_y = int(robe_top_y - head_r + 3 * s + breathe * 0.3)
+        hood_r = int(7 * s)
+        pygame.draw.circle(self.screen, CASTER_HOOD, (sx, head_y), hood_r)
+        # Shadowed face
+        pygame.draw.circle(self.screen, (50, 35, 55),
+                           (sx, head_y + int(1 * s)), int(4 * s))
+        # Hood rim overlay
+        pygame.draw.arc(self.screen, CASTER_HOOD,
+                        (sx - hood_r, head_y - hood_r, hood_r * 2, hood_r * 2),
+                        0.15, math.pi - 0.15, int(4 * s))
+
+        # Glowing cold-blue eyes
+        eye_glow = _pulse(3.0, 0.5, 1.0)
+        eye_color = _lerp_color((60, 90, 140), CASTER_EYE, eye_glow)
+        eye_y = head_y + int(0.5 * s)
+        eye_sep = int(2.2 * s)
+        pygame.draw.circle(self.screen, eye_color,
+                           (sx - eye_sep, eye_y), int(1.3 * s))
+        pygame.draw.circle(self.screen, eye_color,
+                           (sx + eye_sep, eye_y), int(1.3 * s))
+
+        # ── Staff ──
+        staff_bot_x = sx + int(7 * s)
+        staff_bot_y = int(sy + 7 * s)
+        tilt = (sway * 0.02) + (math.sin(t * 0.7) * 0.05 if state == 2 else 0)
+        if state == 3:
+            tilt += math.sin(t * 3) * 0.08
+        staff_angle = -math.pi / 2 + tilt
+        staff_len = int(18 * s)
+        staff_top_x = staff_bot_x + int(math.cos(staff_angle) * staff_len)
+        staff_top_y = staff_bot_y + int(math.sin(staff_angle) * staff_len)
+
+        pygame.draw.line(self.screen, CASTER_STAFF,
+                         (staff_bot_x, staff_bot_y),
+                         (staff_top_x, staff_top_y), int(2 * s))
+        # Binding
+        bind_x = staff_top_x + int(math.cos(staff_angle + math.pi) * 4 * s)
+        bind_y = staff_top_y + int(math.sin(staff_angle + math.pi) * 4 * s)
+        pygame.draw.circle(self.screen, (140, 100, 60),
+                           (bind_x, bind_y), int(1.5 * s))
+
+        # Crystal orb
+        orb_r = int(4 * s)
+        active = state in (2, 3)
+        orb_glow = _pulse(3.0, 0.7, 1.0) if active else 0.3
+        orb_color = _lerp_color(CASTER_CRYSTAL, (220, 240, 255), orb_glow)
+        # Outer aura
+        glow_r = int(7 * s) if state == 3 else int(6 * s)
+        aura = pygame.Surface((glow_r * 2, glow_r * 2), pygame.SRCALPHA)
+        alpha = int(100 + 100 * orb_glow) if active else 60
+        pygame.draw.circle(aura, (*CASTER_BOLT, alpha),
+                           (glow_r, glow_r), glow_r)
+        self.screen.blit(aura, (staff_top_x - glow_r, staff_top_y - glow_r))
+        # Orb core
+        pygame.draw.circle(self.screen, orb_color,
+                           (staff_top_x, staff_top_y), orb_r)
+        pygame.draw.circle(self.screen, (235, 250, 255),
+                           (staff_top_x - int(1 * s), staff_top_y - int(1 * s)),
+                           int(1.3 * s))
+
+        # Crackling lightning arcs around orb
+        if active:
+            num_arcs = 4 if state == 3 else 2
+            for i in range(num_arcs):
+                angle = (i / num_arcs) * 2 * math.pi + t * 4
+                reach = int((5 + math.sin(t * 9 + i) * 2) * s)
+                last_x, last_y = staff_top_x, staff_top_y
+                for j in range(1, 4):
+                    frac = j / 3
+                    bx = staff_top_x + int(math.cos(angle) * reach * frac)
+                    by = staff_top_y + int(math.sin(angle) * reach * frac)
+                    jitter = int(math.sin(t * 20 + i * 3 + j) * 2 * s)
+                    bx += int(math.cos(angle + math.pi / 2) * jitter)
+                    by += int(math.sin(angle + math.pi / 2) * jitter)
+                    pygame.draw.line(self.screen, CASTER_BOLT,
+                                     (last_x, last_y), (bx, by), 1)
+                    last_x, last_y = bx, by
+
+        # Attack flash at orb
+        if state == 3 and math.sin(t * 8) > 0.3:
+            flash_r = int(3 * s)
+            pygame.draw.circle(self.screen, (230, 245, 255),
+                               (staff_top_x, staff_top_y), flash_r)
+
     def _draw_mushroom(self, sx, sy, state, anim_id):
         """Cute but deadly mushroom creature with spore attack."""
         t = self._t + anim_id * 2.7
@@ -1082,6 +1367,10 @@ class Renderer:
             self._draw_skeleton(sx, sy, state, anim_id)
         elif 'sniper' in name:
             self._draw_sniper(sx, sy, state, anim_id)
+        elif 'archer' in name:
+            self._draw_homing_archer(sx, sy, state, anim_id)
+        elif 'caster' in name:
+            self._draw_bolt_caster(sx, sy, state, anim_id)
         elif 'mushroom' in name:
             self._draw_mushroom(sx, sy, state, anim_id)
         elif 'wolf' in name:
@@ -1119,7 +1408,7 @@ class Renderer:
     # ═══════════════════════════════════════════════════════════════════
 
     def draw_frame(self, my_player, other_players: dict, monsters: dict, status_lines: list,
-                   hitscan_lines: list = None):
+                   hitscan_lines: list = None, projectiles: dict = None):
         self.screen.fill(BG_COLOR)
 
         if my_player is None:
@@ -1190,6 +1479,24 @@ class Renderer:
         hp = getattr(my_player, 'hp', max_hp)
         self._draw_hp_bar(sx, sy, hp, max_hp, HP_BAR_FG,
                           y_offset=-int(30 * CHAR_SCALE))
+
+        # ── Projectiles ──
+        if projectiles:
+            for pid, p in projectiles.items():
+                psx, psy = self.world_to_screen(p.x, p.z, cx, cz)
+                if p.kind == 0:   # Homing
+                    color = (240, 220, 80)
+                    glow = _pulse(8.0, 0.6, 1.0)
+                    pygame.draw.circle(self.screen,
+                                       (int(color[0] * glow), int(color[1] * glow), int(color[2] * glow)),
+                                       (psx, psy), 6)
+                    pygame.draw.circle(self.screen, (255, 255, 200), (psx, psy), 2)
+                else:             # Skillshot
+                    color = (200, 100, 240)
+                    pygame.draw.circle(self.screen, color, (psx, psy), 5)
+                    ex = psx + int(p.dir_x * 14)
+                    ey = psy - int(p.dir_z * 14)
+                    pygame.draw.line(self.screen, color, (psx, psy), (ex, ey), 2)
 
         # ── Hitscan lines ──
         if hitscan_lines:

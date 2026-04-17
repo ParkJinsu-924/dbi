@@ -23,4 +23,7 @@ namespace Proto
     public partial class S_MonsterAttack { public const uint PacketId = 20; }
     public partial class S_HitscanAttack { public const uint PacketId = 21; }
     public partial class S_PlayerHp { public const uint PacketId = 22; }
+    public partial class S_ProjectileSpawn { public const uint PacketId = 23; }
+    public partial class S_ProjectileHit { public const uint PacketId = 24; }
+    public partial class S_ProjectileDestroy { public const uint PacketId = 25; }
 }

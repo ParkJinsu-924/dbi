@@ -95,6 +95,9 @@
         <ClCompile Include="MapManager.cpp"/>
         <ClCompile Include="MonsterManager.cpp"/>
         <ClCompile Include="ResourceManager.cpp"/>
+        <ClCompile Include="Projectile.cpp"/>
+        <ClCompile Include="HomingProjectile.cpp"/>
+        <ClCompile Include="SkillshotProjectile.cpp"/>
     </ItemGroup>
     <ItemGroup>
         <ClInclude Include="Unit.h"/>
@@ -114,6 +117,10 @@
         <ClInclude Include="PlayerManager.h"/>
         <ClInclude Include="MapManager.h"/>
         <ClInclude Include="MonsterManager.h"/>
+        <ClInclude Include="Projectile.h"/>
+        <ClInclude Include="HomingProjectile.h"/>
+        <ClInclude Include="SkillshotProjectile.h"/>
+        <ClInclude Include="SkillTemplate.h"/>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\ServerCore\ServerCore.vcxproj">

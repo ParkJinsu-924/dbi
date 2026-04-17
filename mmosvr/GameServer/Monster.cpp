@@ -2,6 +2,8 @@
 #include "Monster.h"
 #include "Zone.h"
 #include "Player.h"
+#include "ResourceManager.h"
+#include "SkillTemplate.h"
 #include "game.pb.h"
 #include <cmath>
 
@@ -26,8 +28,6 @@ void Monster::InitAI(const Proto::Vector3& spawnPos, Zone* zone)
 	fsm_.SetOnStateChanged([this](MonsterStateId prev, MonsterStateId next)
 		{
 			BroadcastState(prev, next);
-			LOG_INFO("Monster [" + GetName() + "] " +
-				EU::EnumToString(prev) + " -> " + EU::EnumToString(next));
 		});
 
 	// 시작 (Patrol 상태로 시작)
@@ -84,33 +84,85 @@ void Monster::MoveToward(const Proto::Vector3& target, const float deltaTime)
 
 void Monster::DoAttack(Player& target)
 {
-	target.TakeDamage(attackDamage_);
-
-	if (attackType_ == 1)  // Hitscan
+	switch (attackType_)
 	{
-		Proto::S_HitscanAttack pkt;
-		pkt.set_attacker_guid(GetGuid());
-		pkt.set_target_guid(target.GetGuid());
-		*pkt.mutable_start_position() = GetPosition();
-		*pkt.mutable_hit_position() = target.GetPosition();
-		pkt.set_damage(attackDamage_);
-		zone_->Broadcast(pkt);
-	}
-	else  // Melee
+	case 0:  // Melee — 즉시 데미지
+	case 1:  // Hitscan — 즉시 데미지 + 광선 시각화
 	{
-		BroadcastAttack(target.GetGuid(), attackDamage_);
+		target.TakeDamage(attackDamage_);
+
+		if (attackType_ == 1)
+		{
+			Proto::S_HitscanAttack pkt;
+			pkt.set_attacker_guid(GetGuid());
+			pkt.set_target_guid(target.GetGuid());
+			*pkt.mutable_start_position() = GetPosition();
+			*pkt.mutable_hit_position() = target.GetPosition();
+			pkt.set_damage(attackDamage_);
+			zone_->Broadcast(pkt);
+		}
+		else
+		{
+			BroadcastAttack(target.GetGuid(), attackDamage_);
+		}
+
+		Proto::S_PlayerHp hpPkt;
+		hpPkt.set_hp(target.GetHp());
+		hpPkt.set_max_hp(target.GetMaxHp());
+		target.Send(hpPkt);
+
+		LOG_INFO("Monster [" + GetName() + "] attacks Player " +
+			std::to_string(target.GetPlayerId()) +
+			" for " + std::to_string(attackDamage_) + " dmg (HP: " +
+			std::to_string(target.GetHp()) + "/" +
+			std::to_string(target.GetMaxHp()) + ")");
+		break;
 	}
+	case 2:  // Homing Projectile — 데미지는 ApplyHit 시점에
+	case 3:  // Skillshot Projectile
+	{
+		if (!zone_) break;
+		const auto* skTable = GetResourceManager().Get<SkillTemplate>();
+		const SkillTemplate* sk = skTable ? skTable->Find(skillId_) : nullptr;
+		if (!sk)
+		{
+			LOG_WARN("Monster [" + GetName() + "] has attackType=" +
+				std::to_string(attackType_) + " but skillId=" +
+				std::to_string(skillId_) + " not found in SkillTable");
+			break;
+		}
 
-	Proto::S_PlayerHp hpPkt;
-	hpPkt.set_hp(target.GetHp());
-	hpPkt.set_max_hp(target.GetMaxHp());
-	target.Send(hpPkt);
+		const int32 dmg = sk->damage > 0 ? sk->damage : attackDamage_;
 
-	LOG_INFO("Monster [" + GetName() + "] attacks Player " +
-		std::to_string(target.GetPlayerId()) +
-		" for " + std::to_string(attackDamage_) + " dmg (HP: " +
-		std::to_string(target.GetHp()) + "/" +
-		std::to_string(target.GetMaxHp()) + ")");
+		if (attackType_ == 2)
+		{
+			zone_->SpawnHomingProjectile(
+				GetGuid(), GameObjectType::Monster, target.GetGuid(),
+				GetPosition(), dmg, sk->speed, sk->lifetime);
+		}
+		else
+		{
+			// 발사 시점의 타겟 방향으로 직진
+			float dx = target.GetPosition().x() - GetPosition().x();
+			float dz = target.GetPosition().z() - GetPosition().z();
+			const float len = std::sqrt(dx * dx + dz * dz);
+			if (len > 1e-4f) { dx /= len; dz /= len; }
+			else { dx = 1.0f; dz = 0.0f; }
+
+			zone_->SpawnSkillshotProjectile(
+				GetGuid(), GameObjectType::Monster,
+				GetPosition(), dx, dz,
+				dmg, sk->speed, sk->radius, sk->range);
+		}
+
+		LOG_INFO("Monster [" + GetName() + "] launches " + sk->name +
+			" -> Player " + std::to_string(target.GetPlayerId()));
+		break;
+	}
+	default:
+		LOG_WARN("Monster [" + GetName() + "] unknown attackType=" + std::to_string(attackType_));
+		break;
+	}
 }
 
 // ---------------------------------------------------------------------------

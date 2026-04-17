@@ -80,6 +80,35 @@ class MonsterState:
         self.z += (self.tz - self.z) * t
 
 
+@dataclass
+class ProjectileState:
+    guid: int = 0
+    owner_guid: int = 0
+    kind: int = 0          # 0=Homing, 1=Skillshot
+    x: float = 0.0
+    y: float = 0.0
+    z: float = 0.0
+    speed: float = 10.0
+    target_guid: int = 0
+    dir_x: float = 0.0
+    dir_z: float = 0.0
+    radius: float = 0.3
+    max_range: float = 0.0
+    max_lifetime: float = 5.0
+    spawned_at: float = 0.0
+    traveled: float = 0.0
+
+
+def _projectile_target_pos(target_guid: int, me, others: dict, monsters: dict):
+    """Lookup the homing target's current position. Falls back to me when not found
+    (server uses GameObject GUIDs which don't match the client's player_id)."""
+    if target_guid in monsters:
+        m = monsters[target_guid]
+        return (m.x, m.z)
+    # other players' guids aren't tracked client-side yet; fallback to me
+    return (me.x, me.z)
+
+
 def make_vec3(x, y, z):
     v = common_pb2.Vector3()
     v.x, v.y, v.z = x, y, z
@@ -138,10 +167,15 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
     me = PlayerState(name=username)
     others: dict[int, PlayerState] = {}
     monsters: dict[int, MonsterState] = {}
+    projectiles: dict[int, ProjectileState] = {}
     hitscan_lines: list = []  # [(sx, sz, ex, ez, expire_time), ...]
     in_game = False
     pending_move = False
     last_send = 0.0
+    last_dir_x = 0.0
+    last_dir_z = 1.0           # default forward = +Z
+    last_skill_send = 0.0      # throttle skill key
+    SKILL_THROTTLE = 0.25      # client-side rate limit (server still has cooldown)
 
     import pygame
 
@@ -163,6 +197,7 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
             if dx != 0 or dz != 0:
                 norm = (dx * dx + dz * dz) ** 0.5
                 dx /= norm; dz /= norm
+                last_dir_x, last_dir_z = dx, dz   # remember facing for skillshot
                 dt_frame = 1 / 60.0
                 me.x += dx * MOVE_SPEED * dt_frame
                 me.z += dz * MOVE_SPEED * dt_frame
@@ -177,6 +212,26 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
                 client.send(move)
                 last_send = now
                 pending_move = False
+
+            # Skill keys: Q = Skillshot (last move dir), E = Homing (auto-target nearest monster)
+            if keys[pygame.K_q] and now - last_skill_send >= SKILL_THROTTLE:
+                req = game_pb2.C_RequestUseSkill()
+                req.skill_name = "bolt"
+                req.dir.x = last_dir_x
+                req.dir.y = 0.0
+                req.dir.z = last_dir_z
+                req.target_guid = 0
+                client.send(req)
+                last_skill_send = now
+            elif keys[pygame.K_e] and now - last_skill_send >= SKILL_THROTTLE:
+                req = game_pb2.C_RequestUseSkill()
+                req.skill_name = "auto_attack"
+                req.dir.x = 0.0
+                req.dir.y = 0.0
+                req.dir.z = 0.0
+                req.target_guid = 0   # 서버가 가장 가까운 적 자동 선택
+                client.send(req)
+                last_skill_send = now
 
         # incoming packets
         for pkt_id, msg in client.poll():
@@ -268,6 +323,31 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
                 me.hp = msg.hp
                 me.max_hp = msg.max_hp
 
+            # --- Projectile packets ---
+            elif pkt_id == packet_ids.S_PROJECTILE_SPAWN:
+                projectiles[msg.guid] = ProjectileState(
+                    guid=msg.guid,
+                    owner_guid=msg.owner_guid,
+                    kind=msg.kind,
+                    x=msg.start_pos.x, y=msg.start_pos.y, z=msg.start_pos.z,
+                    speed=msg.speed,
+                    target_guid=msg.target_guid,
+                    dir_x=msg.dir.x, dir_z=msg.dir.z,
+                    radius=msg.radius if msg.radius > 0 else 0.3,
+                    max_range=msg.max_range,
+                    max_lifetime=msg.max_lifetime if msg.max_lifetime > 0 else 5.0,
+                    spawned_at=time.time())
+
+            elif pkt_id == packet_ids.S_PROJECTILE_HIT:
+                projectiles.pop(msg.projectile_guid, None)
+                if msg.target_guid in monsters:
+                    print(f"[hit] {monsters[msg.target_guid].name} took {msg.damage} dmg")
+                else:
+                    print(f"[hit] you took {msg.damage} dmg")
+
+            elif pkt_id == packet_ids.S_PROJECTILE_DESTROY:
+                projectiles.pop(msg.projectile_guid, None)
+
         # interpolate positions
         dt_frame = 1 / 60.0
         for ps in others.values():
@@ -275,21 +355,44 @@ def run_game(token: str, game_host: str, game_port: int, username: str):
         for ms in monsters.values():
             ms.lerp(dt_frame)
 
-        # expire old hitscan lines
+        # simulate projectiles deterministically (server is authoritative on hit)
         now_t = time.time()
+        expired_proj = []
+        for pid, p in projectiles.items():
+            step = p.speed * dt_frame
+            if p.kind == 1:   # Skillshot
+                p.x += p.dir_x * step
+                p.z += p.dir_z * step
+                p.traveled += step
+                if p.max_range > 0 and p.traveled >= p.max_range:
+                    expired_proj.append(pid)
+            else:             # Homing
+                tx, tz = _projectile_target_pos(p.target_guid, me, others, monsters)
+                ddx = tx - p.x
+                ddz = tz - p.z
+                d = (ddx * ddx + ddz * ddz) ** 0.5
+                if d > 1e-3:
+                    p.x += ddx / d * step
+                    p.z += ddz / d * step
+                if now_t - p.spawned_at > p.max_lifetime + 0.5:
+                    expired_proj.append(pid)
+        for pid in expired_proj:
+            projectiles.pop(pid, None)
+
+        # expire old hitscan lines
         hitscan_lines = [h for h in hitscan_lines if h[4] > now_t]
 
         # render
         status = [
             f"user={username}  id={me.player_id}  pos=({me.x:.1f}, {me.z:.1f})  HP={me.hp}/{me.max_hp}",
-            f"others={len(others)}  monsters={len(monsters)}  {'in-game' if in_game else 'entering...'}",
-            "WASD to move,  ESC to quit",
+            f"others={len(others)}  monsters={len(monsters)}  proj={len(projectiles)}  {'in-game' if in_game else 'entering...'}",
+            "WASD=move  Q=skillshot(bolt)  E=homing(auto)  ESC=quit",
         ]
         keys = pygame.key.get_pressed()
         if keys[pygame.K_ESCAPE]:
             running = False
         renderer.draw_frame(me if in_game else None, others, monsters, status,
-                            hitscan_lines=hitscan_lines)
+                            hitscan_lines=hitscan_lines, projectiles=projectiles)
 
     renderer.close()
     client.close()

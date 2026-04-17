@@ -18,7 +18,9 @@ message C_Chat {
 }
 
 message C_RequestUseSkill {
-    string skillId = 1;
+    string skill_name = 1;     // SkillTemplate.name 으로 룩업
+    Vector3 dir = 2;            // Skillshot 정규화 방향. Homing 시 무시
+    int64 target_guid = 3;      // Homing 대상. 0이면 서버 자동 선택
 }
 
 // Game Server -> Client
@@ -123,4 +125,41 @@ message S_HitscanAttack {
 message S_PlayerHp {
     int32 hp = 1;
     int32 max_hp = 2;
+}
+
+// --- Projectile ---
+
+enum ProjectileKind {
+    PROJECTILE_HOMING = 0;
+    PROJECTILE_SKILLSHOT = 1;
+}
+
+message S_ProjectileSpawn {
+    int64 guid = 1;
+    int64 owner_guid = 2;
+    ProjectileKind kind = 3;
+    Vector3 start_pos = 4;
+    float speed = 5;
+    int64 target_guid = 6;      // Homing 전용
+    Vector3 dir = 7;             // Skillshot 전용
+    float radius = 8;            // Skillshot 전용
+    float max_range = 9;         // Skillshot 전용
+    float max_lifetime = 10;     // Homing 전용
+}
+
+message S_ProjectileHit {
+    int64 projectile_guid = 1;
+    int64 target_guid = 2;
+    int32 damage = 3;
+    Vector3 hit_pos = 4;
+}
+
+message S_ProjectileDestroy {
+    enum Reason {
+        EXPIRED = 0;
+        TARGET_LOST = 1;
+        HIT = 2;
+    }
+    int64 projectile_guid = 1;
+    Reason reason = 2;
 }

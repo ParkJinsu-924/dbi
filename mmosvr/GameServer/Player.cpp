@@ -33,3 +33,14 @@ bool Player::IsOnline() const
 	auto s = session_.lock();
 	return s && s->IsConnected();
 }
+
+bool Player::TryConsumeCooldown(const std::string& skillName, float cooldownSec)
+{
+	const float now = GetTimeManager().GetTotalTime();
+	auto it = skillCooldowns_.find(skillName);
+	if (it != skillCooldowns_.end() && now < it->second)
+		return false;
+
+	skillCooldowns_[skillName] = now + cooldownSec;
+	return true;
+}

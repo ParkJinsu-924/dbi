@@ -46,6 +46,7 @@ public:
 	float GetAttackCooldown() const { return attackCooldown_; }
 	int32 GetAttackDamage()   const { return attackDamage_; }
 	int32 GetAttackType()     const { return attackType_; }
+	int32 GetSkillId()        const { return skillId_; }
 	float GetLastAttackTime() const { return lastAttackTime_; }
 	void  SetLastAttackTime(float t) { lastAttackTime_ = t; }
 
@@ -56,6 +57,7 @@ public:
 	void SetAttackCooldown(float v) { attackCooldown_ = v; }
 	void SetAttackDamage(int32 v)   { attackDamage_ = v; }
 	void SetAttackType(int32 v)     { attackType_ = v; }
+	void SetSkillId(int32 v)        { skillId_ = v; }
 
 private:
 	void BroadcastState(MonsterStateId prev, MonsterStateId next);
@@ -74,6 +76,7 @@ private:
 	float moveSpeed_      = 3.0f;
 	float attackCooldown_ = 1.5f;
 	int32 attackDamage_   = 10;
-	int32 attackType_     = 0;    // 0=Melee, 1=Hitscan
+	int32 attackType_     = 0;    // 0=Melee, 1=Hitscan, 2=HomingProjectile, 3=SkillshotProjectile
+	int32 skillId_        = 0;    // attackType=2,3 일 때 SkillTemplate.sid
 	float lastAttackTime_ = 0.0f; // GameTime::GetTotalTime() 기준
 };
