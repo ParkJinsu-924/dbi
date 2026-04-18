@@ -392,7 +392,7 @@ def _process_input(pygame, keys, state: GameState, client, io):
     # Q = Skillshot (last move dir), E = Homing (server picks nearest target)
     if keys[pygame.K_q] and now - io["last_skill_send"] >= config.SKILL_THROTTLE:
         req = game_pb2.C_RequestUseSkill()
-        req.skill_name = "bolt"
+        req.skill_id = config.SKILL_ID_BOLT
         req.dir.x = io["last_dir_x"]
         req.dir.y = 0.0
         req.dir.z = io["last_dir_z"]
@@ -401,7 +401,7 @@ def _process_input(pygame, keys, state: GameState, client, io):
         io["last_skill_send"] = now
     elif keys[pygame.K_e] and now - io["last_skill_send"] >= config.SKILL_THROTTLE:
         req = game_pb2.C_RequestUseSkill()
-        req.skill_name = "auto_attack"
+        req.skill_id = config.SKILL_ID_AUTO_ATTACK
         req.dir.x = 0.0
         req.dir.y = 0.0
         req.dir.z = 0.0

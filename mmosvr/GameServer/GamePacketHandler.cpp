@@ -211,10 +211,10 @@ Proto::ErrorCode GamePacketHandler::C_RequestUseSkill(std::shared_ptr<GameSessio
 		return Proto::ErrorCode::INTERNAL_ERROR;
 
 	const auto* skTable = GetResourceManager().Get<SkillTemplate>();
-	const SkillTemplate* sk = skTable ? skTable->FindByName(pkt.skill_name()) : nullptr;
+	const SkillTemplate* sk = skTable ? skTable->Find(pkt.skill_id()) : nullptr;
 	if (!sk)
 	{
-		LOG_WARN("C_RequestUseSkill: unknown skill name '" + pkt.skill_name() + "'");
+		LOG_WARN("C_RequestUseSkill: unknown skill name '" + std::to_string(pkt.skill_id()) + "'");
 		return Proto::ErrorCode::INVALID_REQUEST;
 	}
 

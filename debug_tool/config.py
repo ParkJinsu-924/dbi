@@ -18,6 +18,12 @@ SEND_INTERVAL = 0.05        # C_PlayerMove send cadence (20 Hz)
 SKILL_THROTTLE = 0.25       # client-side skill key rate limit (sec)
 TARGET_FPS = 60             # used to derive dt_frame for interpolation
 
+# ── Skill IDs ───────────────────────────────────────────────────────
+# 값은 ShareDir/data/skill_templates.csv 의 sid 와 일치해야 한다.
+# CSV에 새 스킬을 추가하면 여기도 동기화하고 key 바인딩을 추가한다.
+SKILL_ID_AUTO_ATTACK = 2001
+SKILL_ID_BOLT = 2002
+
 # ── Interpolation ───────────────────────────────────────────────────
 PLAYER_LERP_SPEED = 15.0    # other-player display position smoothing
 MONSTER_LERP_SPEED = 12.0   # monster display position smoothing
