@@ -4,6 +4,7 @@
 #include "Player.h"
 #include "ResourceManager.h"
 #include "SkillTemplate.h"
+#include "SkillRuntime.h"
 #include "game.pb.h"
 #include <cmath>
 
@@ -133,13 +134,15 @@ void Monster::DoAttack(Player& target)
 			break;
 		}
 
-		const int32 dmg = sk->damage > 0 ? sk->damage : attackDamage_;
+		// SkillEffect 에 OnHit Damage 가 정의돼 있으면 그 합을 사용, 없으면 attackDamage_ 로 fallback.
+		const int32 effectDmg = SkillRuntime::ComputeOnHitDamage(sk->sid);
+		const int32 fallback  = (effectDmg > 0) ? 0 : attackDamage_;
 
 		if (attackType_ == AttackType::Homing)
 		{
-			zone_->SpawnHomingProjectile(
-				GetGuid(), GameObjectType::Monster, target.GetGuid(),
-				GetPosition(), dmg, sk->speed, sk->lifetime);
+			SkillRuntime::CastHoming(
+				GetGuid(), GameObjectType::Monster, GetPosition(),
+				target.GetGuid(), *sk, *zone_, fallback);
 		}
 		else if (attackType_ == AttackType::Skillshot)
 		{
@@ -150,10 +153,9 @@ void Monster::DoAttack(Player& target)
 			if (len > 1e-4f) { dx /= len; dz /= len; }
 			else { dx = 1.0f; dz = 0.0f; }
 
-			zone_->SpawnSkillshotProjectile(
-				GetGuid(), GameObjectType::Monster,
-				GetPosition(), dx, dz,
-				dmg, sk->speed, sk->radius, sk->range);
+			SkillRuntime::CastSkillshot(
+				GetGuid(), GameObjectType::Monster, GetPosition(),
+				dx, dz, *sk, *zone_, fallback);
 		}
 
 		LOG_INFO("Monster [" + GetName() + "] launches " + sk->name +

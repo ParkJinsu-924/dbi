@@ -9,14 +9,18 @@ Send/recv is non-blocking: the client runs a background reader thread that
 parses incoming packets and puts them onto a queue for the main loop.
 """
 
+import logging
 import socket
 import struct
 import threading
 import queue
-from typing import Optional
+from typing import Any, Iterator, Optional, Tuple
 
 import common_pb2, login_pb2, game_pb2
 import packet_ids
+import config
+
+log = logging.getLogger("net")
 
 HEADER_FMT = "<HI"  # little-endian: uint16 size, uint32 id
 HEADER_SIZE = struct.calcsize(HEADER_FMT)  # 6
@@ -66,7 +70,7 @@ class PacketClient:
         self.stop_event = threading.Event()
 
     # ----- connection lifecycle -----
-    def connect(self, host: str, port: int, timeout: float = 5.0) -> bool:
+    def connect(self, host: str, port: int, timeout: float = config.CONNECT_TIMEOUT) -> bool:
         try:
             self.sock = socket.create_connection((host, port), timeout=timeout)
             self.sock.settimeout(None)  # blocking for reader thread
@@ -75,11 +79,11 @@ class PacketClient:
             self.reader_thread.start()
             return True
         except OSError as e:
-            print(f"[net] connect failed: {e}")
+            log.error("connect failed: %s", e)
             self.sock = None
             return False
 
-    def close(self):
+    def close(self) -> None:
         self.stop_event.set()
         if self.sock:
             try:
@@ -93,7 +97,7 @@ class PacketClient:
         return self.sock is not None
 
     # ----- send -----
-    def send(self, msg) -> bool:
+    def send(self, msg: Any) -> bool:
         if not self.sock:
             return False
         pkt_id = _ID_MAP.get(type(msg))
@@ -107,11 +111,11 @@ class PacketClient:
             self.sock.sendall(header + payload)
             return True
         except OSError as e:
-            print(f"[net] send failed: {e}")
+            log.error("send failed: %s", e)
             return False
 
     # ----- recv (reader thread) -----
-    def _reader_loop(self):
+    def _reader_loop(self) -> None:
         buf = bytearray()
         try:
             while not self.stop_event.is_set():
@@ -130,14 +134,14 @@ class PacketClient:
 
                     msg_cls = _MSG_CLASS_MAP.get(pkt_id)
                     if msg_cls is None:
-                        print(f"[net] unknown packet id={pkt_id}")
+                        log.warning("unknown packet id=%d", pkt_id)
                         continue
 
                     msg = msg_cls()
                     try:
                         msg.ParseFromString(payload)
                     except Exception as e:
-                        print(f"[net] parse failed id={pkt_id}: {e}")
+                        log.error("parse failed id=%d: %s", pkt_id, e)
                         continue
 
                     self.recv_queue.put((pkt_id, msg))
@@ -146,8 +150,10 @@ class PacketClient:
         finally:
             self.recv_queue.put((None, None))  # sentinel: disconnected
 
-    def poll(self):
-        """Yield (pkt_id, msg) tuples. Non-blocking."""
+    def poll(self) -> Iterator[Tuple[Optional[int], Any]]:
+        """Yield (pkt_id, msg) tuples. Non-blocking.
+        (None, None) is a sentinel meaning the reader thread detected a disconnect.
+        """
         while True:
             try:
                 yield self.recv_queue.get_nowait()

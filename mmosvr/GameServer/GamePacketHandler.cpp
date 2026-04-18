@@ -9,6 +9,7 @@
 #include "ZoneManager.h"
 #include "ResourceManager.h"
 #include "SkillTemplate.h"
+#include "SkillRuntime.h"
 #include <cmath>
 
 
@@ -220,7 +221,7 @@ Proto::ErrorCode GamePacketHandler::C_RequestUseSkill(std::shared_ptr<GameSessio
 	if (!player->TryConsumeCooldown(sk->name, sk->cooldown))
 		return Proto::ErrorCode::OK;  // 쿨다운 중 — 조용히 무시
 
-	if (sk->kind == SkillKind::Homing)
+	if (sk->targeting == SkillKind::Homing)
 	{
 		std::shared_ptr<Monster> target;
 		if (pkt.target_guid() != 0)
@@ -235,9 +236,9 @@ Proto::ErrorCode GamePacketHandler::C_RequestUseSkill(std::shared_ptr<GameSessio
 		if (!target || !target->IsAlive())
 			return Proto::ErrorCode::OK;  // 적 없음 — 조용히 무시
 
-		zone->SpawnHomingProjectile(
-			player->GetGuid(), GameObjectType::Player, target->GetGuid(),
-			player->GetPosition(), sk->damage, sk->speed, sk->lifetime);
+		SkillRuntime::CastHoming(
+			player->GetGuid(), GameObjectType::Player, player->GetPosition(),
+			target->GetGuid(), *sk, *zone);
 	}
 	else  // Skillshot
 	{
@@ -249,10 +250,9 @@ Proto::ErrorCode GamePacketHandler::C_RequestUseSkill(std::shared_ptr<GameSessio
 		dx /= len;
 		dz /= len;
 
-		zone->SpawnSkillshotProjectile(
-			player->GetGuid(), GameObjectType::Player,
-			player->GetPosition(), dx, dz,
-			sk->damage, sk->speed, sk->radius, sk->range);
+		SkillRuntime::CastSkillshot(
+			player->GetGuid(), GameObjectType::Player, player->GetPosition(),
+			dx, dz, *sk, *zone);
 	}
 
 	LOG_INFO("Player " + std::to_string(player->GetPlayerId()) +

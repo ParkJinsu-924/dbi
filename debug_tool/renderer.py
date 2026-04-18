@@ -4,16 +4,52 @@
 Draws procedural sprites:
   - Local player: armored knight with breathing animation
   - Other players: blue warriors with idle sway
-  - Monsters: species-specific shapes (Goblin, Orc, Slime) with state animations
+  - Monsters: species-specific shapes (Goblin, Orc, Slime, ...) with state animations
 
 Coordinate transform: world (x, z) on GameServer maps to screen (x, y) with
 the local player centered. A fixed pixels-per-unit scale keeps distances readable.
+
+─────────────────────────────────────────────────────────────────────
+Table of Contents (rough line numbers — grep the marker comments):
+─────────────────────────────────────────────────────────────────────
+  # ── Palette ──          player/monster color constants (BG, ME_*,
+                           OTHER_*, GOBLIN_*, ORC_*, SLIME_*, ...)
+  # ── Layout constants ── PIXELS_PER_UNIT, GRID_STEP_UNITS, CHAR_SCALE
+                           (values come from config.py)
+  # ── State names ──      monster AI state id -> name/color
+
+  class Renderer:
+    world_to_screen()      world (x,z) -> screen (x,y)
+    draw_grid()
+    _draw_shadow(), _draw_hp_bar(), _label()
+
+    # ─── PLAYER DRAWING ───────
+    _draw_player()         used for both local player and others
+
+    # ─── MONSTER DRAWING (one method per species) ───────
+    _draw_goblin(), _draw_orc(), _draw_slime(), _draw_skeleton(),
+    _draw_sniper(), _draw_homing_archer(), _draw_bolt_caster(),
+    _draw_mushroom(), _draw_wolf(), _draw_drake(),
+    _draw_generic_monster()    # fallback
+    _draw_monster()            # dispatch by monster.name substring
+    _draw_state_indicator()    # small dot above monster showing AI state
+
+    draw_frame()           top-level per-frame draw (called from client.py)
+    _draw_status()         HUD text overlay
+    close()
+
+Adding a new monster species:
+    1. Add its color constants under "# Monsters" in the palette block.
+    2. Add a new _draw_xxx(self, sx, sy, state, anim_id) method.
+    3. Register it in _draw_monster() name dispatch.
 """
 
 import math
 import time
 
 import pygame
+
+import config
 
 # ── Palette ──────────────────────────────────────────────────────────
 BG_COLOR = (22, 22, 28)
@@ -101,9 +137,10 @@ MONSTER_HP_BAR_FG = (60, 200, 90)
 DETECT_RANGE_COLOR = (60, 200, 90, 35)
 
 # ── Layout constants ─────────────────────────────────────────────────
-PIXELS_PER_UNIT = 20
-GRID_STEP_UNITS = 5
-CHAR_SCALE = 1.0  # multiplier for character sizes
+# 레이아웃/창 크기는 config에서 관리한다. 이 파일에서는 별칭만 두어 기존 코드와 호환.
+PIXELS_PER_UNIT = config.PIXELS_PER_UNIT
+GRID_STEP_UNITS = config.GRID_STEP_UNITS
+CHAR_SCALE = config.CHAR_SCALE
 
 # ── State names ──────────────────────────────────────────────────────
 _STATE_NAMES = {0: "Idle", 1: "Patrol", 2: "Chase", 3: "ATK", 4: "Return"}
@@ -133,7 +170,8 @@ def _pulse(speed=2.0, lo=0.85, hi=1.0):
 
 
 class Renderer:
-    def __init__(self, width=900, height=700, title="MMO Debug Tool"):
+    def __init__(self, width=config.WINDOW_WIDTH, height=config.WINDOW_HEIGHT,
+                 title="MMO Debug Tool"):
         pygame.init()
         self.screen = pygame.display.set_mode((width, height))
         pygame.display.set_caption(title)

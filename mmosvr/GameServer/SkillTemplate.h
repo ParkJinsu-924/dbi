@@ -1,8 +1,11 @@
-﻿#pragma once
+#pragma once
 
 #include "ResourceManager.h"
 #include "AttackTypes.h"
 
+
+// Phase 1: 스킬 메타데이터만 보관. 데미지/버프 등의 "효과" 는 Effect + SkillEffectEntry 에 위임.
+// targeting 은 SkillKind enum 값 재사용 (Homing=0, Skillshot=1 — Proto::ProjectileKind 와 값 일치 유지).
 
 class SkillTable;
 
@@ -11,20 +14,23 @@ struct SkillTemplate
 	using KeyType = int32;
 	using Table = SkillTable;
 
-	int32       sid          = 0;
+	int32       sid                 = 0;
 	std::string name;
-	SkillKind   kind         = SkillKind::Homing;  // Proto::ProjectileKind 와 값 일치
-	float       speed        = 10.0f;
-	float       radius       = 0.5f;  // Skillshot 충돌 반경
-	float       range        = 0.0f;  // Skillshot 사거리 (구 maxRange — max/min 매크로 충돌 회피)
-	float       lifetime     = 5.0f;  // Homing 안전장치   (구 maxLifetime)
-	float       cooldown     = 1.0f;
-	int32       damage       = 10;
+	SkillKind   targeting           = SkillKind::Homing;
+	float       projectile_speed    = 10.0f;
+	float       projectile_radius   = 0.5f;   // Skillshot 충돌 반경
+	float       projectile_range    = 0.0f;   // Skillshot 사거리
+	float       projectile_lifetime = 5.0f;   // Homing 생존시간 안전장치
+	float       cooldown            = 1.0f;
+	int32       cost                = 0;      // 자원 소모 (Phase 2+)
+	float       cast_range          = 30.0f;  // 서버측 사거리 validation (Phase 2+)
 
 	KeyType GetKey() const { return sid; }
 
 	CSV_DEFINE_TYPE(SkillTemplate,
-		sid, name, kind, speed, radius, range, lifetime, cooldown, damage)
+		sid, name, targeting,
+		projectile_speed, projectile_radius, projectile_range, projectile_lifetime,
+		cooldown, cost, cast_range)
 };
 
 

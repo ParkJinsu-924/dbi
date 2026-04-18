@@ -3,6 +3,8 @@
 #include "MonsterTemplate.h"
 #include "SpawnEntry.h"
 #include "SkillTemplate.h"
+#include "Effect.h"
+#include "SkillEffect.h"
 
 
 void ResourceManager::Init()
@@ -10,6 +12,8 @@ void ResourceManager::Init()
 	Register<MonsterTemplate>("monster_templates.csv");
 	Register<SpawnEntry>("spawn_entries.csv");
 	Register<SkillTemplate>("skill_templates.csv");
+	Register<Effect>("effects.csv");
+	Register<SkillEffectEntry>("skill_effects.csv");
 
 	LOG_INFO("ResourceManager initialized");
 }

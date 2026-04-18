@@ -108,5 +108,14 @@
     <ClInclude Include="SpawnEntry.h">
       <Filter>Data</Filter>
     </ClInclude>
+    <ClInclude Include="Effect.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="SkillEffect.h">
+      <Filter>Data</Filter>
+    </ClInclude>
+    <ClInclude Include="SkillRuntime.h">
+      <Filter>Data</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
