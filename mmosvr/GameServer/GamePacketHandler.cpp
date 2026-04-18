@@ -182,6 +182,53 @@ Proto::ErrorCode GamePacketHandler::C_PlayerMove(std::shared_ptr<GameSession> se
 	return Proto::ErrorCode::OK;
 }
 
+Proto::ErrorCode GamePacketHandler::C_MoveCommand(std::shared_ptr<GameSession> session, const Proto::C_MoveCommand& pkt)
+{
+	auto player = GetPlayerManager().FindBySession(session);
+	if (!player)
+		return Proto::ErrorCode::PLAYER_NOT_FOUND;
+
+	Proto::Vector3 target = pkt.target_pos();
+
+	auto& mapService = GetMapManager();
+	if (mapService.IsLoaded() && !mapService.IsOnNavMesh(target.x(), target.y(), target.z()))
+	{
+		float outX, outY, outZ;
+		if (mapService.FindNearestValidPosition(target.x(), target.y(), target.z(), outX, outY, outZ))
+		{
+			target.set_x(outX);
+			target.set_y(outY);
+			target.set_z(outZ);
+		}
+		else
+		{
+			return Proto::ErrorCode::INVALID_POSITION;
+		}
+	}
+
+	player->SetDestination(target);
+	return Proto::ErrorCode::OK;
+}
+
+Proto::ErrorCode GamePacketHandler::C_StopMove(std::shared_ptr<GameSession> session, const Proto::C_StopMove& /*pkt*/)
+{
+	auto player = GetPlayerManager().FindBySession(session);
+	if (!player)
+		return Proto::ErrorCode::PLAYER_NOT_FOUND;
+
+	player->ClearDestination();
+
+	// 정지 시점 최종 위치를 1회 브로드캐스트해서 다른 클라이언트의 보간이 정확히 끝나도록 한다
+	Proto::S_PlayerMove broadcast;
+	broadcast.set_player_id(player->GetPlayerId());
+	*broadcast.mutable_position() = player->GetPosition();
+	broadcast.set_yaw(player->GetYaw());
+	if (auto* zone = GetZoneManager().GetZone(player->GetZoneId()))
+		zone->Broadcast(broadcast);
+
+	return Proto::ErrorCode::OK;
+}
+
 Proto::ErrorCode GamePacketHandler::C_Chat(std::shared_ptr<GameSession> session, const Proto::C_Chat& pkt)
 {
 	auto player = GetPlayerManager().FindBySession(session);
@@ -220,6 +267,9 @@ Proto::ErrorCode GamePacketHandler::C_RequestUseSkill(std::shared_ptr<GameSessio
 
 	if (!player->TryConsumeCooldown(sk->name, sk->cooldown))
 		return Proto::ErrorCode::OK;  // 쿨다운 중 — 조용히 무시
+
+	// LoL 스타일: 스킬 사용 시 진행 중이던 이동을 자동 중단한다
+	player->ClearDestination();
 
 	switch (sk->targeting)
 	{

@@ -6,6 +6,8 @@
 #include "Effect.h"
 #include "SkillEffect.h"
 
+#include <stdexcept>
+
 
 void ResourceManager::Init()
 {
@@ -15,7 +17,26 @@ void ResourceManager::Init()
 	Register<Effect>("effects.csv");
 	Register<SkillEffectEntry>("skill_effects.csv");
 
+	// 모든 테이블 로드 후 조인 키 검증. 실패 시 throw → 서버 부팅 거부.
+	ValidateReferences();
+
 	LOG_INFO("ResourceManager initialized");
+}
+
+
+void ResourceManager::ValidateReferences() const
+{
+	// 각 테이블이 자기 FK 를 스스로 검증. RM 은 등록 순서대로 디스패치만.
+	// 실제 에러 상세는 각 OnValidate 내부에서 LOG_ERROR 로 기록.
+	int errors = 0;
+	for (const auto* table : registrationOrder_)
+		errors += table->OnValidate();
+
+	if (errors > 0)
+	{
+		LOG_ERROR(std::format("ResourceManager: {} reference validation error(s) — aborting boot", errors));
+		throw std::runtime_error("Resource reference validation failed");
+	}
 }
 
 

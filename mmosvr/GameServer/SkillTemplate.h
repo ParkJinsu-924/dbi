@@ -39,8 +39,20 @@ class SkillTable : public KeyedResourceTable<SkillTemplate>
 public:
 	const SkillTemplate* FindByName(const std::string& name) const
 	{
-		for (const auto& [sid, t] : map_)
-			if (t.name == name) return &t;
-		return nullptr;
+		auto it = nameIndex_.find(name);
+		return it != nameIndex_.end() ? it->second : nullptr;
 	}
+
+protected:
+	// 로드 후 name→SkillTemplate* 역인덱스 구축. map_ 은 이후 수정되지 않으므로 포인터 안정.
+	void OnLoaded() override
+	{
+		nameIndex_.clear();
+		nameIndex_.reserve(map_.size());
+		for (const auto& [sid, t] : map_)
+			nameIndex_[t.name] = &t;
+	}
+
+private:
+	std::unordered_map<std::string, const SkillTemplate*> nameIndex_;
 };

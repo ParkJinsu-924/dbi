@@ -1,8 +1,9 @@
-﻿#pragma once
+#pragma once
 
 #include "Utils/TSingleton.h"
 #include "Utils/CsvParser.h"
 #include <unordered_map>
+#include <vector>
 #include <memory>
 #include <typeindex>
 #include <filesystem>
@@ -45,8 +46,16 @@ class IResourceTableBase
 {
 public:
 	virtual ~IResourceTableBase() = default;
-	virtual bool LoadFromFile(const std::string& filePath) = 0;
+	virtual bool   LoadFromFile(const std::string& filePath) = 0;
 	virtual size_t Count() const = 0;
+
+	// 로드 후 FK 검증. 반환값 = 이 테이블이 발견한 에러 수 (0 = OK).
+	// 에러 상세는 각 구현이 LOG_ERROR 로 기록. 참조 테이블은 GetResourceManager() 로 접근.
+	// 기본 no-op — FK 없는 테이블은 override 불필요.
+	virtual int OnValidate() const { return 0; }
+
+	// Solution Explorer / 로그용 디스플레이 이름 (선택).
+	virtual const char* DebugName() const { return "IResourceTable"; }
 };
 
 
@@ -77,6 +86,10 @@ public:
 					filePath, e.what()));
 			}
 		}
+
+		// 로드 완료 후 파생 인덱스(name→item, sid→entries 등) 구축 기회.
+		// 기본 구현은 no-op, 서브클래스가 오버라이드.
+		OnLoaded();
 		return true;
 	}
 
@@ -91,6 +104,9 @@ public:
 	const std::unordered_map<typename T::KeyType, T>& GetAll() const { return map_; }
 
 protected:
+	// 로드 직후 1회 호출. 파생 인덱스 rebuild 용.
+	virtual void OnLoaded() {}
+
 	std::unordered_map<typename T::KeyType, T> map_;
 };
 
@@ -101,6 +117,10 @@ class ResourceManager : public TSingleton<ResourceManager>
 {
 public:
 	void Init();
+
+	// 모든 테이블의 OnValidate 를 등록 순서대로 호출해 FK 검증.
+	// 1건이라도 실패 시 LOG_ERROR + throw → 서버 부팅 중단.
+	void ValidateReferences() const;
 
 	// Returns the table for T.
 	// If T defines T::Table (custom table), returns that type.
@@ -130,10 +150,14 @@ private:
 		{
 			LOG_WARN("ResourceManager: Data file not found: " + filename);
 		}
+
+		IResourceTableBase* raw = table.get();
 		tables_[std::type_index(typeid(T))] = std::move(table);
+		registrationOrder_.push_back(raw);  // OnValidate 순회 순서 결정성 보장
 	}
 
 	static std::string FindDataFile(const std::string& filename);
 
 	std::unordered_map<std::type_index, std::unique_ptr<IResourceTableBase>> tables_;
+	std::vector<IResourceTableBase*> registrationOrder_;  // 소유권은 tables_ 에, 여기는 관측용 raw.
 };

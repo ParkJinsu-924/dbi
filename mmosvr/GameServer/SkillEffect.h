@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ResourceManager.h"
+#include "SkillTemplate.h"
+#include "Effect.h"
 #include <vector>
 
 
@@ -50,13 +52,50 @@ class SkillEffectTable : public KeyedResourceTable<SkillEffectEntry>
 {
 public:
 	// 한 스킬에 연결된 모든 effect 엔트리 반환 (trigger 무관, 호출측 필터).
-	// Phase 1: 스킬당 엔트리가 1~2 개이므로 선형 탐색 충분.
-	// Phase 2+: 스킬당 다수 엔트리 누적 시 sid→entries 인덱스 캐시로 O(1) 화.
-	std::vector<const SkillEffectEntry*> FindBySkill(int32 sid) const
+	// OnLoaded 에서 sidIndex_ 를 구축하므로 O(1). 빈 결과도 안정적 빈 vector 반환.
+	const std::vector<const SkillEffectEntry*>& FindBySkill(int32 sid) const
 	{
-		std::vector<const SkillEffectEntry*> out;
-		for (const auto& [k, e] : map_)
-			if (e.sid == sid) out.push_back(&e);
-		return out;
+		static const std::vector<const SkillEffectEntry*> kEmpty;
+		auto it = sidIndex_.find(sid);
+		return it != sidIndex_.end() ? it->second : kEmpty;
 	}
+
+	int OnValidate() const override
+	{
+		int errors = 0;
+		const auto* skills  = GetResourceManager().Get<SkillTemplate>();
+		const auto* effects = GetResourceManager().Get<Effect>();
+
+		for (const auto& [k, se] : map_)
+		{
+			if (skills && !skills->Find(se.sid))
+			{
+				LOG_ERROR(std::format(
+					"skill_effects: sid={} eid={} — referenced skill sid={} not found in skill_templates.csv",
+					se.sid, se.eid, se.sid));
+				++errors;
+			}
+			if (effects && !effects->Find(se.eid))
+			{
+				LOG_ERROR(std::format(
+					"skill_effects: sid={} eid={} — referenced effect eid={} not found in effects.csv",
+					se.sid, se.eid, se.eid));
+				++errors;
+			}
+		}
+		return errors;
+	}
+
+	const char* DebugName() const override { return "skill_effects"; }
+
+protected:
+	void OnLoaded() override
+	{
+		sidIndex_.clear();
+		for (const auto& [k, e] : map_)
+			sidIndex_[e.sid].push_back(&e);
+	}
+
+private:
+	std::unordered_map<int32, std::vector<const SkillEffectEntry*>> sidIndex_;
 };

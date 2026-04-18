@@ -1,12 +1,14 @@
 """
-MMO Debug Tool - 2D top-down visualizer for server testing.
+MMO Debug Tool - LoL-style 2D top-down visualizer.
 
 Flow:
   1. Connect to LoginServer (127.0.0.1:9999), send C_Login, receive S_Login with token
   2. Disconnect from LoginServer, connect to GameServer (ip/port from S_Login)
   3. Send C_EnterGame with token, receive S_EnterGame (player id, spawn pos) + S_PlayerList
   4. Main loop:
-       - poll WASD input -> update local position -> send C_PlayerMove
+       - 우클릭 → C_MoveCommand 송신 + 로컬 예측 이동
+       - S 키 → C_StopMove
+       - QWER → _cast_skill (타게팅 방식별로 dir/target_guid/target_pos 결정)
        - process incoming S_* packets via PACKET_HANDLERS dispatch table
        - render frame
 
@@ -21,6 +23,7 @@ Adding a new incoming packet:
 """
 
 import logging
+import math
 import sys
 import time
 from dataclasses import dataclass, field
@@ -29,12 +32,16 @@ import common_pb2, login_pb2, game_pb2
 import packet_ids
 import config
 import log_setup
+import skill_data
 from network import PacketClient
 from renderer import Renderer
 
 log_login = logging.getLogger("login")
 log_game = logging.getLogger("game")
 log_hit = logging.getLogger("hit")
+
+# 시작 시 1회 CSV 로드. 이후 조회만 한다 (테스트에서는 임시 table로 교체 가능).
+SKILL_TABLE: skill_data.SkillTable = skill_data.load_from_csv()
 
 
 @dataclass
@@ -45,20 +52,51 @@ class PlayerState:
     x: float = 0.0
     y: float = 0.0
     z: float = 0.0
-    tx: float = 0.0
+    tx: float = 0.0      # 다른 플레이어 보간 타깃
     ty: float = 0.0
     tz: float = 0.0
     hp: int = 100
     max_hp: int = 100
+    # Click-to-move 전용 (me 에만 의미 있음)
+    destination_x: float = 0.0
+    destination_z: float = 0.0
+    is_moving: bool = False
 
     def set_target(self, x, y, z):
+        """다른 플레이어 위치 교정용 보간 타깃 설정."""
         self.tx, self.ty, self.tz = x, y, z
 
     def lerp(self, dt, speed=config.PLAYER_LERP_SPEED):
+        """다른 플레이어(보간 기반) 전용 업데이트."""
         t = min(1.0, speed * dt)
         self.x += (self.tx - self.x) * t
         self.y += (self.ty - self.y) * t
         self.z += (self.tz - self.z) * t
+
+    def set_destination(self, wx: float, wz: float):
+        """자기 캐릭터 클릭 이동 목적지 설정."""
+        self.destination_x = wx
+        self.destination_z = wz
+        self.is_moving = True
+
+    def move_toward_destination(self, dt: float):
+        """자기 캐릭터 이동 시뮬 (서버와 동일 규칙)."""
+        if not self.is_moving:
+            return
+        dx = self.destination_x - self.x
+        dz = self.destination_z - self.z
+        dist = math.sqrt(dx * dx + dz * dz)
+        if dist < 0.001:
+            self.is_moving = False
+            return
+        step = config.MOVE_SPEED * dt
+        if step >= dist:
+            self.x = self.destination_x
+            self.z = self.destination_z
+            self.is_moving = False
+            return
+        self.x += dx / dist * step
+        self.z += dz / dist * step
 
 
 @dataclass
@@ -106,6 +144,7 @@ class ProjectileState:
 
 
 HitscanLine = tuple[float, float, float, float, float]  # (sx, sz, ex, ez, expire_time)
+ClickMarker = tuple[float, float, float]                 # (world_x, world_z, expire_time)
 
 
 @dataclass
@@ -117,6 +156,7 @@ class GameState:
     monsters: dict[int, MonsterState] = field(default_factory=dict)
     projectiles: dict[int, ProjectileState] = field(default_factory=dict)
     hitscan_lines: list[HitscanLine] = field(default_factory=list)
+    click_markers: list[ClickMarker] = field(default_factory=list)  # 우클릭 피드백
     in_game: bool = False
 
 
@@ -137,6 +177,29 @@ def make_vec3(x: float, y: float, z: float) -> common_pb2.Vector3:
     v = common_pb2.Vector3()
     v.x, v.y, v.z = x, y, z
     return v
+
+
+def _screen_to_world(sx: int, sy: int, me: PlayerState,
+                     screen_w: int, screen_h: int) -> tuple[float, float]:
+    """renderer.world_to_screen 의 역함수. 카메라 중심은 항상 me."""
+    wx = me.x + (sx - screen_w / 2) / config.PIXELS_PER_UNIT
+    wz = me.z - (sy - screen_h / 2) / config.PIXELS_PER_UNIT
+    return wx, wz
+
+
+def _nearest_monster_to_point(state: GameState, wx: float, wz: float,
+                              max_range: float = 3.0) -> MonsterState | None:
+    """커서 월드좌표 근처의 적 찾기 (W Point-click 용)."""
+    best = None
+    best_dsq = max_range * max_range
+    for m in state.monsters.values():
+        dx = m.x - wx
+        dz = m.z - wz
+        dsq = dx * dx + dz * dz
+        if dsq < best_dsq:
+            best = m
+            best_dsq = dsq
+    return best
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -167,7 +230,14 @@ def _h_player_list(state: GameState, msg):
 
 
 def _h_player_move(state: GameState, msg):
+    """서버로부터 플레이어 위치 업데이트. 자기 자신일 경우 예측 위치와 비교해 교정."""
     if msg.player_id == state.me.player_id:
+        # 서버 권위 위치와 로컬 예측을 비교. 작은 오차는 무시, 큰 차이는 스냅.
+        dx = msg.position.x - state.me.x
+        dz = msg.position.z - state.me.z
+        if dx * dx + dz * dz > config.POSITION_CORRECTION_EPSILON ** 2:
+            state.me.x = msg.position.x
+            state.me.z = msg.position.z
         return
     ps = state.others.setdefault(msg.player_id, PlayerState(player_id=msg.player_id))
     ps.set_target(msg.position.x, msg.position.y, msg.position.z)
@@ -193,6 +263,8 @@ def _h_move_correction(state: GameState, msg):
     state.me.x = msg.position.x
     state.me.y = msg.position.y
     state.me.z = msg.position.z
+    # 서버가 보정을 냈다는 건 로컬 예측이 틀렸다는 뜻 → destination 도 해제
+    state.me.is_moving = False
 
 
 def _h_error(state: GameState, msg):
@@ -316,6 +388,71 @@ PACKET_HANDLERS = {
 
 
 # ═══════════════════════════════════════════════════════════════════
+#  Skill casting — 타게팅 타입별 분기
+# ═══════════════════════════════════════════════════════════════════
+
+def _resolve_input_mode(tpl: skill_data.SkillTemplate) -> str:
+    """CSV targeting + config override(sid 기준) 로 클라 입력 수집 방식 결정."""
+    override = config.SKILL_INPUT_MODE_OVERRIDES.get(tpl.sid)
+    if override:
+        return override
+    # Homing 기본은 서버 자동 타깃, Skillshot 기본은 커서 방향
+    return "auto_homing" if tpl.targeting == "Homing" else "skillshot_dir"
+
+
+def _cast_skill(state: GameState, client: PacketClient, skill_id: int,
+                cursor_world: tuple[float, float]) -> bool:
+    """QWER 키 입력 시 호출. 성공 송신 시 True, 방향 계산 불가/미지원 시 False."""
+    tpl = SKILL_TABLE.get(skill_id)
+    if tpl is None:
+        log_game.warning("unknown skill sid in cast: %d", skill_id)
+        return False
+
+    mode = _resolve_input_mode(tpl)
+    req = game_pb2.C_RequestUseSkill()
+    req.skill_id = tpl.sid
+    cursor_wx, cursor_wz = cursor_world
+
+    if mode == "skillshot_dir":
+        dx = cursor_wx - state.me.x
+        dz = cursor_wz - state.me.z
+        d = math.sqrt(dx * dx + dz * dz)
+        if d < 1e-4:
+            return False
+        req.dir.x, req.dir.y, req.dir.z = dx / d, 0.0, dz / d
+        req.target_guid = 0
+
+    elif mode == "point_click":
+        target = _nearest_monster_to_point(state, cursor_wx, cursor_wz, max_range=3.0)
+        req.target_guid = target.guid if target else 0
+        req.dir.x = req.dir.y = req.dir.z = 0.0
+
+    elif mode == "auto_homing":
+        req.target_guid = 0
+        req.dir.x = req.dir.y = req.dir.z = 0.0
+
+    elif mode == "ground_target":
+        dx = cursor_wx - state.me.x
+        dz = cursor_wz - state.me.z
+        d = math.sqrt(dx * dx + dz * dz)
+        if d < 1e-4:
+            return False
+        req.dir.x, req.dir.y, req.dir.z = dx / d, 0.0, dz / d
+        req.target_pos.x, req.target_pos.y, req.target_pos.z = cursor_wx, 0.0, cursor_wz
+        req.target_guid = 0
+
+    else:
+        log_game.warning("unknown input mode '%s' for skill sid=%d (%s)",
+                         mode, tpl.sid, tpl.name)
+        return False
+
+    client.send(req)
+    # 스킬이 실제로 발동될 때만 로컬 이동 중단 (쿨다운 검사는 호출부가 담당)
+    state.me.is_moving = False
+    return True
+
+
+# ═══════════════════════════════════════════════════════════════════
 #  Login phase
 # ═══════════════════════════════════════════════════════════════════
 
@@ -361,53 +498,62 @@ def do_login(username: str, password: str) -> login_pb2.S_Login | None:
 #  Main game loop
 # ═══════════════════════════════════════════════════════════════════
 
-def _process_input(pygame, keys, state: GameState, client, io):
-    """WASD 이동 + Q/E 스킬. io는 dict로 프레임 간 타이밍/방향을 유지."""
+_KEY_TO_SKILL_CHAR = [
+    ("q", "q"),
+    ("w", "w"),
+    ("e", "e"),
+    ("r", "r"),
+]
+
+
+def _process_input(pygame, events: list, keys, state: GameState,
+                   client: PacketClient, io: dict, renderer: Renderer) -> None:
+    """이벤트 기반(우클릭/스킬키) + 상태 기반(S키 정지) 입력 처리."""
     if not state.in_game:
         return
 
-    dx = dz = 0.0
-    if keys[pygame.K_w] or keys[pygame.K_UP]:    dz += 1
-    if keys[pygame.K_s] or keys[pygame.K_DOWN]:  dz -= 1
-    if keys[pygame.K_d] or keys[pygame.K_RIGHT]: dx += 1
-    if keys[pygame.K_a] or keys[pygame.K_LEFT]:  dx -= 1
-    if dx != 0 or dz != 0:
-        norm = (dx * dx + dz * dz) ** 0.5
-        dx /= norm; dz /= norm
-        io["last_dir_x"], io["last_dir_z"] = dx, dz   # remember facing for skillshot
-        dt_frame = 1 / config.TARGET_FPS
-        state.me.x += dx * config.MOVE_SPEED * dt_frame
-        state.me.z += dz * config.MOVE_SPEED * dt_frame
-        io["pending_move"] = True
-
     now = time.time()
-    if io["pending_move"] and now - io["last_send"] >= config.SEND_INTERVAL:
-        move = game_pb2.C_PlayerMove()
-        move.position.CopyFrom(make_vec3(state.me.x, state.me.y, state.me.z))
-        move.yaw = 0.0
-        client.send(move)
-        io["last_send"] = now
-        io["pending_move"] = False
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+    cursor_wx, cursor_wz = _screen_to_world(mouse_x, mouse_y, state.me,
+                                            renderer.width, renderer.height)
 
-    # Q = Skillshot (last move dir), E = Homing (server picks nearest target)
-    if keys[pygame.K_q] and now - io["last_skill_send"] >= config.SKILL_THROTTLE:
-        req = game_pb2.C_RequestUseSkill()
-        req.skill_id = config.SKILL_ID_BOLT
-        req.dir.x = io["last_dir_x"]
-        req.dir.y = 0.0
-        req.dir.z = io["last_dir_z"]
-        req.target_guid = 0
-        client.send(req)
-        io["last_skill_send"] = now
-    elif keys[pygame.K_e] and now - io["last_skill_send"] >= config.SKILL_THROTTLE:
-        req = game_pb2.C_RequestUseSkill()
-        req.skill_id = config.SKILL_ID_AUTO_ATTACK
-        req.dir.x = 0.0
-        req.dir.y = 0.0
-        req.dir.z = 0.0
-        req.target_guid = 0   # 서버가 가장 가까운 적 자동 선택
-        client.send(req)
-        io["last_skill_send"] = now
+    # 이벤트 루프: 우클릭(이동), QWER 키다운(스킬)
+    for event in events:
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+            # 우클릭: 월드 좌표로 이동 명령
+            cmd = game_pb2.C_MoveCommand()
+            cmd.target_pos.x, cmd.target_pos.y, cmd.target_pos.z = cursor_wx, 0.0, cursor_wz
+            client.send(cmd)
+            state.me.set_destination(cursor_wx, cursor_wz)   # 로컬 즉시 예측
+            state.click_markers.append((cursor_wx, cursor_wz, now + config.CLICK_MARKER_LIFETIME))
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_s:
+                # S: 정지 명령 + 로컬 즉시 정지
+                client.send(game_pb2.C_StopMove())
+                state.me.is_moving = False
+            else:
+                # QWER: 스킬
+                for key_name, _char in _KEY_TO_SKILL_CHAR:
+                    if event.key == getattr(pygame, f"K_{key_name}"):
+                        # 1) 글로벌 키 throttle (키 연타 방지)
+                        if now - io["last_skill_send"] < config.SKILL_THROTTLE:
+                            break
+                        skill_id = config.SKILL_BINDINGS.get(key_name)
+                        if skill_id is None:
+                            break
+                        tpl = SKILL_TABLE.get(skill_id)
+                        if tpl is None:
+                            log_game.warning("binding '%s' -> sid=%d not in SKILL_TABLE",
+                                             key_name, skill_id)
+                            break
+                        # 2) 로컬 쿨다운 체크 — 쿨다운 중이면 아예 무시 (이동 유지).
+                        #    통과한 경우에만 서버로 요청 + 로컬 is_moving 해제.
+                        if now < io["skill_next_usable"].get(skill_id, 0.0):
+                            break
+                        if _cast_skill(state, client, skill_id, (cursor_wx, cursor_wz)):
+                            io["skill_next_usable"][skill_id] = now + tpl.cooldown
+                            io["last_skill_send"] = now
+                        break
 
 
 def _simulate_projectiles(state: GameState, dt_frame: float, now_t: float) -> None:
@@ -454,23 +600,23 @@ def run_game(token: str, game_host: str, game_port: int, username: str) -> None:
 
     state = GameState(username=username, me=PlayerState(name=username))
     io = {
-        "pending_move": False,
-        "last_send": 0.0,
-        "last_dir_x": 0.0,
-        "last_dir_z": 1.0,         # default forward = +Z
         "last_skill_send": 0.0,
+        # skill_id -> next_usable_time (time.time() 기준). 서버 쿨다운과 동일 규칙으로
+        # 로컬에서 선제 차단하여, 쿨다운 중 키 입력이 이동 예측을 끊지 않게 한다.
+        "skill_next_usable": {},
     }
 
     import pygame
 
     running = True
     while running:
-        for event in pygame.event.get():
+        events = pygame.event.get()
+        for event in events:
             if event.type == pygame.QUIT:
                 running = False
 
         keys = pygame.key.get_pressed()
-        _process_input(pygame, keys, state, client, io)
+        _process_input(pygame, events, keys, state, client, io, renderer)
 
         for pkt_id, msg in client.poll():
             if pkt_id is None:
@@ -484,6 +630,9 @@ def run_game(token: str, game_host: str, game_port: int, username: str) -> None:
             handler(state, msg)
 
         dt_frame = 1 / config.TARGET_FPS
+        # 자기 캐릭터: 목적지 방향 직선 예측 이동
+        state.me.move_toward_destination(dt_frame)
+        # 다른 플레이어/몬스터: 서버가 보내준 타깃으로 보간
         for ps in state.others.values():
             ps.lerp(dt_frame)
         for ms in state.monsters.values():
@@ -492,20 +641,23 @@ def run_game(token: str, game_host: str, game_port: int, username: str) -> None:
         now_t = time.time()
         _simulate_projectiles(state, dt_frame, now_t)
         state.hitscan_lines = [h for h in state.hitscan_lines if h[4] > now_t]
+        state.click_markers = [c for c in state.click_markers if c[2] > now_t]
 
+        moving_tag = "moving" if state.me.is_moving else "idle"
         status = [
             f"user={username}  id={state.me.player_id}  "
-            f"pos=({state.me.x:.1f}, {state.me.z:.1f})  HP={state.me.hp}/{state.me.max_hp}",
+            f"pos=({state.me.x:.1f}, {state.me.z:.1f})  HP={state.me.hp}/{state.me.max_hp}  [{moving_tag}]",
             f"others={len(state.others)}  monsters={len(state.monsters)}  "
             f"proj={len(state.projectiles)}  {'in-game' if state.in_game else 'entering...'}",
-            "WASD=move  Q=skillshot(bolt)  E=homing(auto)  ESC=quit",
+            "RClick=move  S=stop  Q/W/E/R=skills  ESC=quit",
         ]
         if keys[pygame.K_ESCAPE]:
             running = False
         renderer.draw_frame(
             state.me if state.in_game else None,
             state.others, state.monsters, status,
-            hitscan_lines=state.hitscan_lines, projectiles=state.projectiles)
+            hitscan_lines=state.hitscan_lines, projectiles=state.projectiles,
+            click_markers=state.click_markers)
 
     renderer.close()
     client.close()

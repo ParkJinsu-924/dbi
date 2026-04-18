@@ -1446,7 +1446,8 @@ class Renderer:
     # ═══════════════════════════════════════════════════════════════════
 
     def draw_frame(self, my_player, other_players: dict, monsters: dict, status_lines: list,
-                   hitscan_lines: list = None, projectiles: dict = None):
+                   hitscan_lines: list = None, projectiles: dict = None,
+                   click_markers: list = None):
         self.screen.fill(BG_COLOR)
 
         if my_player is None:
@@ -1457,6 +1458,25 @@ class Renderer:
 
         cx, cz = my_player.x, my_player.z
         self.draw_grid(cx, cz)
+
+        # ── Click-to-move markers (LoL의 초록 원 피드백) ──
+        if click_markers:
+            now_t = time.time()
+            for (wx, wz, expire) in click_markers:
+                remaining = max(0.0, expire - now_t)
+                # 수명 비율에 따라 반경 축소 + 알파 감소 (LoL 느낌)
+                lifetime = 0.4  # 기본값. config 와 느슨하게 동기화.
+                t = remaining / lifetime if lifetime > 0 else 0.0
+                msx, msy = self.world_to_screen(wx, wz, cx, cz)
+                r_outer = int(14 * (0.6 + 0.4 * t))
+                r_inner = max(2, r_outer - 3)
+                alpha = int(200 * t)
+                surf = pygame.Surface((r_outer * 2 + 2, r_outer * 2 + 2), pygame.SRCALPHA)
+                pygame.draw.circle(surf, (80, 220, 120, alpha),
+                                   (r_outer + 1, r_outer + 1), r_outer, width=2)
+                pygame.draw.circle(surf, (120, 255, 160, alpha),
+                                   (r_outer + 1, r_outer + 1), r_inner, width=1)
+                self.screen.blit(surf, (msx - r_outer - 1, msy - r_outer - 1))
 
         # ── Detect range circles (draw first, behind everything) ──
         for gid, m in monsters.items():

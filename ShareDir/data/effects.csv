@@ -7,3 +7,5 @@
 eid,type,magnitude,duration,scaling_ad,scaling_ap
 3001,Damage,15,0.0,0.0,0.0
 3002,Damage,30,0.0,0.0,0.0
+3003,Damage,25,0.0,0.0,0.0
+3004,Damage,50,0.0,0.0,0.0

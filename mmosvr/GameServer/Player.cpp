@@ -51,3 +51,34 @@ Zone* Player::GetZone() const
 {
 	return GetZoneManager().GetZone(GetZoneId());
 }
+
+void Player::Update(const float deltaTime)
+{
+	if (!isMoving_)
+		return;
+
+	const float dx = destination_.x() - position_.x();
+	const float dz = destination_.z() - position_.z();
+	const float dist = std::sqrt(dx * dx + dz * dz);
+
+	if (dist < 0.001f)
+	{
+		isMoving_ = false;
+		return;
+	}
+
+	const float step = moveSpeed_ * deltaTime;
+	if (step >= dist)
+	{
+		// 도착: destination 에 snap 하고 이동 종료
+		position_.set_x(destination_.x());
+		position_.set_z(destination_.z());
+		isMoving_ = false;
+		return;
+	}
+
+	const float nx = dx / dist;
+	const float nz = dz / dist;
+	position_.set_x(position_.x() + nx * step);
+	position_.set_z(position_.z() + nz * step);
+}

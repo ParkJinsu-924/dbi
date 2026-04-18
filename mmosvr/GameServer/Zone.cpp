@@ -13,6 +13,7 @@
 namespace
 {
 	constexpr float MONSTER_BROADCAST_INTERVAL = 0.1f;  // 10 Hz
+	constexpr float PLAYER_BROADCAST_INTERVAL  = 0.1f;  // 10 Hz. 클릭 이동 중인 플레이어의 위치만 방송.
 }
 
 
@@ -77,6 +78,14 @@ void Zone::Update(const float deltaTime)
 	{
 		monsterBroadcastAccum_ = 0.0f;
 		BroadcastMonsterPositions();
+	}
+
+	// 5. Broadcast moving-player positions periodically (LoL-style click-to-move)
+	playerBroadcastAccum_ += deltaTime;
+	if (playerBroadcastAccum_ >= PLAYER_BROADCAST_INTERVAL)
+	{
+		playerBroadcastAccum_ = 0.0f;
+		BroadcastPlayerPositions();
 	}
 }
 
@@ -178,6 +187,23 @@ void Zone::BroadcastMonsterPositions()
 		Proto::S_MonsterMove pkt;
 		pkt.set_guid(guid);
 		*pkt.mutable_position() = obj->GetPosition();
+		Broadcast(pkt);
+	});
+}
+
+void Zone::BroadcastPlayerPositions()
+{
+	// 이동 중인 플레이어만 방송한다. 정지 플레이어는 C_StopMove 수신 시 이미 최종 위치를 한 번 방송했음.
+	ForEachOfType(GameObjectType::Player, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
+	{
+		auto player = std::static_pointer_cast<Player>(obj);
+		if (!player->IsMoving())
+			return;
+
+		Proto::S_PlayerMove pkt;
+		pkt.set_player_id(player->GetPlayerId());
+		*pkt.mutable_position() = player->GetPosition();
+		pkt.set_yaw(player->GetYaw());
 		Broadcast(pkt);
 	});
 }

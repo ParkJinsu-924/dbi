@@ -117,6 +117,7 @@ private:
 	void BroadcastChunk(const SendBufferChunkPtr& chunk) const; // For Broadcast function, use Broadcast() instead.
 	void BroadcastChunkExcept(const SendBufferChunkPtr& chunk, long long excludeGuid) const;
 	void BroadcastMonsterPositions();
+	void BroadcastPlayerPositions();  // 클릭 이동 시뮬 결과를 주기적으로 방송 (이동 중인 Player만)
 	void FlushPending();              // pending Add/Remove 일괄 적용
 
 	void insertObject(std::shared_ptr<GameObject> obj);  // objects_ + objectsByType_ 동시 갱신
@@ -138,4 +139,5 @@ private:
 	std::vector<long long>                   pendingRemove_;
 
 	float monsterBroadcastAccum_ = 0.0f;
+	float playerBroadcastAccum_ = 0.0f;
 };

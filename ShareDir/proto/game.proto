@@ -8,6 +8,8 @@ message C_EnterGame {
     string token = 1;
 }
 
+// Deprecated: 기존 위치 직접 송신 방식. 신규 클라이언트는 C_MoveCommand 사용.
+// 서버가 완전히 전환되면 이 메시지와 핸들러를 제거한다.
 message C_PlayerMove {
     Vector3 position = 1;
     float yaw = 2;
@@ -18,9 +20,20 @@ message C_Chat {
 }
 
 message C_RequestUseSkill {
-    int32 skill_id = 1;    	// SkillTemplate.sid 으로 룩업
-    Vector3 dir = 2;            // Skillshot 정규화 방향. Homing 시 무시
-    int64 target_guid = 3;      // Homing 대상. 0이면 서버 자동 선택
+    int32 skill_id = 1;    	    // SkillTemplate.sid 으로 룩업
+    Vector3 dir = 2;            // Skillshot 정규화 방향. Homing/Point-click/Ground-target 시 무시
+    int64 target_guid = 3;      // Homing/Point-click 대상. 0이면 서버 자동 선택(Homing 전용)
+    Vector3 target_pos = 4;     // Ground-target 대상 지점 (스킬 타입별로 해석)
+}
+
+// League of Legends 스타일 클릭 이동 명령.
+// 서버가 받으면 Player.destination 에 저장하고, 게임 tick에서 직선으로 접근시킨다.
+message C_MoveCommand {
+    Vector3 target_pos = 1;     // 월드 좌표 목적지
+}
+
+// 현재 이동을 중단한다 (LoL 의 S 키 동작).
+message C_StopMove {
 }
 
 // Game Server -> Client

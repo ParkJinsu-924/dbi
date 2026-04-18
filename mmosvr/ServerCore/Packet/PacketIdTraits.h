@@ -12,6 +12,8 @@ namespace Proto
 	class C_PlayerMove;
 	class C_Chat;
 	class C_RequestUseSkill;
+	class C_MoveCommand;
+	class C_StopMove;
 	class S_EnterGame;
 	class S_PlayerList;
 	class S_PlayerMove;
@@ -49,6 +51,8 @@ PACKET_ID_TRAIT(C_EnterGame, C_ENTER_GAME)
 PACKET_ID_TRAIT(C_PlayerMove, C_PLAYER_MOVE)
 PACKET_ID_TRAIT(C_Chat, C_CHAT)
 PACKET_ID_TRAIT(C_RequestUseSkill, C_REQUEST_USE_SKILL)
+PACKET_ID_TRAIT(C_MoveCommand, C_MOVE_COMMAND)
+PACKET_ID_TRAIT(C_StopMove, C_STOP_MOVE)
 PACKET_ID_TRAIT(S_EnterGame, S_ENTER_GAME)
 PACKET_ID_TRAIT(S_PlayerList, S_PLAYER_LIST)
 PACKET_ID_TRAIT(S_PlayerMove, S_PLAYER_MOVE)

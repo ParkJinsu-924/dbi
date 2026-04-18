@@ -15,6 +15,8 @@ struct AutoPacketRegister
 		// Game (client → server)
 		GetPacketHandler().Register(&GamePacketHandler::C_EnterGame);
 		GetPacketHandler().Register(&GamePacketHandler::C_PlayerMove);
+		GetPacketHandler().Register(&GamePacketHandler::C_MoveCommand);
+		GetPacketHandler().Register(&GamePacketHandler::C_StopMove);
 		GetPacketHandler().Register(&GamePacketHandler::C_Chat);
 		GetPacketHandler().Register(&GamePacketHandler::C_RequestUseSkill);
 

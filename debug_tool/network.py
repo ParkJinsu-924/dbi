@@ -55,6 +55,8 @@ _ID_MAP = {
     login_pb2.C_Login:           packet_ids.C_LOGIN,
     game_pb2.C_EnterGame:        packet_ids.C_ENTER_GAME,
     game_pb2.C_PlayerMove:       packet_ids.C_PLAYER_MOVE,
+    game_pb2.C_MoveCommand:      packet_ids.C_MOVE_COMMAND,
+    game_pb2.C_StopMove:         packet_ids.C_STOP_MOVE,
     game_pb2.C_Chat:             packet_ids.C_CHAT,
     game_pb2.C_RequestUseSkill:  packet_ids.C_REQUEST_USE_SKILL,
 }

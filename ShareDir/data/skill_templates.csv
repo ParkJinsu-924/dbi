@@ -6,3 +6,5 @@
 sid,name,targeting,projectile_speed,projectile_radius,projectile_range,projectile_lifetime,cooldown,cost,cast_range
 2001,auto_attack,Homing,12.0,0.0,0.0,5.0,0.6,0,30.0
 2002,bolt,Skillshot,18.0,0.6,16.0,0.0,1.5,0,20.0
+2003,strike,Homing,14.0,0.0,0.0,3.0,2.0,0,25.0
+2004,nuke,Skillshot,22.0,1.2,24.0,0.0,4.0,0,30.0
