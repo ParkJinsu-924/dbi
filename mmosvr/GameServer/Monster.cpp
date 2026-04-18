@@ -41,6 +41,35 @@ void Monster::Update(const float deltaTime)
 }
 
 // ---------------------------------------------------------------------------
+// Aggro (delegated to AggroTable)
+// ---------------------------------------------------------------------------
+
+void Monster::AddAggro(const long long playerGuid, const float amount)
+{
+	aggro_.Add(playerGuid, amount);
+}
+
+long long Monster::ResolveTopAggroGuid() const
+{
+	return aggro_.ResolveTop();
+}
+
+bool Monster::HasAggro() const
+{
+	return !aggro_.Empty();
+}
+
+void Monster::ClearAggro()
+{
+	aggro_.Clear();
+}
+
+bool Monster::TickAggroOOC(const float deltaTime)
+{
+	return aggro_.TickOOC(deltaTime);
+}
+
+// ---------------------------------------------------------------------------
 // Public utilities (상태 클래스에서 호출)
 // ---------------------------------------------------------------------------
 

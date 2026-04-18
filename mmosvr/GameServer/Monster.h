@@ -3,6 +3,7 @@
 #include "Npc.h"
 #include "MonsterStates.h"
 #include "AttackTypes.h"
+#include "AggroTable.h"
 
 class Zone;
 class Player;
@@ -33,6 +34,17 @@ public:
 	void SetTarget(long long guid) { targetGuid_ = guid; }
 	void ClearTarget()             { targetGuid_ = 0; }
 	std::shared_ptr<Player> GetTarget() const;
+
+	// --- Aggro ---
+	// 실제 저장/집계는 AggroTable 이 담당. Monster 는 얇은 위임만 한다.
+	// OOC 타이머 진행은 전투 상태(Chase/Attack)에서만 의미 있으므로
+	// MonsterGlobalState::OnUpdate 가 해당 state 에서만 TickAggroOOC 를 호출한다.
+	// 반환값 true = 5초 경과로 table 이 자동 clear 됨 → 호출측이 Return 상태로 전이.
+	void AddAggro(long long playerGuid, float amount);
+	long long ResolveTopAggroGuid() const;                  // 없으면 0
+	bool HasAggro() const;
+	void ClearAggro();
+	bool TickAggroOOC(float deltaTime);
 
 	float DistanceTo(const Proto::Vector3& target) const;
 	float DistanceToSpawn() const;
@@ -80,4 +92,7 @@ private:
 	AttackType  attackType_     = AttackType::Melee;
 	int32       skillId_        = 0;    // attackType=Homing/Skillshot 일 때 SkillTemplate.sid
 	float       lastAttackTime_ = 0.0f; // GameTime::GetTotalTime() 기준
+
+	// --- Aggro ---
+	AggroTable aggro_;
 };

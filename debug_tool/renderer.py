@@ -1505,6 +1505,15 @@ class Renderer:
                               getattr(p, 'max_hp', 100), HP_BAR_FG_OTHER,
                               y_offset=-int(30 * CHAR_SCALE))
 
+        # ── Aggro lines (나를 타깃팅한 몬스터 → me, 빨간 선) ──
+        my_guid = getattr(my_player, 'guid', 0)
+        if my_guid:
+            my_sx, my_sy = self.world_to_screen(cx, cz, cx, cz)
+            for _gid, m in monsters.items():
+                if getattr(m, 'target_guid', 0) == my_guid:
+                    msx, msy = self.world_to_screen(m.x, m.z, cx, cz)
+                    pygame.draw.line(self.screen, (220, 40, 40), (msx, msy), (my_sx, my_sy), 1)
+
         # ── Monsters ──
         for gid, m in monsters.items():
             sx, sy = self.world_to_screen(m.x, m.z, cx, cz)

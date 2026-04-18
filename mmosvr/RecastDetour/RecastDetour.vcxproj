@@ -37,10 +37,12 @@
     <PropertyGroup>
         <OutDir>$(MSBuildThisFileDirectory)..\lib\$(Configuration)\$(Platform)\</OutDir>
         <IntDir>$(MSBuildThisFileDirectory)..\obj\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+        <UseMultiToolTask>true</UseMultiToolTask>
     </PropertyGroup>
     <ItemDefinitionGroup>
         <ClCompile>
             <WarningLevel>Level3</WarningLevel>
+            <MultiProcessorCompilation>true</MultiProcessorCompilation>
             <ConformanceMode>true</ConformanceMode>
             <LanguageStandard>stdcpp20</LanguageStandard>
             <AdditionalIncludeDirectories>$(MSBuildThisFileDirectory)..\ThirdParty\recastnavigation\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

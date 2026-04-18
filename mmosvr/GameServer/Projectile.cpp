@@ -3,6 +3,7 @@
 #include "Zone.h"
 #include "Unit.h"
 #include "Player.h"
+#include "Monster.h"
 
 
 void Projectile::Update(const float dt)
@@ -47,6 +48,16 @@ void Projectile::ApplyHit(Unit& target, const Proto::Vector3& hitPos)
 		hpPkt.set_max_hp(target.GetMaxHp());
 		hpPkt.set_guid(target.GetGuid());
 		zone_.Broadcast(hpPkt);
+	}
+
+	// --- Aggro accumulation (Phase 1) ---
+	// 플레이어가 몬스터에게 데미지를 주면 피해량 만큼 해당 몬스터의 AggroTable 에 누적.
+	// 실제 변화량(damage applied) 이 아닌 의도한 damage_ 를 쓴다 — overkill 에도 모든 기여가 반영.
+	if (ownerType_ == GameObjectType::Player &&
+		target.GetType() == GameObjectType::Monster)
+	{
+		auto& monster = static_cast<Monster&>(target);
+		monster.AddAggro(ownerGuid_, static_cast<float>(damage_));
 	}
 
 	consumed_ = true;

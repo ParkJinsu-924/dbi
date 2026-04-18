@@ -40,10 +40,12 @@
     <PropertyGroup>
         <OutDir>$(SolutionDir)bin\$(Configuration)\$(Platform)\</OutDir>
         <IntDir>$(SolutionDir)obj\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+        <UseMultiToolTask>true</UseMultiToolTask>
     </PropertyGroup>
     <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
         <ClCompile>
             <WarningLevel>Level3</WarningLevel>
+            <MultiProcessorCompilation>true</MultiProcessorCompilation>
             <SDLCheck>true</SDLCheck>
             <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
             <ConformanceMode>true</ConformanceMode>
@@ -61,6 +63,7 @@
     <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
         <ClCompile>
             <WarningLevel>Level3</WarningLevel>
+            <MultiProcessorCompilation>true</MultiProcessorCompilation>
             <SDLCheck>true</SDLCheck>
             <FunctionLevelLinking>true</FunctionLevelLinking>
             <IntrinsicFunctions>true</IntrinsicFunctions>
