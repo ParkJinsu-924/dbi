@@ -112,6 +112,8 @@ class MonsterState:
     state: int = 0        # 0=Idle, 1=Patrol, 2=Chase, 3=Attack, 4=Return
     target_guid: int = 0  # Chase/Attack target player GUID
     detect_range: float = 10.0
+    hp: int = 100
+    max_hp: int = 100
 
     def set_target(self, x, y, z):
         self.tx, self.ty, self.tz = x, y, z
@@ -277,7 +279,9 @@ def _h_monster_list(state: GameState, msg):
         state.monsters[m.guid] = MonsterState(
             guid=m.guid, name=m.name,
             x=px, y=py, z=pz, tx=px, ty=py, tz=pz,
-            detect_range=m.detect_range if m.detect_range > 0 else 10.0)
+            detect_range=m.detect_range if m.detect_range > 0 else 10.0,
+            hp=m.hp if m.max_hp > 0 else 100,
+            max_hp=m.max_hp if m.max_hp > 0 else 100)
 
 
 def _h_monster_spawn(state: GameState, msg):
@@ -285,7 +289,9 @@ def _h_monster_spawn(state: GameState, msg):
     state.monsters[msg.guid] = MonsterState(
         guid=msg.guid, name=msg.name,
         x=px, y=py, z=pz, tx=px, ty=py, tz=pz,
-        detect_range=msg.detect_range if msg.detect_range > 0 else 10.0)
+        detect_range=msg.detect_range if msg.detect_range > 0 else 10.0,
+        hp=msg.hp if msg.max_hp > 0 else 100,
+        max_hp=msg.max_hp if msg.max_hp > 0 else 100)
 
 
 def _h_monster_move(state: GameState, msg):
@@ -321,11 +327,19 @@ def _h_hitscan_attack(state: GameState, msg):
     log_game.info("%s hitscan -> player (dmg=%d)", name, msg.damage)
 
 
-def _h_player_hp(state: GameState, msg):
+def _h_unit_hp(state: GameState, msg):
+    """S_UnitHp 는 guid 기반 범용 HP 갱신 패킷 (Player/Monster/NPC 공통)."""
     if msg.guid == state.me.guid or msg.guid == 0:
         state.me.hp = msg.hp
         state.me.max_hp = msg.max_hp
         return
+    # Monster guid 매칭 (몬스터 HP 바 갱신)
+    ms = state.monsters.get(msg.guid)
+    if ms is not None:
+        ms.hp = msg.hp
+        ms.max_hp = msg.max_hp
+        return
+    # Other players
     for p in state.others.values():
         if p.guid == msg.guid:
             p.hp = msg.hp
@@ -380,7 +394,7 @@ PACKET_HANDLERS = {
     packet_ids.S_MONSTER_STATE:      _h_monster_state,
     packet_ids.S_MONSTER_ATTACK:     _h_monster_attack,
     packet_ids.S_HITSCAN_ATTACK:     _h_hitscan_attack,
-    packet_ids.S_PLAYER_HP:          _h_player_hp,
+    packet_ids.S_UNIT_HP:            _h_unit_hp,
     packet_ids.S_PROJECTILE_SPAWN:   _h_projectile_spawn,
     packet_ids.S_PROJECTILE_HIT:     _h_projectile_hit,
     packet_ids.S_PROJECTILE_DESTROY: _h_projectile_destroy,

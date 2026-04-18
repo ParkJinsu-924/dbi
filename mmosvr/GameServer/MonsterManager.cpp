@@ -26,6 +26,8 @@ std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, const std::string& 
 	pkt.set_name(monster->GetName());
 	*pkt.mutable_position() = monster->GetPosition();
 	pkt.set_detect_range(monster->GetDetectRange());
+	pkt.set_hp(monster->GetHp());
+	pkt.set_max_hp(monster->GetMaxHp());
 	zone->Broadcast(pkt);
 
 	LOG_INFO("Monster spawned: guid=" + std::to_string(monster->GetGuid())
@@ -68,6 +70,8 @@ std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, int32 templateId,
 	pkt.set_name(monster->GetName());
 	*pkt.mutable_position() = monster->GetPosition();
 	pkt.set_detect_range(monster->GetDetectRange());
+	pkt.set_hp(monster->GetHp());
+	pkt.set_max_hp(monster->GetMaxHp());
 	zone->Broadcast(pkt);
 
 	LOG_INFO(std::format("Monster spawned: guid={} template={} name={} zone={}",

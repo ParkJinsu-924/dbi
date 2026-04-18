@@ -38,10 +38,11 @@ void Projectile::ApplyHit(Unit& target, const Proto::Vector3& hitPos)
 	*pkt.mutable_hit_pos() = hitPos;
 	zone_.Broadcast(pkt);
 
-	if (target.GetHp() != hpBefore &&   // only sync when HP actually changed
-		target.GetType() == GameObjectType::Player)
+	if (target.GetHp() != hpBefore)   // only sync when HP actually changed
 	{
-		Proto::S_PlayerHp hpPkt;
+		// S_UnitHp 는 guid 기반이라 Player/Monster 공통으로 재사용 가능.
+		// 몬스터도 방송해야 클라가 HP 바를 갱신한다.
+		Proto::S_UnitHp hpPkt;
 		hpPkt.set_hp(target.GetHp());
 		hpPkt.set_max_hp(target.GetMaxHp());
 		hpPkt.set_guid(target.GetGuid());

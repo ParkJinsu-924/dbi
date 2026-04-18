@@ -107,7 +107,7 @@ void Monster::DoAttack(Player& target)
 			BroadcastAttack(target.GetGuid(), attackDamage_);
 		}
 
-		Proto::S_PlayerHp hpPkt;
+		Proto::S_UnitHp hpPkt;
 		hpPkt.set_hp(target.GetHp());
 		hpPkt.set_max_hp(target.GetMaxHp());
 		hpPkt.set_guid(target.GetGuid());

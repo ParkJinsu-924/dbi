@@ -44,7 +44,7 @@ _MSG_CLASS_MAP = {
     packet_ids.S_MONSTER_STATE:       game_pb2.S_MonsterState,
     packet_ids.S_MONSTER_ATTACK:      game_pb2.S_MonsterAttack,
     packet_ids.S_HITSCAN_ATTACK:      game_pb2.S_HitscanAttack,
-    packet_ids.S_PLAYER_HP:           game_pb2.S_PlayerHp,
+    packet_ids.S_UNIT_HP:             game_pb2.S_UnitHp,
     packet_ids.S_PROJECTILE_SPAWN:    game_pb2.S_ProjectileSpawn,
     packet_ids.S_PROJECTILE_HIT:      game_pb2.S_ProjectileHit,
     packet_ids.S_PROJECTILE_DESTROY:  game_pb2.S_ProjectileDestroy,

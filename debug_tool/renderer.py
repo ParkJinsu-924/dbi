@@ -1513,12 +1513,20 @@ class Renderer:
             state = getattr(m, 'state', 0)
             self._draw_state_indicator(sx, sy, state)
 
+            # HP bar (이름 라벨 위쪽에 배치)
+            max_hp = getattr(m, 'max_hp', 0) or 0
+            if max_hp > 0:
+                hp = getattr(m, 'hp', max_hp)
+                self._draw_hp_bar(sx, sy, hp, max_hp, MONSTER_HP_BAR_FG,
+                                  y_offset=-int(30 * CHAR_SCALE), width=28)
+
             # Name + state tag
             name = getattr(m, 'name', '') or ''
             state_tag = _STATE_NAMES.get(state, '')
             label = f"{name}" if name else ""
             state_color = _STATE_COLORS.get(state, STATE_IDLE_COLOR)
-            name_y = sy - int(28 * CHAR_SCALE)
+            # HP 바 위로 이름 라벨 이동
+            name_y = sy - int(40 * CHAR_SCALE)
             if label:
                 self._label(label, sx, name_y, self.font_name, state_color)
 

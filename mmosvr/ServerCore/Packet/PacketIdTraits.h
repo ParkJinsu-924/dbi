@@ -30,7 +30,7 @@ namespace Proto
 	class S_MonsterState;
 	class S_MonsterAttack;
 	class S_HitscanAttack;
-	class S_PlayerHp;
+	class S_UnitHp;
 	class S_ProjectileSpawn;
 	class S_ProjectileHit;
 	class S_ProjectileDestroy;
@@ -69,7 +69,7 @@ PACKET_ID_TRAIT(S_MonsterList, S_MONSTER_LIST)
 PACKET_ID_TRAIT(S_MonsterState, S_MONSTER_STATE)
 PACKET_ID_TRAIT(S_MonsterAttack, S_MONSTER_ATTACK)
 PACKET_ID_TRAIT(S_HitscanAttack, S_HITSCAN_ATTACK)
-PACKET_ID_TRAIT(S_PlayerHp, S_PLAYER_HP)
+PACKET_ID_TRAIT(S_UnitHp, S_UNIT_HP)
 PACKET_ID_TRAIT(S_ProjectileSpawn, S_PROJECTILE_SPAWN)
 PACKET_ID_TRAIT(S_ProjectileHit, S_PROJECTILE_HIT)
 PACKET_ID_TRAIT(S_ProjectileDestroy, S_PROJECTILE_DESTROY)
