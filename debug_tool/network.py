@@ -145,8 +145,12 @@ class PacketClient:
                         continue
 
                     self.recv_queue.put((pkt_id, msg))
-        except OSError:
-            pass
+        except OSError as e:
+            # 정상적인 원격 종료(connection reset 등)는 info 레벨로 기록
+            log.info("reader loop ended: %s", e)
+        except Exception as e:
+            # 프레이밍 깨짐 등 예기치 못한 예외도 스레드를 조용히 죽이지 말고 기록
+            log.exception("reader loop crashed: %s", e)
         finally:
             self.recv_queue.put((None, None))  # sentinel: disconnected
 

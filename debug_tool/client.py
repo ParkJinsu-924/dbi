@@ -351,6 +351,9 @@ def do_login(username: str, password: str) -> login_pb2.S_Login | None:
         time.sleep(0.02)
 
     client.close()
+    if result is None:
+        log_login.error("timed out waiting for S_Login (%.1fs)",
+                        config.LOGIN_RESPONSE_TIMEOUT)
     return result
 
 
@@ -531,4 +534,12 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        # Ctrl+C는 에러가 아니라 사용자 요청이므로 스택트레이스 없이 종료
+        logging.getLogger("game").info("interrupted by user")
+    except Exception as e:
+        # 크래시가 났다면 콘솔만 닫혀 원인을 놓치지 않도록 반드시 로그로 남긴다
+        logging.getLogger("game").exception("unhandled exception: %s", e)
+        raise

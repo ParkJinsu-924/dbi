@@ -21,6 +21,16 @@ python client.py <username> <password>
 
 Windows에서는 `run_client.bat`이 Python 설치 및 의존성까지 자동 확인해 줍니다.
 
+## 테스트
+
+```bash
+pip install -r requirements.txt   # pytest 포함
+python -m pytest tests/ -v
+```
+
+- `tests/test_config.py`: 설정 값의 타입/범위 검증
+- `tests/test_network.py`: 패킷 프레이밍, ID 매핑, 실제 로컬 TCP 라운드트립
+
 ## 파일 구성
 
 | 파일              | 역할                             | 수정 가능? |

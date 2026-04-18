@@ -1,2 +1,5 @@
 protobuf>=5.29.0
 pygame>=2.5.0
+
+# Dev (tests only — safe to omit in production)
+pytest>=8.0.0
