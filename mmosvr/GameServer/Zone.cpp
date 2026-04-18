@@ -60,7 +60,8 @@ void Zone::Update(const float deltaTime)
 		obj->Update(deltaTime);
 	
 	// 2. Auto-cleanup consumed projectiles (Update 중 적중/만료된 것)
-	ForEachOfType(GameObjectType::Projectile, [&](const long long guid, const std::shared_ptr<GameObject>& obj)
+	ForEachOfType(GameObjectType::Projectile, 
+		[&](const long long guid, const std::shared_ptr<GameObject>& obj)
 	{
 		const auto p = std::static_pointer_cast<Projectile>(obj);
 		if (p->IsConsumed())

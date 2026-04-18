@@ -6,6 +6,7 @@
 #include <unordered_map>
 
 class GameSession;
+class Zone;
 
 
 class Player : public Unit
@@ -40,6 +41,9 @@ public:
 	// 마지막 사용 시각 + cooldown 이 현재 시각 이하면 사용 가능 → 시간 갱신 후 true.
 	// 그 외엔 false (사용 거절).
 	bool TryConsumeCooldown(const std::string& skillName, float cooldownSec);
+	
+	// Player 가 속한 Zone을 가져온다.
+	Zone* GetZone() const;
 
 	// --- Network Helper ---
 	template<typename T>

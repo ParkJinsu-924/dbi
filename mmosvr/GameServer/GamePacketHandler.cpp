@@ -206,7 +206,7 @@ Proto::ErrorCode GamePacketHandler::C_RequestUseSkill(std::shared_ptr<GameSessio
 	if (!player)
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
 
-	auto* zone = GetZoneManager().GetZone(player->GetZoneId());
+	auto* zone = player->GetZone();
 	if (!zone)
 		return Proto::ErrorCode::INTERNAL_ERROR;
 
@@ -221,38 +221,44 @@ Proto::ErrorCode GamePacketHandler::C_RequestUseSkill(std::shared_ptr<GameSessio
 	if (!player->TryConsumeCooldown(sk->name, sk->cooldown))
 		return Proto::ErrorCode::OK;  // 쿨다운 중 — 조용히 무시
 
-	if (sk->targeting == SkillKind::Homing)
+	switch (sk->targeting)
 	{
-		std::shared_ptr<Monster> target;
-		if (pkt.target_guid() != 0)
+		case SkillKind::Homing:
 		{
-			target = zone->FindAs<Monster>(pkt.target_guid());
-		}
-		else
+			std::shared_ptr<Monster> target;
+			if (pkt.target_guid() != 0)
+			{
+				target = zone->FindAs<Monster>(pkt.target_guid());
+			}
+			else
+			{
+				target = zone->FindNearestMonster(player->GetPosition(), 30.0f);
+			}
+
+			if (!target || !target->IsAlive())
+				return Proto::ErrorCode::OK;  // 적 없음 — 조용히 무시
+
+			SkillRuntime::CastHoming(
+				player->GetGuid(), GameObjectType::Player, player->GetPosition(),
+				target->GetGuid(), *sk, *zone);		
+			}
+		break;
+		case SkillKind::Skillshot:
 		{
-			target = zone->FindNearestMonster(player->GetPosition(), 30.0f);
+			float dx = pkt.dir().x();
+			float dz = pkt.dir().z();
+			const float len = std::sqrt(dx * dx + dz * dz);
+			if (len < 1e-4f)
+				return Proto::ErrorCode::INVALID_REQUEST;
+			dx /= len;
+			dz /= len;
+
+			SkillRuntime::CastSkillshot(
+				player->GetGuid(), GameObjectType::Player, player->GetPosition(),
+				dx, dz, *sk, *zone);
 		}
-
-		if (!target || !target->IsAlive())
-			return Proto::ErrorCode::OK;  // 적 없음 — 조용히 무시
-
-		SkillRuntime::CastHoming(
-			player->GetGuid(), GameObjectType::Player, player->GetPosition(),
-			target->GetGuid(), *sk, *zone);
-	}
-	else  // Skillshot
-	{
-		float dx = pkt.dir().x();
-		float dz = pkt.dir().z();
-		const float len = std::sqrt(dx * dx + dz * dz);
-		if (len < 1e-4f)
-			return Proto::ErrorCode::INVALID_REQUEST;
-		dx /= len;
-		dz /= len;
-
-		SkillRuntime::CastSkillshot(
-			player->GetGuid(), GameObjectType::Player, player->GetPosition(),
-			dx, dz, *sk, *zone);
+		break;
+		default: ;
 	}
 
 	LOG_INFO("Player " + std::to_string(player->GetPlayerId()) +

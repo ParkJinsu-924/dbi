@@ -1,5 +1,7 @@
 ﻿#include "pch.h"
 #include "Player.h"
+#include "Zone.h"
+#include "ZoneManager.h"
 
 
 Player::Player(int32 playerId, const std::string& name)
@@ -43,4 +45,9 @@ bool Player::TryConsumeCooldown(const std::string& skillName, float cooldownSec)
 
 	skillCooldowns_[skillName] = now + cooldownSec;
 	return true;
+}
+
+Zone* Player::GetZone() const
+{
+	return GetZoneManager().GetZone(GetZoneId());
 }

@@ -9,9 +9,12 @@ void Projectile::Update(const float dt)
 {
 	if (consumed_)
 		return;
+	
+	constexpr float MAX_LIFETIME = 40.0f;
+	const float lifetimeLimit = lifetimeLimit_ > 0.0f ? lifetimeLimit_ : MAX_LIFETIME;
 
 	lifetime_ += dt;
-	if (lifetimeLimit_ > 0.0f && lifetime_ >= lifetimeLimit_)
+	if (lifetimeLimit > 0.0f && lifetime_ >= lifetimeLimit)
 	{
 		DestroyWith(Proto::S_ProjectileDestroy_Reason_EXPIRED);
 		return;
