@@ -1,0 +1,18 @@
+# 몬스터-스킬 N:M 조인 테이블. 한 몬스터(tid)가 쓸 수 있는 스킬들을 나열.
+# weight      : 가중 추첨 값 (양의 정수). 상대 비율로만 의미 — 100/50 = 50/25 와 동치.
+# minInterval : AI 관점의 최소 재사용 간격(초). 실효 쿨다운 = max(SkillTemplate.cooldown, minInterval).
+#               평타는 0, 스페셜/궁은 길게 줘서 간헐 발동 유도.
+# 후보 필터: (1) 거리가 cast_range 이내, (2) now >= 마지막 사용 + 실효 쿨다운.
+tid,skillId,weight,minInterval
+# Goblin — 평타(1001) 만. 스페셜을 추가하려면 한 줄 더.
+1001,1001,100,0.0
+# Orc — 평타(1002)
+1002,1002,100,0.0
+# Slime — 평타(1003)
+1003,1003,100,0.0
+# Sniper — hitscan 평타(1004)
+1004,1004,100,0.0
+# HomingArcher — homing 평타(1005)
+1005,1005,100,0.0
+# BoltCaster — skillshot 평타(1006)
+1006,1006,100,0.0

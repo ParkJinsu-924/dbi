@@ -4,11 +4,13 @@
 #include "Player.h"
 #include "ResourceManager.h"
 #include "SkillTemplate.h"
+#include "MonsterSkillEntry.h"
 #include "SkillRuntime.h"
 #include "PacketMaker.h"
 #include "Utils/MathUtil.h"
 #include "game.pb.h"
 #include <cmath>
+#include <random>
 
 
 void Monster::InitAI(const Proto::Vector2& spawnPos)
@@ -107,24 +109,71 @@ void Monster::MoveToward(const Proto::Vector2& target, const float deltaTime)
 	position_.set_y(position_.y() + (dz / dist) * step);
 }
 
-const SkillTemplate* Monster::GetBasicSkill() const
-{
-	const auto* skTable = GetResourceManager().Get<SkillTemplate>();
-	return skTable ? skTable->Find(basicSkillId_) : nullptr;
-}
-
-void Monster::DoAttack(Player& target)
+void Monster::DoAttack(const SkillTemplate& sk, Player& target)
 {
 	// Monster 평타는 "기본 공격" 성격이라 Silence 는 면역 (LoL 관습). Stun 만 차단.
 	if (!CanAttack()) return;
-	const SkillTemplate* sk = GetBasicSkill();
-	if (!sk)
+	SkillRuntime::Cast(sk, *this, target, GetZone());
+}
+
+float Monster::GetMaxAttackRange() const
+{
+	const auto* skTable      = GetResourceManager().Get<SkillTemplate>();
+	const auto* monsterSkills = GetResourceManager().Get<MonsterSkillEntry>();
+	if (!skTable || !monsterSkills) return 0.0f;
+
+	float maxRange = 0.0f;
+	for (const auto* entry : monsterSkills->FindByMonster(templateId_))
 	{
-		LOG_WARN("Monster [" + GetName() + "] basicSkillId=" +
-			std::to_string(basicSkillId_) + " not found in SkillTable");
-		return;
+		const SkillTemplate* tmpl = skTable->Find(entry->skillId);
+		if (tmpl) maxRange = (std::max)(maxRange, tmpl->cast_range);
 	}
-	SkillRuntime::Cast(*sk, *this, target, GetZone());
+	return maxRange;
+}
+
+std::optional<Monster::SkillChoice> Monster::PickCastable(const float now, const float distance) const
+{
+	const auto* skTable       = GetResourceManager().Get<SkillTemplate>();
+	const auto* monsterSkills = GetResourceManager().Get<MonsterSkillEntry>();
+	if (!skTable || !monsterSkills) return std::nullopt;
+
+	const auto& entries = monsterSkills->FindByMonster(templateId_);
+
+	// 1. 시전 가능한 후보 수집 + 가중치 총합.
+	struct Candidate { const MonsterSkillEntry* entry; const SkillTemplate* tmpl; float cooldown; };
+	std::vector<Candidate> candidates;
+	candidates.reserve(entries.size());
+	int32 totalWeight = 0;
+
+	for (const auto* entry : entries)
+	{
+		const SkillTemplate* tmpl = skTable->Find(entry->skillId);
+		if (!tmpl) continue;
+		if (distance > tmpl->cast_range) continue;
+
+		const auto it = skillNextUsable_.find(entry->skillId);
+		const float ready = (it == skillNextUsable_.end()) ? 0.0f : it->second;
+		if (now < ready) continue;
+
+		const float applied = (std::max)(tmpl->cooldown, entry->minInterval);
+		candidates.push_back({ entry, tmpl, applied });
+		totalWeight += entry->weight;
+	}
+
+	if (candidates.empty()) return std::nullopt;
+
+	// 2. 가중 추첨 (weight 합 기반).
+	static thread_local std::mt19937 rng(std::random_device{}());
+	std::uniform_int_distribution<int32> dist(0, totalWeight - 1);
+	int32 roll = dist(rng);
+	for (const auto& c : candidates)
+	{
+		roll -= c.entry->weight;
+		if (roll < 0)
+			return SkillChoice{ c.tmpl, c.entry->skillId, c.cooldown };
+	}
+	// 부동소수 없이 정수로 돌리므로 unreachable. 컴파일러 경고 방지용 fallback.
+	return SkillChoice{ candidates.back().tmpl, candidates.back().entry->skillId, candidates.back().cooldown };
 }
 
 // ---------------------------------------------------------------------------

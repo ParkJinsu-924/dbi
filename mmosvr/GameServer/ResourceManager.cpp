@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "ResourceManager.h"
 #include "MonsterTemplate.h"
+#include "MonsterSkillEntry.h"
 #include "SpawnEntry.h"
 #include "SkillTemplate.h"
 #include "Effect.h"
@@ -16,6 +17,7 @@ void ResourceManager::Init()
 	Register<SkillTemplate>("skill_templates.csv");
 	Register<Effect>("effects.csv");
 	Register<SkillEffectEntry>("skill_effects.csv");
+	Register<MonsterSkillEntry>("monster_skills.csv");
 
 	// 모든 테이블 로드 후 조인 키 검증. 실패 시 throw → 서버 부팅 거부.
 	ValidateReferences();

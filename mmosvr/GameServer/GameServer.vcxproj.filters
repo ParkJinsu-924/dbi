@@ -129,6 +129,9 @@
     <ClInclude Include="MonsterTemplate.h">
       <Filter>Data</Filter>
     </ClInclude>
+    <ClInclude Include="MonsterSkillEntry.h">
+      <Filter>Data</Filter>
+    </ClInclude>
     <ClInclude Include="SpawnEntry.h">
       <Filter>Data</Filter>
     </ClInclude>

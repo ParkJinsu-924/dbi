@@ -137,10 +137,9 @@ void ChaseState::OnUpdate(Monster& owner, const float deltaTime)
 	}
 
 	const float dist = owner.DistanceTo(target->GetPosition());
-	const auto* sk = owner.GetBasicSkill();
-	const float attackRange = sk ? sk->cast_range : 2.0f;
-
-	if (dist <= attackRange)
+	// 가장 긴 사거리 스킬이 닿는 순간 Attack 진입 — AttackState 가 실제 시전 가능 여부 최종 판단.
+	const float attackRange = owner.GetMaxAttackRange();
+	if (attackRange > 0.0f && dist <= attackRange)
 	{
 		owner.GetFSM().ChangeState(MonsterStateId::Attack);
 		return;
@@ -165,21 +164,20 @@ void AttackState::OnUpdate(Monster& owner, const float /*deltaTime*/)
 	}
 
 	const float dist = owner.DistanceTo(target->GetPosition());
-	const auto* sk = owner.GetBasicSkill();
-	const float attackRange = sk ? sk->cast_range : 2.0f;
-
-	if (dist > attackRange)
+	const float attackRange = owner.GetMaxAttackRange();
+	if (attackRange <= 0.0f || dist > attackRange)
 	{
 		owner.GetFSM().ChangeState(MonsterStateId::Chase);
 		return;
 	}
 
-	const float cooldown = sk ? sk->cooldown : 1.5f;
+	// 로테이션에서 시전 가능한 스킬 하나를 가중 추첨. 없으면(전부 쿨) 다음 틱까지 대기.
 	const float now = GetTimeManager().GetTotalTime();
-	if (now - owner.GetLastAttackTime() >= cooldown)
+	const auto choice = owner.PickCastable(now, dist);
+	if (choice)
 	{
-		owner.DoAttack(*target);
-		owner.SetLastAttackTime(now);
+		owner.DoAttack(*choice->tmpl, *target);
+		owner.MarkSkillUsed(choice->skillId, now + choice->appliedCooldown);
 	}
 }
 

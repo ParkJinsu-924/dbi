@@ -2,7 +2,6 @@
 
 #include "ResourceManager.h"
 #include "AttackTypes.h"
-#include "SkillTemplate.h"
 
 
 class MonsterTable;
@@ -19,13 +18,13 @@ struct MonsterTemplate
 	float       detectRange    = 10.0f;
 	float       leashRange     = 15.0f;
 	float       moveSpeed      = 3.0f;
-	int32       basicSkillId   = 0;    // 평타(자동 공격) 스킬. 사거리/쿨다운/데미지/연출은 SkillTemplate + SkillEffect 에서.
+	// 몬스터가 쓸 스킬은 monster_skills.csv (MonsterSkillEntry) 에서 tid 로 조인.
 
 	KeyType GetKey() const { return tid; }
 
 	CSV_DEFINE_TYPE(MonsterTemplate,
 		tid, name, hp, maxHp,
-		detectRange, leashRange, moveSpeed, basicSkillId)
+		detectRange, leashRange, moveSpeed)
 };
 
 
@@ -44,25 +43,6 @@ public:
 		for (const auto& [tid, t] : map_)
 			if (predicate(t)) result.push_back(&t);
 		return result;
-	}
-
-	int OnValidate() const override
-	{
-		int errors = 0;
-		const auto* skills = GetResourceManager().Get<SkillTemplate>();
-		if (!skills) return 0;
-
-		for (const auto& [tid, m] : map_)
-		{
-			if (m.basicSkillId != 0 && !skills->Find(m.basicSkillId))
-			{
-				LOG_ERROR(std::format(
-					"monster_templates: tid={} ({}) references non-existent basicSkillId={}",
-					tid, m.name, m.basicSkillId));
-				++errors;
-			}
-		}
-		return errors;
 	}
 
 	const char* DebugName() const override { return "monster_templates"; }

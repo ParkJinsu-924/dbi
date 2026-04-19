@@ -4,6 +4,8 @@
 #include "MonsterStates.h"
 #include "AttackTypes.h"
 #include "AggroTable.h"
+#include <optional>
+#include <unordered_map>
 
 class Player;
 struct SkillTemplate;
@@ -45,21 +47,39 @@ public:
 
 	float DistanceToSpawn() const;
 	void  MoveToward(const Proto::Vector2& target, float deltaTime);
-	void  DoAttack(Player& target);
+	// 지정한 스킬로 공격 실행. 스킬 선택은 호출자(AttackState) 책임.
+	void  DoAttack(const SkillTemplate& sk, Player& target);
 
 	// --- AI 파라미터 접근 ---
 	float GetDetectRange()    const { return detectRange_; }
 	float GetLeashRange()     const { return leashRange_; }
 	float GetMoveSpeed()      const { return moveSpeed_; }
-	int32 GetBasicSkillId()   const { return basicSkillId_; }
-	const SkillTemplate* GetBasicSkill() const;   // ResourceManager 조회. 미존재 시 nullptr.
-	float GetLastAttackTime() const { return lastAttackTime_; }
-	void  SetLastAttackTime(float t) { lastAttackTime_ = t; }
 
 	void SetDetectRange(float v)    { detectRange_ = v; }
 	void SetLeashRange(float v)     { leashRange_ = v; }
 	void SetMoveSpeed(float v)      { moveSpeed_ = v; }
-	void SetBasicSkillId(int32 v)   { basicSkillId_ = v; }
+
+	// --- Skill rotation ---
+	// templateId = MonsterTemplate.tid. monster_skills.csv 조회 키.
+	int32 GetTemplateId() const { return templateId_; }
+	void  SetTemplateId(int32 v) { templateId_ = v; }
+
+	// 이 몬스터의 스킬 중 cast_range 가 가장 긴 값. Chase→Attack 전환 임계값으로 사용.
+	// 스킬이 하나도 없으면 0 반환.
+	float GetMaxAttackRange() const;
+
+	// 현재 시각(now) 에서 distance 거리의 타겟에게 시전 가능한 스킬을 가중 추첨.
+	// cast_range 내이고 실효 쿨다운(max(sk.cooldown, minInterval)) 을 통과한 후보만 대상.
+	struct SkillChoice
+	{
+		const SkillTemplate* tmpl;
+		int32 skillId;
+		float appliedCooldown;   // 다음 사용 가능 시각 = now + appliedCooldown
+	};
+	std::optional<SkillChoice> PickCastable(float now, float distance) const;
+
+	// PickCastable 로 선택된 스킬을 시전 후 호출 — 해당 skillId 의 다음 사용 가능 시각 갱신.
+	void MarkSkillUsed(int32 skillId, float nextUsable) { skillNextUsable_[skillId] = nextUsable; }
 
 private:
 	void BroadcastState(MonsterStateId prev, MonsterStateId next);
@@ -70,13 +90,14 @@ private:
 	long long targetGuid_ = 0;
 
 	// --- AI 파라미터 ---
-	// 공격 관련 파라미터(사거리/쿨다운/데미지)는 basicSkillId_ 가 가리키는 SkillTemplate + SkillEffect 에서 로드.
-	// Monster 자체는 "어떤 평타 스킬을 쓰는가" 만 알면 된다.
+	// 공격 스킬은 monster_skills.csv (tid 기준) 에서 로드. 사거리/쿨다운/데미지는 SkillTemplate 참조.
+	int32 templateId_  = 0;
 	float detectRange_ = 10.0f;
 	float leashRange_  = 15.0f;
 	float moveSpeed_   = 3.0f;
-	int32 basicSkillId_   = 0;
-	float lastAttackTime_ = 0.0f; // GameTime::GetTotalTime() 기준 — AttackState 쿨다운 판정용
+
+	// skillId -> 다음 사용 가능 시각(TimeManager.totalTime 기준). 엔트리 없으면 0 (즉시 가능).
+	std::unordered_map<int32, float> skillNextUsable_;
 
 	// --- Aggro ---
 	AggroTable aggro_;

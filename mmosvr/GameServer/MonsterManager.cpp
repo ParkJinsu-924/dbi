@@ -41,13 +41,13 @@ std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, int32 templateId,
 	if (!zone)
 		return nullptr;
 
-	auto monster = std::make_shared<Monster>(tmpl->name, *zone);   // zone_ ref ctor 에서 바인딩
+	auto monster = std::make_shared<Monster>(tmpl->name, *zone);
+	monster->SetTemplateId(templateId);                             // monster_skills.csv 조회 키
 	monster->SetHp(tmpl->hp);
 	monster->SetMaxHp(tmpl->maxHp);
 	monster->SetDetectRange(tmpl->detectRange);
 	monster->SetLeashRange(tmpl->leashRange);
 	monster->SetMoveSpeed(tmpl->moveSpeed);
-	monster->SetBasicSkillId(tmpl->basicSkillId);
 	zone->Add(monster);                                             // object map 등록
 	monster->InitAI(spawnPos);                                      // FSM 시작 시 GetZone().Broadcast 사용
 
