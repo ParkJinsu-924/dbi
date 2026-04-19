@@ -4,6 +4,7 @@
 #include "Unit.h"
 #include "Player.h"
 #include "Monster.h"
+#include "Utils/MathUtil.h"
 
 
 namespace
@@ -16,7 +17,7 @@ void SkillshotProjectile::Step(const float dt)
 {
 	const float step = speed_ * dt;
 	position_.set_x(position_.x() + dirX_ * step);
-	position_.set_z(position_.z() + dirZ_ * step);
+	position_.set_y(position_.y() + dirZ_ * step);
 	traveled_ += step;
 
 	if (traveled_ >= rangeLimit_)
@@ -38,10 +39,7 @@ void SkillshotProjectile::CheckHit()
 				if (consumed_) return;
 				if (!unit->IsAlive()) continue;
 
-				const auto& tp = unit->GetPosition();
-				const float dx = tp.x() - position_.x();
-				const float dz = tp.z() - position_.z();
-				if (dx * dx + dz * dz < r2)
+				if (MathUtil::Distance2DSq(unit->GetPosition(), position_) < r2)
 				{
 					ApplyHit(*unit, position_);
 					return;  // 첫 적중 후 소멸

@@ -55,12 +55,20 @@ public:
 	// 최종값 = base * (1 + %mod) + flat. 음수 방지를 위해 0 에서 clamp.
 	float GetEffectiveMoveSpeed(float baseSpeed) const;
 
-	bool IsSkillUsable() const { return !(IsStunned() || IsSilenced()); }
-	// ─── CC 상태 ────────────────────────────────────────────────
+	// ─── CC 상태 (원시 플래그 조회) ────────────────────────────
+	// 세부 디버깅/로깅 용도. 일반 액션 분기에서는 아래 Can* helper 를 우선 사용.
 	bool IsStunned() const       { return buffs_.GetCCFlags() & static_cast<uint32>(CCFlag::Stun); }
 	bool IsSilenced() const      { return buffs_.GetCCFlags() & static_cast<uint32>(CCFlag::Silence); }
 	bool IsRooted() const        { return buffs_.GetCCFlags() & static_cast<uint32>(CCFlag::Root); }
 	bool IsInvulnerable() const  { return buffs_.GetCCFlags() & static_cast<uint32>(CCFlag::Invulnerable); }
+
+	// ─── 의미적 능력 체크 — "어떤 CC 가 어떤 액션을 막는가" 정책 단일 소스 ───
+	// 호출자(핸들러/AI/Update)는 원시 CC 플래그를 직접 OR 하지 않고 이 helper 를 사용한다.
+	// 새 CC 가 추가되어도 여기만 수정하면 모든 호출 지점에 자동 반영.
+	bool CanAct()       const { return !IsStunned(); }                      // 총체적 행동 가능 여부 (Monster FSM 등)
+	bool CanMove()      const { return !(IsStunned() || IsRooted()); }      // 이동 가능
+	bool CanAttack()    const { return !IsStunned(); }                      // 평타 (Silence 는 평타 허용)
+	bool CanCastSkill() const { return !(IsStunned() || IsSilenced()); }    // 스킬 시전
 
 protected:
 	int32 hp_ = 100;

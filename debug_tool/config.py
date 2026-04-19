@@ -15,7 +15,7 @@ LOGIN_RESPONSE_TIMEOUT = 5.0  # seconds to wait for S_Login after sending C_Logi
 # ── Gameplay / input ────────────────────────────────────────────────
 MOVE_SPEED = 5.0            # local prediction speed (world units / sec)
 SEND_INTERVAL = 0.05        # C_PlayerMove send cadence (20 Hz)
-SKILL_THROTTLE = 0.25       # client-side skill key rate limit (sec)
+SKILL_THROTTLE = 0.02       # client-side skill key rate limit (sec) — 난사 모드: 프레임당 1회 수준
 TARGET_FPS = 60             # used to derive dt_frame for interpolation
 
 # ── Skills ──────────────────────────────────────────────────────────
@@ -51,6 +51,10 @@ MONSTER_LERP_SPEED = 12.0   # monster display position smoothing
 HITSCAN_LINE_LIFETIME = 0.4       # seconds a hitscan tracer stays on screen
 PROJECTILE_GRACE_LIFETIME = 0.5   # extra seconds past server max_lifetime before
                                   # client-side cleanup (server is authoritative)
+
+# ── Feedback (damage popups, particles, camera shake, audio) ────────
+ENABLE_AUDIO = True               # pygame.mixer 기반 피격/스킬 사운드 on/off
+AUDIO_VOLUME = 0.3                # 전역 master volume (0.0~1.0)
 
 # ── Rendering (window / layout) ─────────────────────────────────────
 WINDOW_WIDTH = 900

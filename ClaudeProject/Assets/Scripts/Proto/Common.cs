@@ -24,17 +24,17 @@ namespace Proto {
     static CommonReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Cgxjb21tb24ucHJvdG8SBVByb3RvIioKB1ZlY3RvcjMSCQoBeBgBIAEoAhIJ",
-            "CgF5GAIgASgCEgkKAXoYAyABKAIiHQoJVGltZXN0YW1wEhAKCGVwb2NoX21z",
-            "GAEgASgDKrkBCglFcnJvckNvZGUSBgoCT0sQABILCgdVTktOT1dOEAESGAoU",
-            "TE9HSU5fU0VSVkVSX09GRkxJTkUQZBIRCg1UT0tFTl9JTlZBTElEEGUSEQoN",
-            "VE9LRU5fRVhQSVJFRBBmEhUKEFBMQVlFUl9OT1RfRk9VTkQQyAESFQoQSU5W",
-            "QUxJRF9QT1NJVElPThDJARIUCg9JTlZBTElEX1JFUVVFU1QQhAcSEwoOSU5U",
-            "RVJOQUxfRVJST1IQhQdiBnByb3RvMw=="));
+            "Cgxjb21tb24ucHJvdG8SBVByb3RvIh8KB1ZlY3RvcjISCQoBeBgBIAEoAhIJ",
+            "CgF5GAIgASgCIh0KCVRpbWVzdGFtcBIQCghlcG9jaF9tcxgBIAEoAyq5AQoJ",
+            "RXJyb3JDb2RlEgYKAk9LEAASCwoHVU5LTk9XThABEhgKFExPR0lOX1NFUlZF",
+            "Ul9PRkZMSU5FEGQSEQoNVE9LRU5fSU5WQUxJRBBlEhEKDVRPS0VOX0VYUElS",
+            "RUQQZhIVChBQTEFZRVJfTk9UX0ZPVU5EEMgBEhUKEElOVkFMSURfUE9TSVRJ",
+            "T04QyQESFAoPSU5WQUxJRF9SRVFVRVNUEIQHEhMKDklOVEVSTkFMX0VSUk9S",
+            "EIUHYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Proto.ErrorCode), }, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.Vector3), global::Proto.Vector3.Parser, new[]{ "X", "Y", "Z" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.Vector2), global::Proto.Vector2.Parser, new[]{ "X", "Y" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.Timestamp), global::Proto.Timestamp.Parser, new[]{ "EpochMs" }, null, null, null, null)
           }));
     }
@@ -70,17 +70,21 @@ namespace Proto {
   #endregion
 
   #region Messages
+  /// <summary>
+  /// 2D 평면 좌표/방향 벡터. LoL 식 top-down MMO 기본 좌표계.
+  /// 세계는 전부 2D 로 처리 — 수직 축이 필요한 NavMesh 쿼리 등은 서버 내부에서 y=0 를 채워 호출.
+  /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
-  public sealed partial class Vector3 : pb::IMessage<Vector3>
+  public sealed partial class Vector2 : pb::IMessage<Vector2>
   #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
       , pb::IBufferMessage
   #endif
   {
-    private static readonly pb::MessageParser<Vector3> _parser = new pb::MessageParser<Vector3>(() => new Vector3());
+    private static readonly pb::MessageParser<Vector2> _parser = new pb::MessageParser<Vector2>(() => new Vector2());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public static pb::MessageParser<Vector3> Parser { get { return _parser; } }
+    public static pb::MessageParser<Vector2> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -96,7 +100,7 @@ namespace Proto {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Vector3() {
+    public Vector2() {
       OnConstruction();
     }
 
@@ -104,17 +108,16 @@ namespace Proto {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Vector3(Vector3 other) : this() {
+    public Vector2(Vector2 other) : this() {
       x_ = other.x_;
       y_ = other.y_;
-      z_ = other.z_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public Vector3 Clone() {
-      return new Vector3(this);
+    public Vector2 Clone() {
+      return new Vector2(this);
     }
 
     /// <summary>Field number for the "x" field.</summary>
@@ -141,27 +144,15 @@ namespace Proto {
       }
     }
 
-    /// <summary>Field number for the "z" field.</summary>
-    public const int ZFieldNumber = 3;
-    private float z_;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public float Z {
-      get { return z_; }
-      set {
-        z_ = value;
-      }
-    }
-
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
-      return Equals(other as Vector3);
+      return Equals(other as Vector2);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public bool Equals(Vector3 other) {
+    public bool Equals(Vector2 other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -170,7 +161,6 @@ namespace Proto {
       }
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(X, other.X)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Y, other.Y)) return false;
-      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Z, other.Z)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -180,7 +170,6 @@ namespace Proto {
       int hash = 1;
       if (X != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(X);
       if (Y != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Y);
-      if (Z != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Z);
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -207,10 +196,6 @@ namespace Proto {
         output.WriteRawTag(21);
         output.WriteFloat(Y);
       }
-      if (Z != 0F) {
-        output.WriteRawTag(29);
-        output.WriteFloat(Z);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -229,10 +214,6 @@ namespace Proto {
         output.WriteRawTag(21);
         output.WriteFloat(Y);
       }
-      if (Z != 0F) {
-        output.WriteRawTag(29);
-        output.WriteFloat(Z);
-      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -249,9 +230,6 @@ namespace Proto {
       if (Y != 0F) {
         size += 1 + 4;
       }
-      if (Z != 0F) {
-        size += 1 + 4;
-      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -260,7 +238,7 @@ namespace Proto {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public void MergeFrom(Vector3 other) {
+    public void MergeFrom(Vector2 other) {
       if (other == null) {
         return;
       }
@@ -269,9 +247,6 @@ namespace Proto {
       }
       if (other.Y != 0F) {
         Y = other.Y;
-      }
-      if (other.Z != 0F) {
-        Z = other.Z;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -300,10 +275,6 @@ namespace Proto {
             Y = input.ReadFloat();
             break;
           }
-          case 29: {
-            Z = input.ReadFloat();
-            break;
-          }
         }
       }
     #endif
@@ -329,10 +300,6 @@ namespace Proto {
           }
           case 21: {
             Y = input.ReadFloat();
-            break;
-          }
-          case 29: {
-            Z = input.ReadFloat();
             break;
           }
         }

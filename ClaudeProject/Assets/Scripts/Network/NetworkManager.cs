@@ -145,10 +145,11 @@ public class NetworkManager : MonoBehaviour
     {
         // Receipt of S_EnterGame implies success. Failure arrives as S_Error.
         LocalPlayerId = response.PlayerId;
+        // Proto Vector2 (x, y) → Unity Vector3 (x, 0, y). Y 는 수평 2번째 축.
         var spawnPos = new UnityEngine.Vector3(
             response.SpawnPosition?.X ?? 0f,
-            response.SpawnPosition?.Y ?? 0f,
-            response.SpawnPosition?.Z ?? 0f
+            0f,
+            response.SpawnPosition?.Y ?? 0f
         );
 
         Debug.Log("[NetworkManager] Entered game. PlayerId: " + LocalPlayerId);
@@ -173,13 +174,13 @@ public class NetworkManager : MonoBehaviour
     {
         if (!IsConnectedToGame) return;
 
+        // Unity Vector3 (x, 0, y) → Proto Vector2 (x, y). 수직축 생략.
         var pkt = new C_PlayerMove
         {
-            Position = new Proto.Vector3
+            Position = new Proto.Vector2
             {
                 X = position.x,
-                Y = position.y,
-                Z = position.z
+                Y = position.z
             },
             Yaw = yaw
         };

@@ -11,6 +11,7 @@
 #include "SkillTemplate.h"
 #include "SkillRuntime.h"
 #include "PacketMaker.h"
+#include "Utils/MathUtil.h"
 #include <cmath>
 
 
@@ -90,10 +91,9 @@ Proto::ErrorCode GamePacketHandler::SS_ValidateToken(std::shared_ptr<ServerSessi
 		zone->BroadcastExcept(PacketMaker::MakePlayerSpawn(*player), player->GetGuid());
 	}
 
-	Proto::Vector3 spawnPos;
+	Proto::Vector2 spawnPos;
 	spawnPos.set_x(0.0f);
 	spawnPos.set_y(0.0f);
-	spawnPos.set_z(0.0f);
 	gameSession->Send(PacketMaker::MakeEnterGame(*player, spawnPos));
 
 	gameSession->Send(PacketMaker::MakePlayerList(GetPlayerManager().GetAllPlayers()));
@@ -114,34 +114,24 @@ Proto::ErrorCode GamePacketHandler::C_PlayerMove(std::shared_ptr<GameSession> se
 	if (!player)
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
 
-	// Stun/Root 상태면 이동 입력 무시 (클라에는 별도 응답 없음, 서버 위치 기준 재동기화는 클라 쪽 책임).
-	if (player->IsStunned() || player->IsRooted())
+	// 이동 CC 차단. 클라에는 별도 응답 없음 — 서버 위치 기준 재동기화는 클라 쪽 책임.
+	if (!player->CanMove())
 		return Proto::ErrorCode::OK;
 
-	Proto::Vector3 validatedPos = pkt.position();
+	Proto::Vector2 validatedPos = pkt.position();
 
 	auto& mapService = GetMapManager();
-	if (mapService.IsLoaded())
+	if (mapService.IsLoaded() && !mapService.IsOnNavMesh(pkt.position()))
 	{
-		const float x = pkt.position().x();
-		const float y = pkt.position().y();
-		const float z = pkt.position().z();
-
-		if (!mapService.IsOnNavMesh(x, y, z))
+		Proto::Vector2 corrected;
+		if (mapService.FindNearestValidPosition(pkt.position(), corrected))
 		{
-			float outX, outY, outZ;
-			if (mapService.FindNearestValidPosition(x, y, z, outX, outY, outZ))
-			{
-				validatedPos.set_x(outX);
-				validatedPos.set_y(outY);
-				validatedPos.set_z(outZ);
-
-				session->Send(PacketMaker::MakeMoveCorrection(validatedPos));
-			}
-			else
-			{
-				return Proto::ErrorCode::INVALID_POSITION;
-			}
+			validatedPos = corrected;
+			session->Send(PacketMaker::MakeMoveCorrection(validatedPos));
+		}
+		else
+		{
+			return Proto::ErrorCode::INVALID_POSITION;
 		}
 	}
 
@@ -159,25 +149,19 @@ Proto::ErrorCode GamePacketHandler::C_MoveCommand(std::shared_ptr<GameSession> s
 	if (!player)
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
 
-	if (player->IsStunned() || player->IsRooted())
+	if (!player->CanMove())
 		return Proto::ErrorCode::OK;
 
-	Proto::Vector3 target = pkt.target_pos();
+	Proto::Vector2 target = pkt.target_pos();
 
 	auto& mapService = GetMapManager();
-	if (mapService.IsLoaded() && !mapService.IsOnNavMesh(target.x(), target.y(), target.z()))
+	if (mapService.IsLoaded() && !mapService.IsOnNavMesh(target))
 	{
-		float outX, outY, outZ;
-		if (mapService.FindNearestValidPosition(target.x(), target.y(), target.z(), outX, outY, outZ))
-		{
-			target.set_x(outX);
-			target.set_y(outY);
-			target.set_z(outZ);
-		}
+		Proto::Vector2 corrected;
+		if (mapService.FindNearestValidPosition(target, corrected))
+			target = corrected;
 		else
-		{
 			return Proto::ErrorCode::INVALID_POSITION;
-		}
 	}
 
 	player->SetDestination(target);
@@ -221,8 +205,8 @@ Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> sess
 	auto* zone = player->GetZone();
 	if (!zone)
 		return Proto::ErrorCode::INTERNAL_ERROR;
-
-	if (!player->IsSkillUsable()) // Stun/Silence 시 스킬 사용 차단 — 조용히 무시 (쿨다운도 소비하지 않음)
+	// 스킬 시전 CC 차단 — 조용히 무시 (쿨다운도 소비하지 않음)
+	if (!player->CanCastSkill())
 		return Proto::ErrorCode::OK;
 
 	const auto* skTable = GetResourceManager().Get<SkillTemplate>();
@@ -261,15 +245,11 @@ Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> sess
 		break;
 		case SkillKind::Skillshot:
 		{
-			float dx = pkt.dir().x();
-			float dz = pkt.dir().z();
-			const float len = std::sqrt(dx * dx + dz * dz);
+			const float len = MathUtil::Length2D(pkt.dir().x(), pkt.dir().y());
 			if (len < 1e-4f)
 				return Proto::ErrorCode::INVALID_REQUEST;
-			dx /= len;
-			dz /= len;
 
-			SkillRuntime::CastSkillshot(*player, dx, dz, *sk, *zone);
+			SkillRuntime::CastSkillshot(*player, pkt.dir().x() / len, pkt.dir().y() / len, *sk, *zone);
 		}
 		break;
 		default: ;

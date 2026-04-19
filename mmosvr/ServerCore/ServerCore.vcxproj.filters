@@ -23,6 +23,7 @@
   <ItemGroup>
     <ClInclude Include="pch.h" />
     <ClInclude Include="Utils\Types.h"><Filter>Utils</Filter></ClInclude>
+    <ClInclude Include="Utils\MathUtil.h"><Filter>Utils</Filter></ClInclude>
     <ClInclude Include="Utils\Logger.h"><Filter>Utils</Filter></ClInclude>
     <ClInclude Include="Network\RecvBuffer.h"><Filter>Network</Filter></ClInclude>
     <ClInclude Include="Network\SendBuffer.h"><Filter>Network</Filter></ClInclude>

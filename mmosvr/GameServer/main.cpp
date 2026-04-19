@@ -107,8 +107,8 @@ private:
 		{
 			for (const auto& e : spawns | std::views::values)
 			{
-				Proto::Vector3 pos;
-				pos.set_x(e.x); pos.set_y(e.y); pos.set_z(e.z);
+				Proto::Vector2 pos;
+				pos.set_x(e.x); pos.set_y(e.y);
 				GetMonsterManager().Spawn(e.zoneId, e.templateId, pos);
 			}
 		}
@@ -121,15 +121,15 @@ private:
 
 	void SpawnTestMonsters()
 	{
-		auto makeVec = [](float x, float y, float z) {
-			Proto::Vector3 v;
-			v.set_x(x); v.set_y(y); v.set_z(z);
+		auto makeVec = [](float x, float z) {
+			Proto::Vector2 v;
+			v.set_x(x); v.set_y(z);
 			return v;
 		};
 
-		GetMonsterManager().Spawn(1, "Goblin",  makeVec(5.0f, 0.0f, 0.0f));
-		GetMonsterManager().Spawn(1, "Orc",     makeVec(-5.0f, 0.0f, 3.0f));
-		GetMonsterManager().Spawn(1, "Slime",   makeVec(0.0f, 0.0f, -6.0f));
+		GetMonsterManager().Spawn(1, "Goblin",  makeVec(5.0f, 0.0f));
+		GetMonsterManager().Spawn(1, "Orc",     makeVec(-5.0f, 3.0f));
+		GetMonsterManager().Spawn(1, "Slime",   makeVec(0.0f, -6.0f));
 	}
 
 	// ------ Server-to-Server ------

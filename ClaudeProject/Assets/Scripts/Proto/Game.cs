@@ -26,44 +26,44 @@ namespace Proto {
           string.Concat(
             "CgpnYW1lLnByb3RvEgVQcm90bxoMY29tbW9uLnByb3RvIhwKC0NfRW50ZXJH",
             "YW1lEg0KBXRva2VuGAEgASgJIj0KDENfUGxheWVyTW92ZRIgCghwb3NpdGlv",
-            "bhgBIAEoCzIOLlByb3RvLlZlY3RvcjMSCwoDeWF3GAIgASgCIhkKBkNfQ2hh",
+            "bhgBIAEoCzIOLlByb3RvLlZlY3RvcjISCwoDeWF3GAIgASgCIhkKBkNfQ2hh",
             "dBIPCgdtZXNzYWdlGAEgASgJInQKCkNfVXNlU2tpbGwSEAoIc2tpbGxfaWQY",
-            "ASABKAUSGwoDZGlyGAIgASgLMg4uUHJvdG8uVmVjdG9yMxITCgt0YXJnZXRf",
+            "ASABKAUSGwoDZGlyGAIgASgLMg4uUHJvdG8uVmVjdG9yMhITCgt0YXJnZXRf",
             "Z3VpZBgDIAEoAxIiCgp0YXJnZXRfcG9zGAQgASgLMg4uUHJvdG8uVmVjdG9y",
-            "MyIzCg1DX01vdmVDb21tYW5kEiIKCnRhcmdldF9wb3MYASABKAsyDi5Qcm90",
-            "by5WZWN0b3IzIgwKCkNfU3RvcE1vdmUiVgoLU19FbnRlckdhbWUSEQoJcGxh",
+            "MiIzCg1DX01vdmVDb21tYW5kEiIKCnRhcmdldF9wb3MYASABKAsyDi5Qcm90",
+            "by5WZWN0b3IyIgwKCkNfU3RvcE1vdmUiVgoLU19FbnRlckdhbWUSEQoJcGxh",
             "eWVyX2lkGAEgASgFEiYKDnNwYXduX3Bvc2l0aW9uGAIgASgLMg4uUHJvdG8u",
-            "VmVjdG9yMxIMCgRndWlkGAMgASgDIl0KClBsYXllckluZm8SEQoJcGxheWVy",
+            "VmVjdG9yMhIMCgRndWlkGAMgASgDIl0KClBsYXllckluZm8SEQoJcGxheWVy",
             "X2lkGAEgASgFEgwKBG5hbWUYAiABKAkSIAoIcG9zaXRpb24YAyABKAsyDi5Q",
-            "cm90by5WZWN0b3IzEgwKBGd1aWQYBCABKAMiMgoMU19QbGF5ZXJMaXN0EiIK",
+            "cm90by5WZWN0b3IyEgwKBGd1aWQYBCABKAMiMgoMU19QbGF5ZXJMaXN0EiIK",
             "B3BsYXllcnMYASADKAsyES5Qcm90by5QbGF5ZXJJbmZvIlAKDFNfUGxheWVy",
             "TW92ZRIRCglwbGF5ZXJfaWQYASABKAUSIAoIcG9zaXRpb24YAiABKAsyDi5Q",
-            "cm90by5WZWN0b3IzEgsKA3lhdxgDIAEoAiI8CgZTX0NoYXQSEQoJcGxheWVy",
+            "cm90by5WZWN0b3IyEgsKA3lhdxgDIAEoAiI8CgZTX0NoYXQSEQoJcGxheWVy",
             "X2lkGAEgASgFEg4KBnNlbmRlchgCIAEoCRIPCgdtZXNzYWdlGAMgASgJIiIK",
             "DVNfUGxheWVyTGVhdmUSEQoJcGxheWVyX2lkGAEgASgFIjIKDVNfUGxheWVy",
             "U3Bhd24SIQoGcGxheWVyGAEgASgLMhEuUHJvdG8uUGxheWVySW5mbyIiChFT",
             "X1JlcXVlc3RVc2VTa2lsbBINCgVyYW5nZRgBIAEoBSI0ChBTX01vdmVDb3Jy",
-            "ZWN0aW9uEiAKCHBvc2l0aW9uGAEgASgLMg4uUHJvdG8uVmVjdG9yMyJTCgdT",
+            "ZWN0aW9uEiAKCHBvc2l0aW9uGAEgASgLMg4uUHJvdG8uVmVjdG9yMiJTCgdT",
             "X0Vycm9yEhgKEHNvdXJjZV9wYWNrZXRfaWQYASABKA0SHgoEY29kZRgCIAEo",
             "DjIQLlByb3RvLkVycm9yQ29kZRIOCgZkZXRhaWwYAyABKAkifQoLTW9uc3Rl",
             "ckluZm8SDAoEZ3VpZBgBIAEoAxIMCgRuYW1lGAIgASgJEiAKCHBvc2l0aW9u",
-            "GAMgASgLMg4uUHJvdG8uVmVjdG9yMxIUCgxkZXRlY3RfcmFuZ2UYBCABKAIS",
+            "GAMgASgLMg4uUHJvdG8uVmVjdG9yMhIUCgxkZXRlY3RfcmFuZ2UYBCABKAIS",
             "CgoCaHAYBSABKAUSDgoGbWF4X2hwGAYgASgFIjUKDlNfTW9uc3RlclNwYXdu",
             "EiMKB21vbnN0ZXIYASABKAsyEi5Qcm90by5Nb25zdGVySW5mbyI/Cg1TX01v",
             "bnN0ZXJNb3ZlEgwKBGd1aWQYASABKAMSIAoIcG9zaXRpb24YAiABKAsyDi5Q",
-            "cm90by5WZWN0b3IzIiAKEFNfTW9uc3RlckRlc3Bhd24SDAoEZ3VpZBgBIAEo",
+            "cm90by5WZWN0b3IyIiAKEFNfTW9uc3RlckRlc3Bhd24SDAoEZ3VpZBgBIAEo",
             "AyI1Cg1TX01vbnN0ZXJMaXN0EiQKCG1vbnN0ZXJzGAEgAygLMhIuUHJvdG8u",
             "TW9uc3RlckluZm8iQgoOU19Nb25zdGVyU3RhdGUSDAoEZ3VpZBgBIAEoAxIN",
             "CgVzdGF0ZRgCIAEoDRITCgt0YXJnZXRfZ3VpZBgDIAEoAyKdAQoKU19Ta2ls",
             "bEhpdBITCgtjYXN0ZXJfZ3VpZBgBIAEoAxITCgt0YXJnZXRfZ3VpZBgCIAEo",
             "AxIQCghza2lsbF9pZBgDIAEoBRIOCgZkYW1hZ2UYBCABKAUSIgoKY2FzdGVy",
-            "X3BvcxgFIAEoCzIOLlByb3RvLlZlY3RvcjMSHwoHaGl0X3BvcxgGIAEoCzIO",
-            "LlByb3RvLlZlY3RvcjMiNAoIU19Vbml0SHASCgoCaHAYASABKAUSDgoGbWF4",
+            "X3BvcxgFIAEoCzIOLlByb3RvLlZlY3RvcjISHwoHaGl0X3BvcxgGIAEoCzIO",
+            "LlByb3RvLlZlY3RvcjIiNAoIU19Vbml0SHASCgoCaHAYASABKAUSDgoGbWF4",
             "X2hwGAIgASgFEgwKBGd1aWQYAyABKAMi9wEKEVNfUHJvamVjdGlsZVNwYXdu",
             "EgwKBGd1aWQYASABKAMSEgoKb3duZXJfZ3VpZBgCIAEoAxIjCgRraW5kGAMg",
             "ASgOMhUuUHJvdG8uUHJvamVjdGlsZUtpbmQSIQoJc3RhcnRfcG9zGAQgASgL",
-            "Mg4uUHJvdG8uVmVjdG9yMxINCgVzcGVlZBgFIAEoAhITCgt0YXJnZXRfZ3Vp",
-            "ZBgGIAEoAxIbCgNkaXIYByABKAsyDi5Qcm90by5WZWN0b3IzEg4KBnJhZGl1",
+            "Mg4uUHJvdG8uVmVjdG9yMhINCgVzcGVlZBgFIAEoAhITCgt0YXJnZXRfZ3Vp",
+            "ZBgGIAEoAxIbCgNkaXIYByABKAsyDi5Qcm90by5WZWN0b3IyEg4KBnJhZGl1",
             "cxgIIAEoAhIRCgltYXhfcmFuZ2UYCSABKAISFAoMbWF4X2xpZmV0aW1lGAog",
             "ASgCIlgKDVNfQnVmZkFwcGxpZWQSEwoLdGFyZ2V0X2d1aWQYASABKAMSCwoD",
             "ZWlkGAIgASgFEhMKC2Nhc3Rlcl9ndWlkGAMgASgDEhAKCGR1cmF0aW9uGAQg",
@@ -372,10 +372,10 @@ namespace Proto {
 
     /// <summary>Field number for the "position" field.</summary>
     public const int PositionFieldNumber = 1;
-    private global::Proto.Vector3 position_;
+    private global::Proto.Vector2 position_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Proto.Vector3 Position {
+    public global::Proto.Vector2 Position {
       get { return position_; }
       set {
         position_ = value;
@@ -494,7 +494,7 @@ namespace Proto {
       }
       if (other.position_ != null) {
         if (position_ == null) {
-          Position = new global::Proto.Vector3();
+          Position = new global::Proto.Vector2();
         }
         Position.MergeFrom(other.Position);
       }
@@ -522,7 +522,7 @@ namespace Proto {
             break;
           case 10: {
             if (position_ == null) {
-              Position = new global::Proto.Vector3();
+              Position = new global::Proto.Vector2();
             }
             input.ReadMessage(Position);
             break;
@@ -552,7 +552,7 @@ namespace Proto {
             break;
           case 10: {
             if (position_ == null) {
-              Position = new global::Proto.Vector3();
+              Position = new global::Proto.Vector2();
             }
             input.ReadMessage(Position);
             break;
@@ -831,13 +831,13 @@ namespace Proto {
 
     /// <summary>Field number for the "dir" field.</summary>
     public const int DirFieldNumber = 2;
-    private global::Proto.Vector3 dir_;
+    private global::Proto.Vector2 dir_;
     /// <summary>
     /// Skillshot 정규화 방향. Homing/Point-click/Ground-target 시 무시
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Proto.Vector3 Dir {
+    public global::Proto.Vector2 Dir {
       get { return dir_; }
       set {
         dir_ = value;
@@ -861,13 +861,13 @@ namespace Proto {
 
     /// <summary>Field number for the "target_pos" field.</summary>
     public const int TargetPosFieldNumber = 4;
-    private global::Proto.Vector3 targetPos_;
+    private global::Proto.Vector2 targetPos_;
     /// <summary>
     /// Ground-target 대상 지점 (스킬 타입별로 해석)
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Proto.Vector3 TargetPos {
+    public global::Proto.Vector2 TargetPos {
       get { return targetPos_; }
       set {
         targetPos_ = value;
@@ -1003,7 +1003,7 @@ namespace Proto {
       }
       if (other.dir_ != null) {
         if (dir_ == null) {
-          Dir = new global::Proto.Vector3();
+          Dir = new global::Proto.Vector2();
         }
         Dir.MergeFrom(other.Dir);
       }
@@ -1012,7 +1012,7 @@ namespace Proto {
       }
       if (other.targetPos_ != null) {
         if (targetPos_ == null) {
-          TargetPos = new global::Proto.Vector3();
+          TargetPos = new global::Proto.Vector2();
         }
         TargetPos.MergeFrom(other.TargetPos);
       }
@@ -1041,7 +1041,7 @@ namespace Proto {
           }
           case 18: {
             if (dir_ == null) {
-              Dir = new global::Proto.Vector3();
+              Dir = new global::Proto.Vector2();
             }
             input.ReadMessage(Dir);
             break;
@@ -1052,7 +1052,7 @@ namespace Proto {
           }
           case 34: {
             if (targetPos_ == null) {
-              TargetPos = new global::Proto.Vector3();
+              TargetPos = new global::Proto.Vector2();
             }
             input.ReadMessage(TargetPos);
             break;
@@ -1082,7 +1082,7 @@ namespace Proto {
           }
           case 18: {
             if (dir_ == null) {
-              Dir = new global::Proto.Vector3();
+              Dir = new global::Proto.Vector2();
             }
             input.ReadMessage(Dir);
             break;
@@ -1093,7 +1093,7 @@ namespace Proto {
           }
           case 34: {
             if (targetPos_ == null) {
-              TargetPos = new global::Proto.Vector3();
+              TargetPos = new global::Proto.Vector2();
             }
             input.ReadMessage(TargetPos);
             break;
@@ -1156,13 +1156,13 @@ namespace Proto {
 
     /// <summary>Field number for the "target_pos" field.</summary>
     public const int TargetPosFieldNumber = 1;
-    private global::Proto.Vector3 targetPos_;
+    private global::Proto.Vector2 targetPos_;
     /// <summary>
     /// 월드 좌표 목적지
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Proto.Vector3 TargetPos {
+    public global::Proto.Vector2 TargetPos {
       get { return targetPos_; }
       set {
         targetPos_ = value;
@@ -1256,7 +1256,7 @@ namespace Proto {
       }
       if (other.targetPos_ != null) {
         if (targetPos_ == null) {
-          TargetPos = new global::Proto.Vector3();
+          TargetPos = new global::Proto.Vector2();
         }
         TargetPos.MergeFrom(other.TargetPos);
       }
@@ -1281,7 +1281,7 @@ namespace Proto {
             break;
           case 10: {
             if (targetPos_ == null) {
-              TargetPos = new global::Proto.Vector3();
+              TargetPos = new global::Proto.Vector2();
             }
             input.ReadMessage(TargetPos);
             break;
@@ -1307,7 +1307,7 @@ namespace Proto {
             break;
           case 10: {
             if (targetPos_ == null) {
-              TargetPos = new global::Proto.Vector3();
+              TargetPos = new global::Proto.Vector2();
             }
             input.ReadMessage(TargetPos);
             break;
@@ -1544,10 +1544,10 @@ namespace Proto {
 
     /// <summary>Field number for the "spawn_position" field.</summary>
     public const int SpawnPositionFieldNumber = 2;
-    private global::Proto.Vector3 spawnPosition_;
+    private global::Proto.Vector2 spawnPosition_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Proto.Vector3 SpawnPosition {
+    public global::Proto.Vector2 SpawnPosition {
       get { return spawnPosition_; }
       set {
         spawnPosition_ = value;
@@ -1685,7 +1685,7 @@ namespace Proto {
       }
       if (other.spawnPosition_ != null) {
         if (spawnPosition_ == null) {
-          SpawnPosition = new global::Proto.Vector3();
+          SpawnPosition = new global::Proto.Vector2();
         }
         SpawnPosition.MergeFrom(other.SpawnPosition);
       }
@@ -1717,7 +1717,7 @@ namespace Proto {
           }
           case 18: {
             if (spawnPosition_ == null) {
-              SpawnPosition = new global::Proto.Vector3();
+              SpawnPosition = new global::Proto.Vector2();
             }
             input.ReadMessage(SpawnPosition);
             break;
@@ -1751,7 +1751,7 @@ namespace Proto {
           }
           case 18: {
             if (spawnPosition_ == null) {
-              SpawnPosition = new global::Proto.Vector3();
+              SpawnPosition = new global::Proto.Vector2();
             }
             input.ReadMessage(SpawnPosition);
             break;
@@ -1844,10 +1844,10 @@ namespace Proto {
 
     /// <summary>Field number for the "position" field.</summary>
     public const int PositionFieldNumber = 3;
-    private global::Proto.Vector3 position_;
+    private global::Proto.Vector2 position_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Proto.Vector3 Position {
+    public global::Proto.Vector2 Position {
       get { return position_; }
       set {
         position_ = value;
@@ -2001,7 +2001,7 @@ namespace Proto {
       }
       if (other.position_ != null) {
         if (position_ == null) {
-          Position = new global::Proto.Vector3();
+          Position = new global::Proto.Vector2();
         }
         Position.MergeFrom(other.Position);
       }
@@ -2037,7 +2037,7 @@ namespace Proto {
           }
           case 26: {
             if (position_ == null) {
-              Position = new global::Proto.Vector3();
+              Position = new global::Proto.Vector2();
             }
             input.ReadMessage(Position);
             break;
@@ -2075,7 +2075,7 @@ namespace Proto {
           }
           case 26: {
             if (position_ == null) {
-              Position = new global::Proto.Vector3();
+              Position = new global::Proto.Vector2();
             }
             input.ReadMessage(Position);
             break;
@@ -2339,10 +2339,10 @@ namespace Proto {
 
     /// <summary>Field number for the "position" field.</summary>
     public const int PositionFieldNumber = 2;
-    private global::Proto.Vector3 position_;
+    private global::Proto.Vector2 position_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Proto.Vector3 Position {
+    public global::Proto.Vector2 Position {
       get { return position_; }
       set {
         position_ = value;
@@ -2477,7 +2477,7 @@ namespace Proto {
       }
       if (other.position_ != null) {
         if (position_ == null) {
-          Position = new global::Proto.Vector3();
+          Position = new global::Proto.Vector2();
         }
         Position.MergeFrom(other.Position);
       }
@@ -2509,7 +2509,7 @@ namespace Proto {
           }
           case 18: {
             if (position_ == null) {
-              Position = new global::Proto.Vector3();
+              Position = new global::Proto.Vector2();
             }
             input.ReadMessage(Position);
             break;
@@ -2543,7 +2543,7 @@ namespace Proto {
           }
           case 18: {
             if (position_ == null) {
-              Position = new global::Proto.Vector3();
+              Position = new global::Proto.Vector2();
             }
             input.ReadMessage(Position);
             break;
@@ -3488,10 +3488,10 @@ namespace Proto {
 
     /// <summary>Field number for the "position" field.</summary>
     public const int PositionFieldNumber = 1;
-    private global::Proto.Vector3 position_;
+    private global::Proto.Vector2 position_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Proto.Vector3 Position {
+    public global::Proto.Vector2 Position {
       get { return position_; }
       set {
         position_ = value;
@@ -3585,7 +3585,7 @@ namespace Proto {
       }
       if (other.position_ != null) {
         if (position_ == null) {
-          Position = new global::Proto.Vector3();
+          Position = new global::Proto.Vector2();
         }
         Position.MergeFrom(other.Position);
       }
@@ -3610,7 +3610,7 @@ namespace Proto {
             break;
           case 10: {
             if (position_ == null) {
-              Position = new global::Proto.Vector3();
+              Position = new global::Proto.Vector2();
             }
             input.ReadMessage(Position);
             break;
@@ -3636,7 +3636,7 @@ namespace Proto {
             break;
           case 10: {
             if (position_ == null) {
-              Position = new global::Proto.Vector3();
+              Position = new global::Proto.Vector2();
             }
             input.ReadMessage(Position);
             break;
@@ -4003,10 +4003,10 @@ namespace Proto {
 
     /// <summary>Field number for the "position" field.</summary>
     public const int PositionFieldNumber = 3;
-    private global::Proto.Vector3 position_;
+    private global::Proto.Vector2 position_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Proto.Vector3 Position {
+    public global::Proto.Vector2 Position {
       get { return position_; }
       set {
         position_ = value;
@@ -4207,7 +4207,7 @@ namespace Proto {
       }
       if (other.position_ != null) {
         if (position_ == null) {
-          Position = new global::Proto.Vector3();
+          Position = new global::Proto.Vector2();
         }
         Position.MergeFrom(other.Position);
       }
@@ -4249,7 +4249,7 @@ namespace Proto {
           }
           case 26: {
             if (position_ == null) {
-              Position = new global::Proto.Vector3();
+              Position = new global::Proto.Vector2();
             }
             input.ReadMessage(Position);
             break;
@@ -4295,7 +4295,7 @@ namespace Proto {
           }
           case 26: {
             if (position_ == null) {
-              Position = new global::Proto.Vector3();
+              Position = new global::Proto.Vector2();
             }
             input.ReadMessage(Position);
             break;
@@ -4586,10 +4586,10 @@ namespace Proto {
 
     /// <summary>Field number for the "position" field.</summary>
     public const int PositionFieldNumber = 2;
-    private global::Proto.Vector3 position_;
+    private global::Proto.Vector2 position_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Proto.Vector3 Position {
+    public global::Proto.Vector2 Position {
       get { return position_; }
       set {
         position_ = value;
@@ -4699,7 +4699,7 @@ namespace Proto {
       }
       if (other.position_ != null) {
         if (position_ == null) {
-          Position = new global::Proto.Vector3();
+          Position = new global::Proto.Vector2();
         }
         Position.MergeFrom(other.Position);
       }
@@ -4728,7 +4728,7 @@ namespace Proto {
           }
           case 18: {
             if (position_ == null) {
-              Position = new global::Proto.Vector3();
+              Position = new global::Proto.Vector2();
             }
             input.ReadMessage(Position);
             break;
@@ -4758,7 +4758,7 @@ namespace Proto {
           }
           case 18: {
             if (position_ == null) {
-              Position = new global::Proto.Vector3();
+              Position = new global::Proto.Vector2();
             }
             input.ReadMessage(Position);
             break;
@@ -5540,10 +5540,10 @@ namespace Proto {
 
     /// <summary>Field number for the "caster_pos" field.</summary>
     public const int CasterPosFieldNumber = 5;
-    private global::Proto.Vector3 casterPos_;
+    private global::Proto.Vector2 casterPos_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Proto.Vector3 CasterPos {
+    public global::Proto.Vector2 CasterPos {
       get { return casterPos_; }
       set {
         casterPos_ = value;
@@ -5552,10 +5552,10 @@ namespace Proto {
 
     /// <summary>Field number for the "hit_pos" field.</summary>
     public const int HitPosFieldNumber = 6;
-    private global::Proto.Vector3 hitPos_;
+    private global::Proto.Vector2 hitPos_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Proto.Vector3 HitPos {
+    public global::Proto.Vector2 HitPos {
       get { return hitPos_; }
       set {
         hitPos_ = value;
@@ -5726,13 +5726,13 @@ namespace Proto {
       }
       if (other.casterPos_ != null) {
         if (casterPos_ == null) {
-          CasterPos = new global::Proto.Vector3();
+          CasterPos = new global::Proto.Vector2();
         }
         CasterPos.MergeFrom(other.CasterPos);
       }
       if (other.hitPos_ != null) {
         if (hitPos_ == null) {
-          HitPos = new global::Proto.Vector3();
+          HitPos = new global::Proto.Vector2();
         }
         HitPos.MergeFrom(other.HitPos);
       }
@@ -5773,14 +5773,14 @@ namespace Proto {
           }
           case 42: {
             if (casterPos_ == null) {
-              CasterPos = new global::Proto.Vector3();
+              CasterPos = new global::Proto.Vector2();
             }
             input.ReadMessage(CasterPos);
             break;
           }
           case 50: {
             if (hitPos_ == null) {
-              HitPos = new global::Proto.Vector3();
+              HitPos = new global::Proto.Vector2();
             }
             input.ReadMessage(HitPos);
             break;
@@ -5822,14 +5822,14 @@ namespace Proto {
           }
           case 42: {
             if (casterPos_ == null) {
-              CasterPos = new global::Proto.Vector3();
+              CasterPos = new global::Proto.Vector2();
             }
             input.ReadMessage(CasterPos);
             break;
           }
           case 50: {
             if (hitPos_ == null) {
-              HitPos = new global::Proto.Vector3();
+              HitPos = new global::Proto.Vector2();
             }
             input.ReadMessage(HitPos);
             break;
@@ -6209,10 +6209,10 @@ namespace Proto {
 
     /// <summary>Field number for the "start_pos" field.</summary>
     public const int StartPosFieldNumber = 4;
-    private global::Proto.Vector3 startPos_;
+    private global::Proto.Vector2 startPos_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Proto.Vector3 StartPos {
+    public global::Proto.Vector2 StartPos {
       get { return startPos_; }
       set {
         startPos_ = value;
@@ -6248,13 +6248,13 @@ namespace Proto {
 
     /// <summary>Field number for the "dir" field.</summary>
     public const int DirFieldNumber = 7;
-    private global::Proto.Vector3 dir_;
+    private global::Proto.Vector2 dir_;
     /// <summary>
     /// Skillshot 전용
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public global::Proto.Vector3 Dir {
+    public global::Proto.Vector2 Dir {
       get { return dir_; }
       set {
         dir_ = value;
@@ -6519,7 +6519,7 @@ namespace Proto {
       }
       if (other.startPos_ != null) {
         if (startPos_ == null) {
-          StartPos = new global::Proto.Vector3();
+          StartPos = new global::Proto.Vector2();
         }
         StartPos.MergeFrom(other.StartPos);
       }
@@ -6531,7 +6531,7 @@ namespace Proto {
       }
       if (other.dir_ != null) {
         if (dir_ == null) {
-          Dir = new global::Proto.Vector3();
+          Dir = new global::Proto.Vector2();
         }
         Dir.MergeFrom(other.Dir);
       }
@@ -6577,7 +6577,7 @@ namespace Proto {
           }
           case 34: {
             if (startPos_ == null) {
-              StartPos = new global::Proto.Vector3();
+              StartPos = new global::Proto.Vector2();
             }
             input.ReadMessage(StartPos);
             break;
@@ -6592,7 +6592,7 @@ namespace Proto {
           }
           case 58: {
             if (dir_ == null) {
-              Dir = new global::Proto.Vector3();
+              Dir = new global::Proto.Vector2();
             }
             input.ReadMessage(Dir);
             break;
@@ -6642,7 +6642,7 @@ namespace Proto {
           }
           case 34: {
             if (startPos_ == null) {
-              StartPos = new global::Proto.Vector3();
+              StartPos = new global::Proto.Vector2();
             }
             input.ReadMessage(StartPos);
             break;
@@ -6657,7 +6657,7 @@ namespace Proto {
           }
           case 58: {
             if (dir_ == null) {
-              Dir = new global::Proto.Vector3();
+              Dir = new global::Proto.Vector2();
             }
             input.ReadMessage(Dir);
             break;

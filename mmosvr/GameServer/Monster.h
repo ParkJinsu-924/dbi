@@ -21,7 +21,7 @@ public:
 	void Update(float deltaTime) override;
 
 	// --- AI 초기화 ---
-	void InitAI(const Proto::Vector3& spawnPos, Zone* zone);
+	void InitAI(const Proto::Vector2& spawnPos, Zone* zone);
 
 	// --- FSM 접근 ---
 	MonsterFSM&       GetFSM()       { return fsm_; }
@@ -30,7 +30,7 @@ public:
 
 	// --- 상태에서 사용하는 public 유틸리티 ---
 	Zone*  GetZone()  const { return zone_; }
-	const Proto::Vector3& GetSpawnPos() const { return spawnPos_; }
+	const Proto::Vector2& GetSpawnPos() const { return spawnPos_; }
 
 	void SetTarget(long long guid) { targetGuid_ = guid; }
 	void ClearTarget()             { targetGuid_ = 0; }
@@ -44,9 +44,9 @@ public:
 	bool HasAggro() const;
 	void ClearAggro();
 
-	float DistanceTo(const Proto::Vector3& target) const;
+	float DistanceTo(const Proto::Vector2& target) const;
 	float DistanceToSpawn() const;
-	void  MoveToward(const Proto::Vector3& target, float deltaTime);
+	void  MoveToward(const Proto::Vector2& target, float deltaTime);
 	void  DoAttack(Player& target);
 
 	// --- AI 파라미터 접근 ---
@@ -69,7 +69,7 @@ private:
 	// --- FSM ---
 	MonsterFSM fsm_;
 	Zone* zone_ = nullptr;
-	Proto::Vector3 spawnPos_;
+	Proto::Vector2 spawnPos_;
 	long long targetGuid_ = 0;
 
 	// --- AI 파라미터 ---

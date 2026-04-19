@@ -15,13 +15,12 @@ struct SpawnEntry
 	int32 tid        = 0;
 	int32 zoneId     = 0;
 	int32 templateId = 0;
-	float x = 0.0f;
-	float y = 0.0f;
-	float z = 0.0f;
+	float x = 0.0f;   // 월드 X
+	float y = 0.0f;   // 월드 Y (2D 평면 2번째 축, 구 z 의미)
 
 	KeyType GetKey() const { return tid; }
 
-	CSV_DEFINE_TYPE(SpawnEntry, tid, zoneId, templateId, x, y, z)
+	CSV_DEFINE_TYPE(SpawnEntry, tid, zoneId, templateId, x, y)
 };
 
 

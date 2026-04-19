@@ -55,8 +55,7 @@ public:
 			pkt.ParseFromArray(payload, payloadSize);
 			LOG_INFO("Player moved: id=" + std::to_string(pkt.player_id())
 				+ " pos=(" + std::to_string(pkt.position().x())
-				+ "," + std::to_string(pkt.position().y())
-				+ "," + std::to_string(pkt.position().z()) + ")");
+				+ "," + std::to_string(pkt.position().y()) + ")");
 			break;
 		}
 		case PacketId::S_CHAT:

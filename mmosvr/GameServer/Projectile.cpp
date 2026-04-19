@@ -29,7 +29,7 @@ void Projectile::Update(const float dt)
 	CheckHit();
 }
 
-void Projectile::ApplyHit(Unit& target, const Proto::Vector3& hitPos)
+void Projectile::ApplyHit(Unit& target, const Proto::Vector2& hitPos)
 {
 	const int32 hpBefore = target.GetHp();
 

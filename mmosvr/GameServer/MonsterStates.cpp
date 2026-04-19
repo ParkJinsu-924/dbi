@@ -94,15 +94,14 @@ void PatrolState::OnEnter(Monster& owner)
 	const auto& spawn = owner.GetSpawnPos();
 
 	targetX_ = spawn.x() + radius * std::cos(angle);
-	targetZ_ = spawn.z() + radius * std::sin(angle);
+	targetZ_ = spawn.y() + radius * std::sin(angle);
 }
 
 void PatrolState::OnUpdate(Monster& owner, const float deltaTime)
 {
-	Proto::Vector3 target;
+	Proto::Vector2 target;
 	target.set_x(targetX_);
-	target.set_y(owner.GetSpawnPos().y());
-	target.set_z(targetZ_);
+	target.set_y(targetZ_);
 
 	if (owner.DistanceTo(target) <= 0.3f)
 	{

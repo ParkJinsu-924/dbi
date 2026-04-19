@@ -7,6 +7,7 @@
 #include "HomingProjectile.h"
 #include "SkillshotProjectile.h"
 #include "PacketMaker.h"
+#include "Utils/MathUtil.h"
 #include "Network/Session.h"
 #include "game.pb.h"
 
@@ -153,7 +154,7 @@ void Zone::BroadcastChunkTo(const SendBufferChunkPtr& chunk, std::span<const lon
 		SendChunkTo(chunk, guid);
 }
 
-std::shared_ptr<Player> Zone::FindNearestPlayer(const Proto::Vector3& from, float maxRange) const
+std::shared_ptr<Player> Zone::FindNearestPlayer(const Proto::Vector2& from, float maxRange) const
 {
 	std::shared_ptr<Player> nearest;
 	float nearestDistSq = maxRange * maxRange;
@@ -163,11 +164,7 @@ std::shared_ptr<Player> Zone::FindNearestPlayer(const Proto::Vector3& from, floa
 		auto player = std::static_pointer_cast<Player>(obj);
 		if (!player->IsAlive()) return;
 
-		const auto& pos = obj->GetPosition();
-		float dx = pos.x() - from.x();
-		float dz = pos.z() - from.z();
-		float distSq = dx * dx + dz * dz;
-
+		const float distSq = MathUtil::Distance2DSq(obj->GetPosition(), from);
 		if (distSq < nearestDistSq)
 		{
 			nearestDistSq = distSq;
@@ -178,7 +175,7 @@ std::shared_ptr<Player> Zone::FindNearestPlayer(const Proto::Vector3& from, floa
 	return nearest;
 }
 
-std::shared_ptr<Monster> Zone::FindNearestMonster(const Proto::Vector3& from, float maxRange) const
+std::shared_ptr<Monster> Zone::FindNearestMonster(const Proto::Vector2& from, float maxRange) const
 {
 	std::shared_ptr<Monster> nearest;
 	float nearestDistSq = maxRange * maxRange;
@@ -188,11 +185,7 @@ std::shared_ptr<Monster> Zone::FindNearestMonster(const Proto::Vector3& from, fl
 		const auto monster = std::static_pointer_cast<Monster>(obj);
 		if (!monster->IsAlive()) return;
 
-		const auto& pos = obj->GetPosition();
-		const float dx = pos.x() - from.x();
-		const float dz = pos.z() - from.z();
-		const float distSq = dx * dx + dz * dz;
-
+		const float distSq = MathUtil::Distance2DSq(obj->GetPosition(), from);
 		if (distSq < nearestDistSq)
 		{
 			nearestDistSq = distSq;
@@ -225,7 +218,7 @@ void Zone::BroadcastPlayerPositions()
 
 std::shared_ptr<HomingProjectile> Zone::SpawnHomingProjectile(
 	long long ownerGuid, GameObjectType ownerType, long long targetGuid,
-	int32 skillId, const Proto::Vector3& startPos,
+	int32 skillId, const Proto::Vector2& startPos,
 	int32 damage, float speed, float lifetime)
 {
 	auto p = std::make_shared<HomingProjectile>(
@@ -243,7 +236,7 @@ std::shared_ptr<HomingProjectile> Zone::SpawnHomingProjectile(
 
 std::shared_ptr<SkillshotProjectile> Zone::SpawnSkillshotProjectile(
 	long long ownerGuid, GameObjectType ownerType,
-	int32 skillId, const Proto::Vector3& startPos,
+	int32 skillId, const Proto::Vector2& startPos,
 	float dirX, float dirZ,
 	int32 damage, float speed, float radius, float range)
 {

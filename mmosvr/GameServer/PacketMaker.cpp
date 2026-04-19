@@ -13,7 +13,7 @@
 // Player
 // ===========================================================================
 
-Proto::S_EnterGame PacketMaker::MakeEnterGame(const Player& player, const Proto::Vector3& spawnPos)
+Proto::S_EnterGame PacketMaker::MakeEnterGame(const Player& player, const Proto::Vector2& spawnPos)
 {
 	Proto::S_EnterGame pkt;
 	pkt.set_player_id(player.GetPlayerId());
@@ -62,7 +62,7 @@ Proto::S_Chat PacketMaker::MakeChat(const Player& sender, const std::string& mes
 	return pkt;
 }
 
-Proto::S_MoveCorrection PacketMaker::MakeMoveCorrection(const Proto::Vector3& position)
+Proto::S_MoveCorrection PacketMaker::MakeMoveCorrection(const Proto::Vector2& position)
 {
 	Proto::S_MoveCorrection pkt;
 	*pkt.mutable_position() = position;
@@ -115,8 +115,8 @@ Proto::S_MonsterState PacketMaker::MakeMonsterState(const Monster& monster, cons
 
 Proto::S_SkillHit PacketMaker::MakeSkillHit(const long long casterGuid, const long long targetGuid,
                                             const int32 skillId, const int32 damage,
-                                            const Proto::Vector3& casterPos,
-                                            const Proto::Vector3& hitPos)
+                                            const Proto::Vector2& casterPos,
+                                            const Proto::Vector2& hitPos)
 {
 	Proto::S_SkillHit pkt;
 	pkt.set_caster_guid(casterGuid);
@@ -193,8 +193,7 @@ Proto::S_ProjectileSpawn PacketMaker::MakeSkillshotProjectileSpawn(const Skillsh
 	pkt.set_speed(projectile.GetSpeed());
 	auto* dir = pkt.mutable_dir();
 	dir->set_x(projectile.GetDirX());
-	dir->set_y(0.0f);
-	dir->set_z(projectile.GetDirZ());
+	dir->set_y(projectile.GetDirZ());
 	pkt.set_radius(projectile.GetRadius());
 	pkt.set_max_range(projectile.GetRangeLimit());
 	return pkt;

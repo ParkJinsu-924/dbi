@@ -50,6 +50,7 @@ import time
 import pygame
 
 import config
+import cc_visuals
 
 # ── Palette ──────────────────────────────────────────────────────────
 BG_COLOR = (22, 22, 28)
@@ -178,10 +179,16 @@ class Renderer:
         self.font = pygame.font.SysFont("consolas", 13)
         self.font_small = pygame.font.SysFont("consolas", 11)
         self.font_name = pygame.font.SysFont("consolas", 12, bold=True)
+        # Damage popup fonts (cached; avoid per-frame SysFont allocation)
+        self.font_dmg = pygame.font.SysFont("consolas", 16, bold=True)
+        self.font_dmg_big = pygame.font.SysFont("consolas", 22, bold=True)
         self.width = width
         self.height = height
         self.clock = pygame.time.Clock()
         self._t0 = time.time()
+        # Per-frame camera shake offset in screen pixels — set by draw_frame
+        # before world drawing, reset to (0,0) before HUD.
+        self._shake_off = (0, 0)
 
     @property
     def _t(self):
@@ -189,9 +196,56 @@ class Renderer:
 
     # ── coordinate conversion ────────────────────────────────────────
     def world_to_screen(self, wx: float, wz: float, cx: float, cz: float):
-        sx = self.width / 2 + (wx - cx) * PIXELS_PER_UNIT
-        sy = self.height / 2 - (wz - cz) * PIXELS_PER_UNIT
+        sx = self.width / 2 + (wx - cx) * PIXELS_PER_UNIT + self._shake_off[0]
+        sy = self.height / 2 - (wz - cz) * PIXELS_PER_UNIT + self._shake_off[1]
         return int(sx), int(sy)
+
+    # ── feedback layer drawing (particles, damage popups) ────────────
+    def _draw_particles(self, particles, cx, cz):
+        """particles: iterable of feedback.Particle."""
+        for p in particles:
+            t = min(1.0, p.age / p.lifetime) if p.lifetime > 0 else 1.0
+            alpha = int(255 * (1.0 - t))
+            if alpha <= 0:
+                continue
+            radius = max(1, int(p.size * (1.0 - t * 0.4)))
+            sx, sy = self.world_to_screen(p.wx, p.wz, cx, cz)
+            # Use SRCALPHA surface for smooth fade-out.
+            size = radius * 2 + 2
+            surf = pygame.Surface((size, size), pygame.SRCALPHA)
+            pygame.draw.circle(surf, (*p.color, alpha),
+                               (radius + 1, radius + 1), radius)
+            self.screen.blit(surf, (sx - radius - 1, sy - radius - 1))
+
+    def _draw_cc_effects(self, sx: int, sy: int, active_ccs, now_wall: float):
+        """active_ccs: dict[str, tuple[expire, applied]] — cc_flag 별 cc_visuals 디스패치.
+        없거나 None 이면 조용히 반환."""
+        if not active_ccs:
+            return
+        for flag, (_expire, applied) in active_ccs.items():
+            t = max(0.0, now_wall - applied)
+            cc_visuals.draw(self.screen, sx, sy, flag, t)
+
+    def _draw_damage_popups(self, popups, cx, cz):
+        """popups: iterable of feedback.DamagePopup. Rises and fades."""
+        for d in popups:
+            t = min(1.0, d.age / d.lifetime) if d.lifetime > 0 else 1.0
+            alpha = int(255 * (1.0 - t * t))  # slow then fast fade
+            if alpha <= 0:
+                continue
+            rise_px = int(40 * t)
+            sx, sy = self.world_to_screen(d.wx, d.wz, cx, cz)
+            sy -= rise_px + 20   # start above head
+            font = self.font_dmg_big if d.scale >= 1.4 else self.font_dmg
+            text_surf = font.render(d.text, True, d.color)
+            text_surf.set_alpha(alpha)
+            # Soft shadow behind for legibility.
+            shadow_surf = font.render(d.text, True, (0, 0, 0))
+            shadow_surf.set_alpha(alpha // 2)
+            x = sx - text_surf.get_width() // 2
+            y = sy - text_surf.get_height()
+            self.screen.blit(shadow_surf, (x + 1, y + 1))
+            self.screen.blit(text_surf, (x, y))
 
     # ── grid ─────────────────────────────────────────────────────────
     def draw_grid(self, cx: float, cz: float):
@@ -1447,7 +1501,7 @@ class Renderer:
 
     def draw_frame(self, my_player, other_players: dict, monsters: dict, status_lines: list,
                    hitscan_lines: list = None, projectiles: dict = None,
-                   click_markers: list = None):
+                   click_markers: list = None, feedback=None):
         self.screen.fill(BG_COLOR)
 
         if my_player is None:
@@ -1455,6 +1509,10 @@ class Renderer:
             pygame.display.flip()
             self.clock.tick(60)
             return
+
+        # Apply camera shake for world-space drawing. Grid stays stable as a
+        # reference frame — only entities/FX react to impact.
+        self._shake_off = feedback.shake.offset() if feedback else (0, 0)
 
         cx, cz = my_player.x, my_player.z
         self.draw_grid(cx, cz)
@@ -1493,11 +1551,14 @@ class Renderer:
                     self.screen.blit(circle_surface,
                                      (msx - radius_px, msy - radius_px))
 
+        now_wall = time.time()
+
         # ── Other players ──
         for pid, p in other_players.items():
             sx, sy = self.world_to_screen(p.x, p.z, cx, cz)
             self._draw_player(sx, sy, OTHER_BODY, OTHER_ARMOR, OTHER_SKIN,
                               is_local=False, anim_offset=pid * 0.7)
+            self._draw_cc_effects(sx, sy, getattr(p, 'active_ccs', None), now_wall)
             if p.name:
                 self._label(p.name, sx, sy - int(26 * CHAR_SCALE),
                             self.font_name, OTHER_BODY)
@@ -1518,6 +1579,7 @@ class Renderer:
         for gid, m in monsters.items():
             sx, sy = self.world_to_screen(m.x, m.z, cx, cz)
             self._draw_monster(sx, sy, m)
+            self._draw_cc_effects(sx, sy, getattr(m, 'active_ccs', None), now_wall)
 
             state = getattr(m, 'state', 0)
             self._draw_state_indicator(sx, sy, state)
@@ -1542,6 +1604,7 @@ class Renderer:
         # ── Me (always on top) ──
         sx, sy = self.world_to_screen(cx, cz, cx, cz)
         self._draw_player(sx, sy, ME_BODY, ME_ARMOR, ME_SKIN, is_local=True)
+        self._draw_cc_effects(sx, sy, getattr(my_player, 'active_ccs', None), now_wall)
 
         # Name above head
         name = getattr(my_player, 'name', '')
@@ -1590,7 +1653,15 @@ class Renderer:
                                        e_screen, 5)
                 self.screen.blit(line_surf, (0, 0))
 
-        # ── Status HUD ──
+        # ── Feedback layer (particles + damage popups, on top of world) ──
+        if feedback is not None:
+            if feedback.particles:
+                self._draw_particles(feedback.particles, cx, cz)
+            if feedback.damage_popups:
+                self._draw_damage_popups(feedback.damage_popups, cx, cz)
+
+        # ── Status HUD (stable; no shake) ──
+        self._shake_off = (0, 0)
         self._draw_status(status_lines)
         pygame.display.flip()
         self.clock.tick(60)

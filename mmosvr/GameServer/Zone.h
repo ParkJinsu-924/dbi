@@ -110,22 +110,22 @@ public:
 
 	// Find the nearest alive Player within maxRange of the given position.
 	// Returns nullptr if none found.
-	std::shared_ptr<Player> FindNearestPlayer(const Proto::Vector3& from, float maxRange) const;
+	std::shared_ptr<Player> FindNearestPlayer(const Proto::Vector2& from, float maxRange) const;
 
 	// Find the nearest alive Monster within maxRange. Returns nullptr if none found.
-	std::shared_ptr<Monster> FindNearestMonster(const Proto::Vector3& from, float maxRange) const;
+	std::shared_ptr<Monster> FindNearestMonster(const Proto::Vector2& from, float maxRange) const;
 
 	// Projectile factories. Spawn 은 pending 큐로 들어가고 다음 Flush 시점에 objects_ 등록 →
 	// Zone::Update 의 read 락 안에서 호출해도 안전하다 (Monster.DoAttack, Skill 핸들러 등).
 	// S_ProjectileSpawn 패킷은 즉시 브로드캐스트.
 	std::shared_ptr<HomingProjectile> SpawnHomingProjectile(
 		long long ownerGuid, GameObjectType ownerType, long long targetGuid,
-		int32 skillId, const Proto::Vector3& startPos,
+		int32 skillId, const Proto::Vector2& startPos,
 		int32 damage, float speed, float lifetime);
 
 	std::shared_ptr<SkillshotProjectile> SpawnSkillshotProjectile(
 		long long ownerGuid, GameObjectType ownerType,
-		int32 skillId, const Proto::Vector3& startPos,
+		int32 skillId, const Proto::Vector2& startPos,
 		float dirX, float dirZ,
 		int32 damage, float speed, float radius, float range);
 

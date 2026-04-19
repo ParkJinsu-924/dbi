@@ -6,12 +6,12 @@
 #include "SkillTemplate.h"
 #include "SkillRuntime.h"
 #include "PacketMaker.h"
+#include "Utils/MathUtil.h"
 #include "game.pb.h"
 #include <cmath>
-#include "PacketMaker.h"
 
 
-void Monster::InitAI(const Proto::Vector3& spawnPos, Zone* zone)
+void Monster::InitAI(const Proto::Vector2& spawnPos, Zone* zone)
 {
 	spawnPos_ = spawnPos;
 	position_ = spawnPos;
@@ -40,9 +40,9 @@ void Monster::InitAI(const Proto::Vector3& spawnPos, Zone* zone)
 void Monster::Update(const float deltaTime)
 {
 	TickBuffs(deltaTime);
-	// Stunned 상태에서는 FSM 을 돌리지 않아 이동/공격을 모두 차단한다.
-	// (버프 tick 은 이미 수행됐으므로 stun 자체는 시간이 지나며 풀린다)
-	if (IsStunned())
+	// 총체적 행동 불가 상태(현재는 Stun) 에서는 FSM 자체를 스킵.
+	// (TickBuffs 는 먼저 수행돼 stun duration 이 시간이 지나며 풀린다)
+	if (!CanAct())
 		return;
 	fsm_.Update(deltaTime);
 }
@@ -82,11 +82,9 @@ std::shared_ptr<Player> Monster::GetTarget() const
 	return zone_->FindAs<Player>(targetGuid_);
 }
 
-float Monster::DistanceTo(const Proto::Vector3& target) const
+float Monster::DistanceTo(const Proto::Vector2& target) const
 {
-	float dx = target.x() - position_.x();
-	float dz = target.z() - position_.z();
-	return std::sqrt(dx * dx + dz * dz);
+	return MathUtil::Distance2D(position_, target);
 }
 
 float Monster::DistanceToSpawn() const
@@ -94,15 +92,15 @@ float Monster::DistanceToSpawn() const
 	return DistanceTo(spawnPos_);
 }
 
-void Monster::MoveToward(const Proto::Vector3& target, const float deltaTime)
+void Monster::MoveToward(const Proto::Vector2& target, const float deltaTime)
 {
-	// Rooted 상태면 이동하지 못함 (공격은 다른 state 책임이라 여기선 이동만 차단).
-	if (IsRooted())
+	// 이동 불가 CC(Stun/Root) 차단. 공격 가능 여부는 DoAttack 에서 별도 판정.
+	if (!CanMove())
 		return;
 
-	float dx = target.x() - position_.x();
-	float dz = target.z() - position_.z();
-	float dist = std::sqrt(dx * dx + dz * dz);
+	const float dx = target.x() - position_.x();
+	const float dz = target.y() - position_.y();
+	const float dist = MathUtil::Length2D(dx, dz);
 
 	if (dist < 0.001f)
 		return;
@@ -111,11 +109,8 @@ void Monster::MoveToward(const Proto::Vector3& target, const float deltaTime)
 	if (step > dist)
 		step = dist;
 
-	float nx = dx / dist;
-	float nz = dz / dist;
-
-	position_.set_x(position_.x() + nx * step);
-	position_.set_z(position_.z() + nz * step);
+	position_.set_x(position_.x() + (dx / dist) * step);
+	position_.set_y(position_.y() + (dz / dist) * step);
 }
 
 const SkillTemplate* Monster::GetBasicSkill() const
@@ -127,6 +122,8 @@ const SkillTemplate* Monster::GetBasicSkill() const
 void Monster::DoAttack(Player& target)
 {
 	if (!zone_) return;
+	// Monster 평타는 "기본 공격" 성격이라 Silence 는 면역 (LoL 관습). Stun 만 차단.
+	if (!CanAttack()) return;
 	const SkillTemplate* sk = GetBasicSkill();
 	if (!sk)
 	{

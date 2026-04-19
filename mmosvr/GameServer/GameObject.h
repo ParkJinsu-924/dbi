@@ -43,8 +43,8 @@ public:
 	const std::string& GetName() const { return name_; }
 
 	// Transform
-	const Proto::Vector3& GetPosition() const { return position_; }
-	void SetPosition(const Proto::Vector3& p) { position_ = p; }
+	const Proto::Vector2& GetPosition() const { return position_; }
+	void SetPosition(const Proto::Vector2& p) { position_ = p; }
 
 	// Zone
 	int32 GetZoneId() const { return zoneId_; }
@@ -55,6 +55,6 @@ protected:
 	const long long guid_;
 	std::string name_;
 
-	Proto::Vector3 position_;
+	Proto::Vector2 position_;
 	int32 zoneId_ = 0;
 };

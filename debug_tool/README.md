@@ -30,21 +30,30 @@ python -m pytest tests/ -v
 
 - `tests/test_config.py`: 설정 값의 타입/범위 검증
 - `tests/test_network.py`: 패킷 프레이밍, ID 매핑, 실제 로컬 TCP 라운드트립
+- `tests/test_feedback.py`: damage popup/파티클/카메라 shake/오디오 fallback 동작
+- `tests/test_cc_visuals.py`: CC 레지스트리 완전성, `_apply_cc_to_target` 라우팅
+- `tests/test_skill_data.py`: 스킬 CSV 파싱
 
 ## 파일 구성
 
-| 파일              | 역할                             | 수정 가능? |
-| ----------------- | -------------------------------- | :--------: |
-| `client.py`       | 메인 루프, 입력, 패킷 디스패치   |     O      |
-| `network.py`      | TCP 소켓 + 패킷 프레이밍         |     O      |
-| `renderer.py`     | pygame 기반 2D 렌더링            |     O      |
-| `config.py`       | 네트워크/게임플레이/레이아웃 상수 |     O      |
-| `requirements.txt`| 파이썬 의존성                    |     O      |
-| `run_client.bat`  | Windows 실행 스크립트            |     O      |
-| `common_pb2.py`   | **자동 생성** (protobuf)         |     X      |
-| `login_pb2.py`    | **자동 생성** (protobuf)         |     X      |
-| `game_pb2.py`     | **자동 생성** (protobuf)         |     X      |
-| `packet_ids.py`   | **자동 생성** (PacketId)         |     X      |
+| 파일                | 역할                                      | 수정 가능? |
+| ------------------- | ----------------------------------------- | :--------: |
+| `client.py`         | 메인 루프, 입력, 패킷 디스패치            |     O      |
+| `network.py`        | TCP 소켓 + 패킷 프레이밍                  |     O      |
+| `renderer.py`       | pygame 기반 2D 렌더링                     |     O      |
+| `feedback.py`       | damage popup/파티클/카메라 shake/오디오   |     O      |
+| `cc_visuals.py`     | CC(Stun/Root/Slow/…) 시각화 레지스트리    |     O      |
+| `skill_data.py`     | 스킬 CSV 로더 (ShareDir CSV 파싱)         |     O      |
+| `effect_data.py`    | 이펙트 CSV 로더                           |     O      |
+| `config.py`         | 네트워크/게임플레이/레이아웃/피드백 상수  |     O      |
+| `log_setup.py`      | 로깅 초기화                               |     O      |
+| `assets/sounds/`    | 선택적 `.wav` 오버라이드 (없으면 절차 합성) |     O      |
+| `requirements.txt`  | 파이썬 의존성                             |     O      |
+| `run_client.bat`    | Windows 실행 스크립트                     |     O      |
+| `common_pb2.py`     | **자동 생성** (protobuf)                  |     X      |
+| `login_pb2.py`      | **자동 생성** (protobuf)                  |     X      |
+| `game_pb2.py`       | **자동 생성** (protobuf)                  |     X      |
+| `packet_ids.py`     | **자동 생성** (PacketId)                  |     X      |
 
 자동 생성 파일(`*_pb2.py`, `packet_ids.py`)은 `.gitignore`에 등록되어 있으며,
 직접 수정하지 않습니다. (아래 "Protobuf / PacketId 재생성" 참고)
@@ -78,8 +87,13 @@ generate_proto.bat
 1. `ShareDir/proto/*.proto` 에 메시지 추가
 2. `ShareDir/generate_proto.bat` 실행
 3. `network.py`의 `_MSG_CLASS_MAP` (수신용) 또는 `_ID_MAP` (송신용)에 등록
-4. `client.py` 메인 루프에 패킷 핸들러 분기 추가
-5. 필요 시 `renderer.py`에 시각화 코드 추가
+4. `client.py` 에 `_h_xxx(state, msg)` 핸들러 추가 + `PACKET_HANDLERS` 딕셔너리에 등록
+5. 필요 시 다음 중 하나 선택:
+   - **상태 변경만** → `GameState` 필드 업데이트 (기존 `_h_*` 패턴 따름)
+   - **정적 시각화** (체력바, 위치 등) → `renderer.py`
+   - **순간 시각/청각 피드백** (데미지 숫자, 파티클, 카메라 흔들림, 사운드)
+     → `_h_*` 핸들러 안에서 `state.feedback.on_xxx(...)` 호출.
+     필요하면 `feedback.py` 의 `FeedbackSystem` 에 새 `on_event()` 메서드 추가.
 
 ## AI가 수정할 때 주의할 점
 
@@ -90,5 +104,17 @@ generate_proto.bat
   클라이언트 단독으로 게임 규칙을 추가하지 마세요.
 - **렌더 좌표계**: 월드는 `(x, y, z)`이며 top-down으로 `(x, z)` 평면만 화면에 투영합니다.
   `y`는 표시에 사용되지 않습니다 (높이는 현재 무시).
-- **패킷 핸들링 추가 시**: `client.py`의 `elif pkt_id == packet_ids.S_XXX` 체인에 분기 추가.
-  핸들러가 많아져 가독성이 떨어지면 별도 함수로 추출하는 것도 고려.
+- **패킷 핸들링 추가 시**: `client.py` 의 `_h_xxx(state, msg)` 함수로 작성 후
+  `PACKET_HANDLERS` 딕셔너리에 `packet_ids.S_XXX: _h_xxx` 로 등록.
+- **시각/청각 피드백 추가 시**: `FeedbackSystem` 파사드 경유로 일관된다.
+  - 호출부는 항상 `if state.feedback is not None:` 가드 (테스트/headless 호환).
+  - 피드백 상태(popups/particles/shake) 는 world 좌표 `(wx, wz)` 로 저장 → 카메라가 움직여도 자연스럽게 따라간다.
+  - 오디오는 `assets/sounds/*.wav` 없으면 절차적 합성으로 대체되므로 **파일 의존성을 코드에 심지 않는다**.
+  - 새 이벤트 추가 시 `FeedbackSystem.on_xxx()` 메서드로 노출하고, 내부에서 파티클/팝업/셰이크/사운드 조합.
+- **새 CC 타입 추가 시** (`cc_visuals.py`):
+  1. `effects.csv` 의 `cc_flag` 컬럼에 새 문자열 추가 (예: `"Fear"`).
+  2. `cc_visuals.py` 에 `_draw_fear(screen, sx, sy, t)` 함수 추가 — 시그니처 고정.
+  3. `CC_VISUALIZERS` 딕셔너리에 `"Fear": _draw_fear` 한 줄 추가.
+  - 렌더러/클라이언트 본문은 **수정 불필요**. 라우팅은 `client._apply_cc_to_target` 이 자동 처리.
+- **Renderer 시그니처 확장**: `draw_frame(...)` 에 새 파라미터 추가 시 **반드시 default 값**
+  을 두어 기존 호출부(테스트 포함)가 깨지지 않도록 한다.

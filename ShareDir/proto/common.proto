@@ -1,10 +1,11 @@
 syntax = "proto3";
 package Proto;
 
-message Vector3 {
+// 2D 평면 좌표/방향 벡터. LoL 식 top-down MMO 기본 좌표계.
+// 세계는 전부 2D 로 처리 — 수직 축이 필요한 NavMesh 쿼리 등은 서버 내부에서 y=0 를 채워 호출.
+message Vector2 {
     float x = 1;
     float y = 2;
-    float z = 3;
 }
 
 message Timestamp {

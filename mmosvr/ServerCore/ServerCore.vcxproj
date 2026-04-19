@@ -106,6 +106,7 @@
         <ClInclude Include="Utils\Logger.h"/>
         <ClInclude Include="Utils\ObjectGuidGenerator.h"/>
         <ClInclude Include="Utils\EnumUtils.h"/>
+        <ClInclude Include="Utils\MathUtil.h"/>
         <ClInclude Include="Utils\JsonUtils.h"/>
         <ClInclude Include="Utils\CsvParser.h"/>
         <ClInclude Include="Utils\TimeManager.h"/>

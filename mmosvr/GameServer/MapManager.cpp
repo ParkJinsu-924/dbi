@@ -5,6 +5,7 @@
 #include "DetourNavMeshBuilder.h"
 #include "DetourNavMeshQuery.h"
 #include "DetourCommon.h"
+#include "Utils/MathUtil.h"
 
 #include <fstream>
 #include <filesystem>
@@ -355,12 +356,13 @@ bool MapManager::BuildNavMesh()
 	return true;
 }
 
-bool MapManager::IsOnNavMesh(float x, float y, float z) const
+bool MapManager::IsOnNavMesh(const Proto::Vector2& posIn) const
 {
 	if (!navQuery_)
 		return true; // No map loaded, allow all movement
 
-	float pos[3] = { x, y, z };
+	// Recast 는 3D: 수직축(y)=0, 2D 평면의 y 는 Recast 의 z 축에 매핑.
+	float pos[3] = { posIn.x(), 0.0f, posIn.y() };
 	float halfExtents[3] = { ON_MESH_TOLERANCE, ON_MESH_TOLERANCE, ON_MESH_TOLERANCE };
 	float nearestPt[3];
 
@@ -375,22 +377,17 @@ bool MapManager::IsOnNavMesh(float x, float y, float z) const
 	if (dtStatusFailed(status) || nearestRef == 0)
 		return false;
 
-	// Check horizontal distance to nearest point
-	float dx = nearestPt[0] - x;
-	float dz = nearestPt[2] - z;
-	float distSq = dx * dx + dz * dz;
-
+	const float distSq = MathUtil::LengthSq2D(nearestPt[0] - posIn.x(), nearestPt[2] - posIn.y());
 	return distSq < (ON_MESH_TOLERANCE * ON_MESH_TOLERANCE);
 }
 
-bool MapManager::FindNearestValidPosition(float x, float y, float z,
-	float& outX, float& outY, float& outZ,
+bool MapManager::FindNearestValidPosition(const Proto::Vector2& posIn, Proto::Vector2& outPos,
 	float searchRadius) const
 {
 	if (!navQuery_)
 		return false;
 
-	float pos[3] = { x, y, z };
+	float pos[3] = { posIn.x(), 0.0f, posIn.y() };
 	float halfExtents[3] = { searchRadius, searchRadius, searchRadius };
 	float nearestPt[3];
 
@@ -405,8 +402,7 @@ bool MapManager::FindNearestValidPosition(float x, float y, float z,
 	if (dtStatusFailed(status) || nearestRef == 0)
 		return false;
 
-	outX = nearestPt[0];
-	outY = nearestPt[1];
-	outZ = nearestPt[2];
+	outPos.set_x(nearestPt[0]);
+	outPos.set_y(nearestPt[2]);
 	return true;
 }

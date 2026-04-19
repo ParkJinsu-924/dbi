@@ -2,7 +2,7 @@
 #include "HomingProjectile.h"
 #include "Zone.h"
 #include "Unit.h"
-#include <cmath>
+#include "Utils/MathUtil.h"
 
 
 namespace
@@ -22,8 +22,8 @@ void HomingProjectile::Step(const float dt)
 
 	const auto& tp = target->GetPosition();
 	const float dx = tp.x() - position_.x();
-	const float dz = tp.z() - position_.z();
-	const float dist = std::sqrt(dx * dx + dz * dz);
+	const float dz = tp.y() - position_.y();
+	const float dist = MathUtil::Length2D(dx, dz);
 
 	if (dist < HOMING_HIT_RADIUS)
 	{
@@ -39,5 +39,5 @@ void HomingProjectile::Step(const float dt)
 		step = dist;
 
 	position_.set_x(position_.x() + dx / dist * step);
-	position_.set_z(position_.z() + dz / dist * step);
+	position_.set_y(position_.y() + dz / dist * step);
 }

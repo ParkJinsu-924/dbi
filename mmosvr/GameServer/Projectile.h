@@ -38,7 +38,7 @@ protected:
 	virtual void CheckHit()      = 0;
 
 	// HIT: 데미지 적용 + S_SkillHit + S_UnitHp + S_ProjectileDestroy(HIT) 브로드캐스트, consumed_=true.
-	void ApplyHit(Unit& target, const Proto::Vector3& hitPos);
+	void ApplyHit(Unit& target, const Proto::Vector2& hitPos);
 
 	// EXPIRED / TARGET_LOST: S_ProjectileDestroy 브로드캐스트, consumed_=true.
 	void DestroyWith(Proto::S_ProjectileDestroy_Reason reason);

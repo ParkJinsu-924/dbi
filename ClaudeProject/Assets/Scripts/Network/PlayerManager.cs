@@ -45,10 +45,11 @@ public class PlayerManager : MonoBehaviour
 
             receivedIds.Add(id);
 
+            // Proto Vector2 (x, y) → Unity Vector3 (x, 0, y). y 는 평면 수평축.
             var pos = new UnityEngine.Vector3(
                 playerInfo.Position?.X ?? 0f,
-                playerInfo.Position?.Y ?? 0f,
-                playerInfo.Position?.Z ?? 0f
+                0f,
+                playerInfo.Position?.Y ?? 0f
             );
 
             if (!remotePlayers.ContainsKey(id))
@@ -79,8 +80,8 @@ public class PlayerManager : MonoBehaviour
 
         var pos = new UnityEngine.Vector3(
             pkt.Position?.X ?? 0f,
-            pkt.Position?.Y ?? 0f,
-            pkt.Position?.Z ?? 0f
+            0f,
+            pkt.Position?.Y ?? 0f
         );
 
         if (remotePlayers.TryGetValue(pkt.PlayerId, out var remote))

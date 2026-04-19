@@ -11,7 +11,7 @@ message C_EnterGame {
 // Deprecated: 기존 위치 직접 송신 방식. 신규 클라이언트는 C_MoveCommand 사용.
 // 서버가 완전히 전환되면 이 메시지와 핸들러를 제거한다.
 message C_PlayerMove {
-    Vector3 position = 1;
+    Vector2 position = 1;
     float yaw = 2;
 }
 
@@ -21,15 +21,15 @@ message C_Chat {
 
 message C_UseSkill {
     int32 skill_id = 1;    	    // SkillTemplate.sid 으로 룩업
-    Vector3 dir = 2;            // Skillshot 정규화 방향. Homing/Point-click/Ground-target 시 무시
+    Vector2 dir = 2;            // Skillshot 정규화 방향. Homing/Point-click/Ground-target 시 무시
     int64 target_guid = 3;      // Homing/Point-click 대상. 0이면 서버 자동 선택(Homing 전용)
-    Vector3 target_pos = 4;     // Ground-target 대상 지점 (스킬 타입별로 해석)
+    Vector2 target_pos = 4;     // Ground-target 대상 지점 (스킬 타입별로 해석)
 }
 
 // League of Legends 스타일 클릭 이동 명령.
 // 서버가 받으면 Player.destination 에 저장하고, 게임 tick에서 직선으로 접근시킨다.
 message C_MoveCommand {
-    Vector3 target_pos = 1;     // 월드 좌표 목적지
+    Vector2 target_pos = 1;     // 월드 좌표 목적지
 }
 
 // 현재 이동을 중단한다 (LoL 의 S 키 동작).
@@ -42,7 +42,7 @@ message C_StopMove {
 
 message S_EnterGame {
     int32 player_id = 1;
-    Vector3 spawn_position = 2;
+    Vector2 spawn_position = 2;
     int64 guid = 3;              // 본인 GameObject GUID — 서버 측 식별자 (Projectile target_guid 매칭용)
 }
 
@@ -50,7 +50,7 @@ message S_EnterGame {
 message PlayerInfo {
     int32 player_id = 1;
     string name = 2;
-    Vector3 position = 3;
+    Vector2 position = 3;
     int64 guid = 4;              // 해당 플레이어의 GameObject GUID
 }
 
@@ -60,7 +60,7 @@ message S_PlayerList {
 
 message S_PlayerMove {
     int32 player_id = 1;
-    Vector3 position = 2;
+    Vector2 position = 2;
     float yaw = 3;
 }
 
@@ -86,7 +86,7 @@ message S_RequestUseSkill {
 
 // Server corrects client position when move target is invalid
 message S_MoveCorrection {
-    Vector3 position = 1;
+    Vector2 position = 1;
 }
 
 // Generic error response. Sent automatically by the dispatcher when a handler
@@ -103,7 +103,7 @@ message S_Error {
 message MonsterInfo {
     int64 guid = 1;
     string name = 2;
-    Vector3 position = 3;
+    Vector2 position = 3;
     float detect_range = 4;
     int32 hp = 5;
     int32 max_hp = 6;
@@ -115,7 +115,7 @@ message S_MonsterSpawn {
 
 message S_MonsterMove {
     int64 guid = 1;
-    Vector3 position = 2;
+    Vector2 position = 2;
 }
 
 message S_MonsterDespawn {
@@ -142,8 +142,8 @@ message S_SkillHit {
     int64   target_guid = 2;
     int32   skill_id    = 3;
     int32   damage      = 4;
-    Vector3 caster_pos  = 5;
-    Vector3 hit_pos     = 6;
+    Vector2 caster_pos  = 5;
+    Vector2 hit_pos     = 6;
 }
 
 // Unit(Player/Monster/NPC 등 HP를 가진 모든 GameObject) 의 HP 변경을 알리는 범용 패킷.
@@ -165,10 +165,10 @@ message S_ProjectileSpawn {
     int64 guid = 1;
     int64 owner_guid = 2;
     ProjectileKind kind = 3;
-    Vector3 start_pos = 4;
+    Vector2 start_pos = 4;
     float speed = 5;
     int64 target_guid = 6;      // Homing 전용
-    Vector3 dir = 7;             // Skillshot 전용
+    Vector2 dir = 7;             // Skillshot 전용
     float radius = 8;            // Skillshot 전용
     float max_range = 9;         // Skillshot 전용
     float max_lifetime = 10;     // Homing 전용

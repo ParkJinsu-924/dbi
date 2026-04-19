@@ -10,7 +10,7 @@
 
 
 std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, const std::string& name,
-                                               const Proto::Vector3& spawnPos)
+                                               const Proto::Vector2& spawnPos)
 {
 	auto* zone = GetZoneManager().GetZone(zoneId);
 	if (!zone)
@@ -30,7 +30,7 @@ std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, const std::string& 
 }
 
 std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, int32 templateId,
-	const Proto::Vector3& spawnPos)
+	const Proto::Vector2& spawnPos)
 {
 	const auto* tmpl = GetResourceManager().Get<MonsterTemplate>()->Find(templateId);
 	if (!tmpl)

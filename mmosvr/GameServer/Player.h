@@ -36,12 +36,12 @@ public:
 	// --- Movement (LoL-style click-to-move) ---
 	// C_MoveCommand 수신 시 destination 설정, Zone 틱마다 직선으로 접근.
 	// 스킬 사용 시 ClearDestination 으로 즉시 멈춘다.
-	void SetDestination(const Proto::Vector3& dest) { destination_ = dest; isMoving_ = true; }
+	void SetDestination(const Proto::Vector2& dest) { destination_ = dest; isMoving_ = true; }
 	void ClearDestination() { isMoving_ = false; }
 	bool IsMoving() const { return isMoving_; }
 	float GetMoveSpeed() const { return moveSpeed_; }
 	void SetMoveSpeed(float v) { moveSpeed_ = v; }
-	const Proto::Vector3& GetDestination() const { return destination_; }
+	const Proto::Vector2& GetDestination() const { return destination_; }
 
 	void Update(float deltaTime) override;
 
@@ -69,7 +69,7 @@ private:
 	int32 level_ = 1;
 
 	// Movement
-	Proto::Vector3 destination_;
+	Proto::Vector2 destination_;
 	bool isMoving_ = false;
 	float moveSpeed_ = 5.0f;   // 월드 유닛/초. debug_tool config.MOVE_SPEED 와 동일값.
 

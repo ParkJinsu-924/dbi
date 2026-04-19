@@ -8,6 +8,7 @@
 // Phase 3: Lua 훅 포인트.
 
 #include "Utils/Types.h"
+#include "Utils/MathUtil.h"
 #include "SkillTemplate.h"
 #include "Effect.h"
 #include "SkillEffect.h"
@@ -136,12 +137,8 @@ namespace SkillRuntime
 
 		case SkillKind::Skillshot:
 		{
-			float dx = target.GetPosition().x() - caster.GetPosition().x();
-			float dz = target.GetPosition().z() - caster.GetPosition().z();
-			const float len = std::sqrt(dx * dx + dz * dz);
-			if (len > 1e-4f) { dx /= len; dz /= len; }
-			else             { dx = 1.0f; dz = 0.0f; }
-			CastSkillshot(caster, dx, dz, skill, zone);
+			const auto dir = MathUtil::NormalizedDir2D(caster.GetPosition(), target.GetPosition());
+			CastSkillshot(caster, dir.x, dir.y, skill, zone);
 			break;
 		}
 		}

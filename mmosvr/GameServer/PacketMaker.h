@@ -26,13 +26,13 @@ class PacketMaker
 {
 public:
 	// --- Player ---
-	static Proto::S_EnterGame      MakeEnterGame(const Player& player, const Proto::Vector3& spawnPos);
+	static Proto::S_EnterGame      MakeEnterGame(const Player& player, const Proto::Vector2& spawnPos);
 	static Proto::S_PlayerSpawn    MakePlayerSpawn(const Player& player);
 	static Proto::S_PlayerList     MakePlayerList(const std::vector<std::shared_ptr<Player>>& players);
 	static Proto::S_PlayerMove     MakePlayerMove(const Player& player);
 	static Proto::S_PlayerLeave    MakePlayerLeave(int32 playerId);
 	static Proto::S_Chat           MakeChat(const Player& sender, const std::string& message);
-	static Proto::S_MoveCorrection MakeMoveCorrection(const Proto::Vector3& position);
+	static Proto::S_MoveCorrection MakeMoveCorrection(const Proto::Vector2& position);
 
 	// --- Monster ---
 	static Proto::S_MonsterSpawn   MakeMonsterSpawn(const Monster& monster);
@@ -44,8 +44,8 @@ public:
 	// --- 통합 공격 적중 (Melee/Hitscan/Homing/Skillshot 모두) ---
 	static Proto::S_SkillHit MakeSkillHit(long long casterGuid, long long targetGuid,
 	                                      int32 skillId, int32 damage,
-	                                      const Proto::Vector3& casterPos,
-	                                      const Proto::Vector3& hitPos);
+	                                      const Proto::Vector2& casterPos,
+	                                      const Proto::Vector2& hitPos);
 
 	// --- Unit (generic, Player/Monster/Npc 공통) ---
 	static Proto::S_UnitHp MakeUnitHp(const Unit& unit);

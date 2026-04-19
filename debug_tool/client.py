@@ -34,6 +34,7 @@ import config
 import log_setup
 import skill_data
 import effect_data
+from feedback import FeedbackSystem
 from network import PacketClient
 from renderer import Renderer
 
@@ -68,6 +69,10 @@ class PlayerState:
     # 서버의 S_BuffApplied 로 추가, Tick 과 S_BuffRemoved 로 제거.
     # self(me) 의 경우 move_toward_destination 이 MoveSpeed 버프를 반영한다.
     buffs: dict[int, float] = field(default_factory=dict)
+
+    # 활성 CC 시각화용: cc_flag(str) → (expire_wall_time, applied_wall_time).
+    # MonsterState 와 동일한 스키마 — renderer/cc_visuals 가 공통으로 처리.
+    active_ccs: dict[str, tuple[float, float]] = field(default_factory=dict)
 
     def set_target(self, x, y, z):
         """다른 플레이어 위치 교정용 보간 타깃 설정."""
@@ -147,6 +152,11 @@ class MonsterState:
     detect_range: float = 10.0
     hp: int = 100
     max_hp: int = 100
+    # 활성 CC(행동 제약) 상태: cc_flag(str) → (expire_wall_time, applied_wall_time).
+    # applied_wall_time 은 cc_visuals 애니메이션 위상 계산용.
+    # 서버 S_BuffApplied/S_BuffRemoved 로 갱신. 만료는 서버 권위이지만 wall-clock 기반
+    # 자체 만료도 허용 (네트워크 누락 대비).
+    active_ccs: dict[str, tuple[float, float]] = field(default_factory=dict)
 
     def set_target(self, x, y, z):
         self.tx, self.ty, self.tz = x, y, z
@@ -193,6 +203,9 @@ class GameState:
     hitscan_lines: list[HitscanLine] = field(default_factory=list)
     click_markers: list[ClickMarker] = field(default_factory=list)  # 우클릭 피드백
     in_game: bool = False
+    # 시각/청각 피드백 (damage popup, 파티클, 카메라 흔들림, 사운드).
+    # run_game 에서 주입한다 (dataclass default 로 두면 전역 pygame init 이 import 시점에 일어남).
+    feedback: "FeedbackSystem | None" = None
 
 
 def _projectile_target_pos(target_guid: int, state: GameState) -> tuple[float, float] | None:
@@ -208,9 +221,9 @@ def _projectile_target_pos(target_guid: int, state: GameState) -> tuple[float, f
     return None
 
 
-def make_vec3(x: float, y: float, z: float) -> common_pb2.Vector3:
-    v = common_pb2.Vector3()
-    v.x, v.y, v.z = x, y, z
+def make_vec2(x: float, y: float) -> common_pb2.Vector2:
+    v = common_pb2.Vector2()
+    v.x, v.y = x, y
     return v
 
 
@@ -245,49 +258,49 @@ def _h_enter_game(state: GameState, msg):
     state.me.player_id = msg.player_id
     state.me.guid = msg.guid
     state.me.x = msg.spawn_position.x
-    state.me.y = msg.spawn_position.y
-    state.me.z = msg.spawn_position.z
+    # 서버 Vector2: .y = horizontal-second axis (클라 내부 z 로 매핑).
+    state.me.z = msg.spawn_position.y
     state.in_game = True
     log_game.info("entered as playerId=%d guid=%d at (%.1f, %.1f)",
                   state.me.player_id, state.me.guid, state.me.x, state.me.z)
 
 
 def _h_player_list(state: GameState, msg):
+    # 서버 Vector2: .y = horizontal-second axis → 클라 내부 z 로 매핑.
     for p in msg.players:
         if p.player_id == state.me.player_id:
             continue
-        px, py, pz = p.position.x, p.position.y, p.position.z
+        px, pz = p.position.x, p.position.y
         ps = state.others.setdefault(p.player_id, PlayerState(player_id=p.player_id))
         ps.name = p.name
         ps.guid = p.guid
-        ps.x, ps.y, ps.z = px, py, pz
-        ps.tx, ps.ty, ps.tz = px, py, pz
+        ps.x, ps.z = px, pz
+        ps.tx, ps.tz = px, pz
 
 
 def _h_player_move(state: GameState, msg):
     """서버로부터 플레이어 위치 업데이트. 자기 자신일 경우 예측 위치와 비교해 교정."""
     if msg.player_id == state.me.player_id:
-        # 서버 권위 위치와 로컬 예측을 비교. 작은 오차는 무시, 큰 차이는 스냅.
         dx = msg.position.x - state.me.x
-        dz = msg.position.z - state.me.z
+        dz = msg.position.y - state.me.z
         if dx * dx + dz * dz > config.POSITION_CORRECTION_EPSILON ** 2:
             state.me.x = msg.position.x
-            state.me.z = msg.position.z
+            state.me.z = msg.position.y
         return
     ps = state.others.setdefault(msg.player_id, PlayerState(player_id=msg.player_id))
-    ps.set_target(msg.position.x, msg.position.y, msg.position.z)
+    ps.set_target(msg.position.x, 0.0, msg.position.y)
 
 
 def _h_player_spawn(state: GameState, msg):
     p = msg.player
     if p.player_id == state.me.player_id:
         return
-    px, py, pz = p.position.x, p.position.y, p.position.z
+    px, pz = p.position.x, p.position.y
     ps = state.others.setdefault(p.player_id, PlayerState(player_id=p.player_id))
     ps.name = p.name
     ps.guid = p.guid
-    ps.x, ps.y, ps.z = px, py, pz
-    ps.tx, ps.ty, ps.tz = px, py, pz
+    ps.x, ps.z = px, pz
+    ps.tx, ps.tz = px, pz
     log_game.info("player joined: id=%d name=%s", p.player_id, p.name)
 
 
@@ -297,8 +310,7 @@ def _h_player_leave(state: GameState, msg):
 
 def _h_move_correction(state: GameState, msg):
     state.me.x = msg.position.x
-    state.me.y = msg.position.y
-    state.me.z = msg.position.z
+    state.me.z = msg.position.y
     # 서버가 보정을 냈다는 건 로컬 예측이 틀렸다는 뜻 → destination 도 해제
     state.me.is_moving = False
 
@@ -309,10 +321,10 @@ def _h_error(state: GameState, msg):
 
 def _h_monster_list(state: GameState, msg):
     for m in msg.monsters:
-        px, py, pz = m.position.x, m.position.y, m.position.z
+        px, pz = m.position.x, m.position.y
         state.monsters[m.guid] = MonsterState(
             guid=m.guid, name=m.name,
-            x=px, y=py, z=pz, tx=px, ty=py, tz=pz,
+            x=px, z=pz, tx=px, tz=pz,
             detect_range=m.detect_range if m.detect_range > 0 else 10.0,
             hp=m.hp if m.max_hp > 0 else 100,
             max_hp=m.max_hp if m.max_hp > 0 else 100)
@@ -320,19 +332,21 @@ def _h_monster_list(state: GameState, msg):
 
 def _h_monster_spawn(state: GameState, msg):
     m = msg.monster
-    px, py, pz = m.position.x, m.position.y, m.position.z
+    px, pz = m.position.x, m.position.y
     state.monsters[m.guid] = MonsterState(
         guid=m.guid, name=m.name,
-        x=px, y=py, z=pz, tx=px, ty=py, tz=pz,
+        x=px, z=pz, tx=px, tz=pz,
         detect_range=m.detect_range if m.detect_range > 0 else 10.0,
         hp=m.hp if m.max_hp > 0 else 100,
         max_hp=m.max_hp if m.max_hp > 0 else 100)
+    if state.feedback is not None:
+        state.feedback.on_monster_spawn(px, pz)
 
 
 def _h_monster_move(state: GameState, msg):
     ms = state.monsters.get(msg.guid)
     if ms:
-        ms.set_target(msg.position.x, msg.position.y, msg.position.z)
+        ms.set_target(msg.position.x, 0.0, msg.position.y)
 
 
 def _h_monster_despawn(state: GameState, msg):
@@ -351,12 +365,19 @@ def _h_skill_hit(state: GameState, msg):
     caster→hit 사이 거리가 일정 이상이면 hitscan 라인으로 간주해 그려준다 —
     길이가 짧은 Melee/Projectile 은 자연스럽게 눈에 띄지 않는다."""
     dx = msg.hit_pos.x - msg.caster_pos.x
-    dz = msg.hit_pos.z - msg.caster_pos.z
+    dz = msg.hit_pos.y - msg.caster_pos.y
     if dx * dx + dz * dz > 4.0:   # 2m 초과 = 원거리 적중 → 라인 표시
         state.hitscan_lines.append((
-            msg.caster_pos.x, msg.caster_pos.z,
-            msg.hit_pos.x, msg.hit_pos.z,
+            msg.caster_pos.x, msg.caster_pos.y,
+            msg.hit_pos.x, msg.hit_pos.y,
             time.time() + config.HITSCAN_LINE_LIFETIME))
+
+    # 시각/청각 피드백: 피격 위치에 데미지 숫자 + 스파크 + 사운드 + 필요 시 카메라 흔들림.
+    if state.feedback is not None and msg.damage > 0:
+        target_is_me = (state.me.guid != 0 and msg.target_guid == state.me.guid)
+        state.feedback.on_hit(
+            wx=msg.hit_pos.x, wz=msg.hit_pos.y,
+            damage=msg.damage, target_is_me=target_is_me)
 
     ms = state.monsters.get(msg.caster_guid)
     name = ms.name if ms else "?"
@@ -389,25 +410,75 @@ def _h_projectile_spawn(state: GameState, msg):
         guid=msg.guid,
         owner_guid=msg.owner_guid,
         kind=msg.kind,
-        x=msg.start_pos.x, y=msg.start_pos.y, z=msg.start_pos.z,
+        x=msg.start_pos.x, z=msg.start_pos.y,
         speed=msg.speed,
         target_guid=msg.target_guid,
-        dir_x=msg.dir.x, dir_z=msg.dir.z,
+        dir_x=msg.dir.x, dir_z=msg.dir.y,
         radius=msg.radius if msg.radius > 0 else 0.3,
         max_range=msg.max_range,
         max_lifetime=msg.max_lifetime if msg.max_lifetime > 0 else 5.0,
         spawned_at=time.time())
+
+    # 시전자 발 밑에서 확산 링 + 캐스트 사운드.
+    if state.feedback is not None:
+        caster_is_me = (state.me.guid != 0 and msg.owner_guid == state.me.guid)
+        state.feedback.on_skill_cast(
+            wx=msg.start_pos.x, wz=msg.start_pos.y,
+            caster_is_me=caster_is_me)
 
 
 def _h_projectile_destroy(state: GameState, msg):
     state.projectiles.pop(msg.projectile_guid, None)
 
 
+def _apply_cc_to_target(state: GameState, target_guid: int,
+                        eid: int, duration: float) -> None:
+    """eid 가 CC 이면 target 의 active_ccs 에 (expire, applied) 를 기록한다.
+    target 은 me / monster / other player 중 하나. 못 찾으면 조용히 무시."""
+    effect = EFFECT_TABLE.get(eid)
+    if effect is None or effect.cc_flag in (None, "", "None"):
+        return
+    now = time.time()
+    entry = (now + duration, now)
+
+    if state.me.guid != 0 and target_guid == state.me.guid:
+        state.me.active_ccs[effect.cc_flag] = entry
+        return
+    ms = state.monsters.get(target_guid)
+    if ms is not None:
+        ms.active_ccs[effect.cc_flag] = entry
+        return
+    for p in state.others.values():
+        if p.guid == target_guid:
+            p.active_ccs[effect.cc_flag] = entry
+            return
+
+
+def _remove_cc_from_target(state: GameState, target_guid: int, eid: int) -> None:
+    effect = EFFECT_TABLE.get(eid)
+    if effect is None or effect.cc_flag in (None, "", "None"):
+        return
+
+    if state.me.guid != 0 and target_guid == state.me.guid:
+        state.me.active_ccs.pop(effect.cc_flag, None)
+        return
+    ms = state.monsters.get(target_guid)
+    if ms is not None:
+        ms.active_ccs.pop(effect.cc_flag, None)
+        return
+    for p in state.others.values():
+        if p.guid == target_guid:
+            p.active_ccs.pop(effect.cc_flag, None)
+            return
+
+
 def _h_buff_applied(state: GameState, msg):
     """self 버프는 local prediction(이동속도 등)에 반영되도록 me.buffs 에 저장.
-    다른 유닛 대상은 현재 Phase 1 에선 로그만."""
+    target 에 CC(행동 제약) 속성이 있으면 active_ccs 에도 기록 — renderer 가
+    쇠사슬/별 등으로 시각화한다."""
     if msg.target_guid == state.me.guid:
         state.me.buffs[msg.eid] = msg.duration
+    _apply_cc_to_target(state, msg.target_guid, msg.eid, msg.duration)
     log_game.info("BUFF+  target=%d eid=%d caster=%d dur=%.1fs",
                   msg.target_guid, msg.eid, msg.caster_guid, msg.duration)
 
@@ -415,6 +486,7 @@ def _h_buff_applied(state: GameState, msg):
 def _h_buff_removed(state: GameState, msg):
     if msg.target_guid == state.me.guid:
         state.me.buffs.pop(msg.eid, None)
+    _remove_cc_from_target(state, msg.target_guid, msg.eid)
     log_game.info("BUFF-  target=%d eid=%d", msg.target_guid, msg.eid)
 
 
@@ -472,17 +544,18 @@ def _cast_skill(state: GameState, client: PacketClient, skill_id: int,
         d = math.sqrt(dx * dx + dz * dz)
         if d < 1e-4:
             return False
-        req.dir.x, req.dir.y, req.dir.z = dx / d, 0.0, dz / d
+        # Vector2.y = horizontal-second axis (클라 내부 z 에 대응).
+        req.dir.x, req.dir.y = dx / d, dz / d
         req.target_guid = 0
 
     elif mode == "point_click":
         target = _nearest_monster_to_point(state, cursor_wx, cursor_wz, max_range=3.0)
         req.target_guid = target.guid if target else 0
-        req.dir.x = req.dir.y = req.dir.z = 0.0
+        req.dir.x = req.dir.y = 0.0
 
     elif mode == "auto_homing":
         req.target_guid = 0
-        req.dir.x = req.dir.y = req.dir.z = 0.0
+        req.dir.x = req.dir.y = 0.0
 
     elif mode == "ground_target":
         dx = cursor_wx - state.me.x
@@ -490,8 +563,8 @@ def _cast_skill(state: GameState, client: PacketClient, skill_id: int,
         d = math.sqrt(dx * dx + dz * dz)
         if d < 1e-4:
             return False
-        req.dir.x, req.dir.y, req.dir.z = dx / d, 0.0, dz / d
-        req.target_pos.x, req.target_pos.y, req.target_pos.z = cursor_wx, 0.0, cursor_wz
+        req.dir.x, req.dir.y = dx / d, dz / d
+        req.target_pos.x, req.target_pos.y = cursor_wx, cursor_wz
         req.target_guid = 0
 
     else:
@@ -575,7 +648,7 @@ def _process_input(pygame, events: list, keys, state: GameState,
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
             # 우클릭: 월드 좌표로 이동 명령
             cmd = game_pb2.C_MoveCommand()
-            cmd.target_pos.x, cmd.target_pos.y, cmd.target_pos.z = cursor_wx, 0.0, cursor_wz
+            cmd.target_pos.x, cmd.target_pos.y = cursor_wx, cursor_wz
             client.send(cmd)
             state.me.set_destination(cursor_wx, cursor_wz)   # 로컬 즉시 예측
             state.click_markers.append((cursor_wx, cursor_wz, now + config.CLICK_MARKER_LIFETIME))
@@ -651,7 +724,13 @@ def run_game(token: str, game_host: str, game_port: int, username: str) -> None:
     enter.token = token
     client.send(enter)
 
-    state = GameState(username=username, me=PlayerState(name=username))
+    # Feedback 은 Renderer 다음에 초기화해야 pygame.init() 이 이미 완료된 상태에서
+    # mixer.init() 을 시도할 수 있다.
+    feedback = FeedbackSystem(
+        enable_audio=config.ENABLE_AUDIO,
+        audio_volume=config.AUDIO_VOLUME)
+    state = GameState(username=username, me=PlayerState(name=username),
+                      feedback=feedback)
     io = {
         "last_skill_send": 0.0,
         # skill_id -> next_usable_time (time.time() 기준). 서버 쿨다운과 동일 규칙으로
@@ -697,6 +776,19 @@ def run_game(token: str, game_host: str, game_port: int, username: str) -> None:
         _simulate_projectiles(state, dt_frame, now_t)
         state.hitscan_lines = [h for h in state.hitscan_lines if h[4] > now_t]
         state.click_markers = [c for c in state.click_markers if c[2] > now_t]
+        state.feedback.tick(dt_frame)
+
+        # CC 만료 정리 — 서버 S_BuffRemoved 가 손실됐을 때를 대비해 wall-clock 자체 만료.
+        def _expire_ccs(d: dict):
+            for flag in [f for f, (expire, _) in d.items() if expire <= now_t]:
+                d.pop(flag, None)
+        _expire_ccs(state.me.active_ccs)
+        for ms in state.monsters.values():
+            if ms.active_ccs:
+                _expire_ccs(ms.active_ccs)
+        for ps in state.others.values():
+            if ps.active_ccs:
+                _expire_ccs(ps.active_ccs)
 
         moving_tag = "moving" if state.me.is_moving else "idle"
         status = [
@@ -712,7 +804,7 @@ def run_game(token: str, game_host: str, game_port: int, username: str) -> None:
             state.me if state.in_game else None,
             state.others, state.monsters, status,
             hitscan_lines=state.hitscan_lines, projectiles=state.projectiles,
-            click_markers=state.click_markers)
+            click_markers=state.click_markers, feedback=state.feedback)
 
     renderer.close()
     client.close()

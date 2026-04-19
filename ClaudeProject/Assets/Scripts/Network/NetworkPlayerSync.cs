@@ -47,7 +47,8 @@ public class NetworkPlayerSync : MonoBehaviour
     {
         // Server rejected our move; snap to corrected position
         var cc = GetComponent<CharacterController>();
-        var correctedPos = new Vector3(pkt.Position.X, pkt.Position.Y, pkt.Position.Z);
+        // Proto Vector2 (x, y) → Unity Vector3 (x, 0, y).
+        var correctedPos = new Vector3(pkt.Position.X, 0f, pkt.Position.Y);
 
         if (cc != null)
         {

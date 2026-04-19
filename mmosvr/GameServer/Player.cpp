@@ -2,6 +2,7 @@
 #include "Player.h"
 #include "Zone.h"
 #include "ZoneManager.h"
+#include "Utils/MathUtil.h"
 
 
 Player::Player(int32 playerId, const std::string& name)
@@ -10,7 +11,6 @@ Player::Player(int32 playerId, const std::string& name)
 {
 	position_.set_x(0.0f);
 	position_.set_y(0.0f);
-	position_.set_z(0.0f);
 }
 
 void Player::BindSession(std::shared_ptr<GameSession> session)
@@ -56,13 +56,13 @@ void Player::Update(const float deltaTime)
 {
 	TickBuffs(deltaTime);
 
-	// Stun/Root 시 이동 불가. Stun 이면 스킬 입력도 차단이지만 그건 핸들러측 책임.
-	if (!isMoving_ || IsStunned() || IsRooted())
+	// 이동 CC 차단. 스킬/공격 CC 는 각 핸들러가 책임.
+	if (!isMoving_ || !CanMove())
 		return;
 
 	const float dx = destination_.x() - position_.x();
-	const float dz = destination_.z() - position_.z();
-	const float dist = std::sqrt(dx * dx + dz * dz);
+	const float dz = destination_.y() - position_.y();
+	const float dist = MathUtil::Length2D(dx, dz);
 
 	if (dist < 0.001f)
 	{
@@ -75,7 +75,7 @@ void Player::Update(const float deltaTime)
 	{
 		// 도착: destination 에 snap 하고 이동 종료
 		position_.set_x(destination_.x());
-		position_.set_z(destination_.z());
+		position_.set_y(destination_.y());
 		isMoving_ = false;
 		return;
 	}
@@ -83,5 +83,5 @@ void Player::Update(const float deltaTime)
 	const float nx = dx / dist;
 	const float nz = dz / dist;
 	position_.set_x(position_.x() + nx * step);
-	position_.set_z(position_.z() + nz * step);
+	position_.set_y(position_.y() + nz * step);
 }
