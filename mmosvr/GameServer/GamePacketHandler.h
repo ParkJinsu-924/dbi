@@ -9,6 +9,7 @@
 
 
 class Player;
+class Unit;
 class GamePacketHandler
 {
 public:

@@ -5,8 +5,10 @@
 #include "ResourceManager.h"
 #include "SkillTemplate.h"
 #include "SkillRuntime.h"
+#include "PacketMaker.h"
 #include "game.pb.h"
 #include <cmath>
+#include "PacketMaker.h"
 
 
 void Monster::InitAI(const Proto::Vector3& spawnPos, Zone* zone)
@@ -122,25 +124,11 @@ void Monster::DoAttack(Player& target)
 		target.TakeDamage(attackDamage_);
 
 		if (attackType_ == AttackType::Hitscan)
-		{
-			Proto::S_HitscanAttack pkt;
-			pkt.set_attacker_guid(GetGuid());
-			pkt.set_target_guid(target.GetGuid());
-			*pkt.mutable_start_position() = GetPosition();
-			*pkt.mutable_hit_position() = target.GetPosition();
-			pkt.set_damage(attackDamage_);
-			zone_->Broadcast(pkt);
-		}
+			zone_->Broadcast(PacketMaker::MakeHitscanAttack(*this, target, attackDamage_));
 		else
-		{
 			BroadcastAttack(target.GetGuid(), attackDamage_);
-		}
 
-		Proto::S_UnitHp hpPkt;
-		hpPkt.set_hp(target.GetHp());
-		hpPkt.set_max_hp(target.GetMaxHp());
-		hpPkt.set_guid(target.GetGuid());
-		zone_->Broadcast(hpPkt);
+		zone_->Broadcast(PacketMaker::MakeUnitHp(target));
 
 		LOG_INFO("Monster [" + GetName() + "] attacks Player " +
 			std::to_string(target.GetPlayerId()) +
@@ -206,22 +194,12 @@ void Monster::BroadcastState(MonsterStateId /*prev*/, MonsterStateId next)
 {
 	if (!zone_)
 		return;
-
-	Proto::S_MonsterState pkt;
-	pkt.set_guid(GetGuid());
-	pkt.set_state(static_cast<uint32>(next));
-	pkt.set_target_guid(targetGuid_);
-	zone_->Broadcast(pkt);
+	zone_->Broadcast(PacketMaker::MakeMonsterState(*this, next));
 }
 
 void Monster::BroadcastAttack(long long targetGuid, int32 damage)
 {
 	if (!zone_)
 		return;
-
-	Proto::S_MonsterAttack pkt;
-	pkt.set_monster_guid(GetGuid());
-	pkt.set_target_guid(targetGuid);
-	pkt.set_damage(damage);
-	zone_->Broadcast(pkt);
+	zone_->Broadcast(PacketMaker::MakeMonsterAttack(*this, targetGuid, damage));
 }

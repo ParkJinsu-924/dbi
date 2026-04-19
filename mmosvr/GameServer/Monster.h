@@ -33,6 +33,7 @@ public:
 
 	void SetTarget(long long guid) { targetGuid_ = guid; }
 	void ClearTarget()             { targetGuid_ = 0; }
+	long long GetTargetGuid() const { return targetGuid_; }
 	std::shared_ptr<Player> GetTarget() const;
 
 	// --- Aggro ---

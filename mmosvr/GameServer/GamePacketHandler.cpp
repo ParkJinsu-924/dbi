@@ -10,6 +10,7 @@
 #include "ResourceManager.h"
 #include "SkillTemplate.h"
 #include "SkillRuntime.h"
+#include "PacketMaker.h"
 #include <cmath>
 
 
@@ -86,51 +87,22 @@ Proto::ErrorCode GamePacketHandler::SS_ValidateToken(std::shared_ptr<ServerSessi
 		// 본인은 아직 S_EnterGame 도 못 받은 시점이라 제외한다
 		// (그냥 Broadcast 하면 본인 세션에 S_PlayerSpawn 이 S_EnterGame 보다 먼저 도착해서
 		//  클라가 자기 자신을 others 에 등록하는 버그 발생).
-		Proto::S_PlayerSpawn spawnPkt;
-		spawnPkt.set_player_id(playerId);
-		spawnPkt.set_name(playerName);
-		*spawnPkt.mutable_position() = player->GetPosition();
-		spawnPkt.set_guid(player->GetGuid());
-		zone->BroadcastExcept(spawnPkt, player->GetGuid());
+		zone->BroadcastExcept(PacketMaker::MakePlayerSpawn(*player), player->GetGuid());
 	}
 
-	Proto::S_EnterGame response;
-	response.set_player_id(playerId);
-	response.set_guid(player->GetGuid());
-	auto* spawnPos = response.mutable_spawn_position();
-	spawnPos->set_x(0.0f);
-	spawnPos->set_y(0.0f);
-	spawnPos->set_z(0.0f);
-	gameSession->Send(response);
+	Proto::Vector3 spawnPos;
+	spawnPos.set_x(0.0f);
+	spawnPos.set_y(0.0f);
+	spawnPos.set_z(0.0f);
+	gameSession->Send(PacketMaker::MakeEnterGame(*player, spawnPos));
 
-	auto allPlayers = GetPlayerManager().GetAllPlayers();
-	Proto::S_PlayerList playerListPkt;
-	for (const auto& p : allPlayers)
-	{
-		auto* info = playerListPkt.add_players();
-		info->set_player_id(p->GetPlayerId());
-		info->set_name(p->GetName());
-		*info->mutable_position() = p->GetPosition();
-		info->set_guid(p->GetGuid());
-	}
-	gameSession->Send(playerListPkt);
+	gameSession->Send(PacketMaker::MakePlayerList(GetPlayerManager().GetAllPlayers()));
 
 	// Send existing monsters in the zone
 	auto* defaultZone = GetZoneManager().GetZone(DEFAULT_ZONE_ID);
 	auto monstersInZone = defaultZone ? defaultZone->GetObjectsByType<Monster>()
 		: std::vector<std::shared_ptr<Monster>>{};
-	Proto::S_MonsterList monsterListPkt;
-	for (const auto& m : monstersInZone)
-	{
-		auto* info = monsterListPkt.add_monsters();
-		info->set_guid(m->GetGuid());
-		info->set_name(m->GetName());
-		*info->mutable_position() = m->GetPosition();
-		info->set_detect_range(m->GetDetectRange());
-		info->set_hp(m->GetHp());
-		info->set_max_hp(m->GetMaxHp());
-	}
-	gameSession->Send(monsterListPkt);
+	gameSession->Send(PacketMaker::MakeMonsterList(monstersInZone));
 
 	LOG_INFO("Player entered game: id=" + std::to_string(playerId) + " name=" + playerName);
 	return Proto::ErrorCode::OK;
@@ -160,9 +132,7 @@ Proto::ErrorCode GamePacketHandler::C_PlayerMove(std::shared_ptr<GameSession> se
 				validatedPos.set_y(outY);
 				validatedPos.set_z(outZ);
 
-				Proto::S_MoveCorrection correction;
-				*correction.mutable_position() = validatedPos;
-				session->Send(correction);
+				session->Send(PacketMaker::MakeMoveCorrection(validatedPos));
 			}
 			else
 			{
@@ -174,13 +144,8 @@ Proto::ErrorCode GamePacketHandler::C_PlayerMove(std::shared_ptr<GameSession> se
 	player->SetPosition(validatedPos);
 	player->SetYaw(pkt.yaw());
 
-	Proto::S_PlayerMove broadcast;
-	broadcast.set_player_id(player->GetPlayerId());
-	*broadcast.mutable_position() = validatedPos;
-	broadcast.set_yaw(pkt.yaw());
-
 	if (auto* zone = GetZoneManager().GetZone(player->GetZoneId()))
-		zone->Broadcast(broadcast);
+		zone->Broadcast(PacketMaker::MakePlayerMove(*player));
 	return Proto::ErrorCode::OK;
 }
 
@@ -221,12 +186,8 @@ Proto::ErrorCode GamePacketHandler::C_StopMove(std::shared_ptr<GameSession> sess
 	player->ClearDestination();
 
 	// 정지 시점 최종 위치를 1회 브로드캐스트해서 다른 클라이언트의 보간이 정확히 끝나도록 한다
-	Proto::S_PlayerMove broadcast;
-	broadcast.set_player_id(player->GetPlayerId());
-	*broadcast.mutable_position() = player->GetPosition();
-	broadcast.set_yaw(player->GetYaw());
 	if (auto* zone = GetZoneManager().GetZone(player->GetZoneId()))
-		zone->Broadcast(broadcast);
+		zone->Broadcast(PacketMaker::MakePlayerMove(*player));
 
 	return Proto::ErrorCode::OK;
 }
@@ -237,13 +198,8 @@ Proto::ErrorCode GamePacketHandler::C_Chat(std::shared_ptr<GameSession> session,
 	if (!player)
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
 
-	Proto::S_Chat broadcast;
-	broadcast.set_player_id(player->GetPlayerId());
-	broadcast.set_sender(player->GetName());
-	broadcast.set_message(pkt.message());
-
 	if (auto* zone = GetZoneManager().GetZone(player->GetZoneId()))
-		zone->Broadcast(broadcast);
+		zone->Broadcast(PacketMaker::MakeChat(*player, pkt.message()));
 
 	LOG_INFO("[Chat] " + player->GetName() + ": " + pkt.message());
 	return Proto::ErrorCode::OK;

@@ -6,6 +6,7 @@
 #include "Projectile.h"
 #include "HomingProjectile.h"
 #include "SkillshotProjectile.h"
+#include "PacketMaker.h"
 #include "Network/Session.h"
 #include "game.pb.h"
 
@@ -130,6 +131,28 @@ void Zone::BroadcastChunkExcept(const SendBufferChunkPtr& chunk, long long exclu
 	});
 }
 
+void Zone::SendChunkTo(const SendBufferChunkPtr& chunk, const long long guid) const
+{
+	// objects_ 직접 조회 — O(1). guid 가 Player 가 아니면 무시.
+	const auto it = objects_.find(guid);
+	if (it == objects_.end()) return;
+	if (it->second->GetType() != GameObjectType::Player) return;
+
+	const auto player = std::static_pointer_cast<Player>(it->second);
+	if (const auto session = player->GetSession())
+	{
+		if (session->IsConnected())
+			std::static_pointer_cast<Session>(session)->Send(chunk);
+	}
+}
+
+void Zone::BroadcastChunkTo(const SendBufferChunkPtr& chunk, std::span<const long long> guids) const
+{
+	// 대상자 수 N << 전체 Zone 플레이어 M 인 경우 (파티/어그로) 직접 조회가 순회보다 빠름.
+	for (const long long guid : guids)
+		SendChunkTo(chunk, guid);
+}
+
 std::shared_ptr<Player> Zone::FindNearestPlayer(const Proto::Vector3& from, float maxRange) const
 {
 	std::shared_ptr<Player> nearest;
@@ -182,12 +205,9 @@ std::shared_ptr<Monster> Zone::FindNearestMonster(const Proto::Vector3& from, fl
 
 void Zone::BroadcastMonsterPositions()
 {
-	ForEachOfType(GameObjectType::Monster, [&](long long guid, const std::shared_ptr<GameObject>& obj)
+	ForEachOfType(GameObjectType::Monster, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
 	{
-		Proto::S_MonsterMove pkt;
-		pkt.set_guid(guid);
-		*pkt.mutable_position() = obj->GetPosition();
-		Broadcast(pkt);
+		Broadcast(PacketMaker::MakeMonsterMove(*std::static_pointer_cast<Monster>(obj)));
 	});
 }
 
@@ -199,12 +219,7 @@ void Zone::BroadcastPlayerPositions()
 		auto player = std::static_pointer_cast<Player>(obj);
 		if (!player->IsMoving())
 			return;
-
-		Proto::S_PlayerMove pkt;
-		pkt.set_player_id(player->GetPlayerId());
-		*pkt.mutable_position() = player->GetPosition();
-		pkt.set_yaw(player->GetYaw());
-		Broadcast(pkt);
+		Broadcast(PacketMaker::MakePlayerMove(*player));
 	});
 }
 
@@ -221,15 +236,7 @@ std::shared_ptr<HomingProjectile> Zone::SpawnHomingProjectile(
 
 	pendingAdd_.push_back(p);
 
-	Proto::S_ProjectileSpawn pkt;
-	pkt.set_guid(p->GetGuid());
-	pkt.set_owner_guid(ownerGuid);
-	pkt.set_kind(Proto::PROJECTILE_HOMING);
-	*pkt.mutable_start_pos() = startPos;
-	pkt.set_speed(speed);
-	pkt.set_target_guid(targetGuid);
-	pkt.set_max_lifetime(lifetime);
-	Broadcast(pkt);
+	Broadcast(PacketMaker::MakeHomingProjectileSpawn(*p));
 
 	return p;
 }
@@ -248,19 +255,7 @@ std::shared_ptr<SkillshotProjectile> Zone::SpawnSkillshotProjectile(
 
 	pendingAdd_.push_back(p);
 
-	Proto::S_ProjectileSpawn pkt;
-	pkt.set_guid(p->GetGuid());
-	pkt.set_owner_guid(ownerGuid);
-	pkt.set_kind(Proto::PROJECTILE_SKILLSHOT);
-	*pkt.mutable_start_pos() = startPos;
-	pkt.set_speed(speed);
-	auto* dir = pkt.mutable_dir();
-	dir->set_x(dirX);
-	dir->set_y(0.0f);
-	dir->set_z(dirZ);
-	pkt.set_radius(radius);
-	pkt.set_max_range(range);
-	Broadcast(pkt);
+	Broadcast(PacketMaker::MakeSkillshotProjectileSpawn(*p));
 
 	return p;
 }

@@ -5,6 +5,7 @@
 #include "common.pb.h"
 #include <unordered_map>
 #include <memory>
+#include <span>
 #include <type_traits>
 #include <vector>
 #include "GameObject.h"
@@ -92,6 +93,21 @@ public:
 		BroadcastChunkExcept(PacketSession::MakeSendBuffer(msg), excludeGuid);
 	}
 
+	// Send to a single Player by guid (1:1). guid 가 Player 가 아니거나 세션이 끊겼으면 무시.
+	template<typename T>
+	void SendTo(const T& msg, long long guid)
+	{
+		SendChunkTo(PacketSession::MakeSendBuffer(msg), guid);
+	}
+
+	// Broadcast to a specific list of Players (파티/어그로 대상자 등).
+	// guids 내 중복/비-Player/연결 끊긴 세션은 자동 스킵. SendBuffer 는 1회만 직렬화되어 공유됨.
+	template<typename T>
+	void BroadcastTo(const T& msg, std::span<const long long> guids)
+	{
+		BroadcastChunkTo(PacketSession::MakeSendBuffer(msg), guids);
+	}
+
 	// Find the nearest alive Player within maxRange of the given position.
 	// Returns nullptr if none found.
 	std::shared_ptr<Player> FindNearestPlayer(const Proto::Vector3& from, float maxRange) const;
@@ -116,6 +132,8 @@ public:
 private:
 	void BroadcastChunk(const SendBufferChunkPtr& chunk) const; // For Broadcast function, use Broadcast() instead.
 	void BroadcastChunkExcept(const SendBufferChunkPtr& chunk, long long excludeGuid) const;
+	void SendChunkTo(const SendBufferChunkPtr& chunk, long long guid) const;
+	void BroadcastChunkTo(const SendBufferChunkPtr& chunk, std::span<const long long> guids) const;
 	void BroadcastMonsterPositions();
 	void BroadcastPlayerPositions();  // 클릭 이동 시뮬 결과를 주기적으로 방송 (이동 중인 Player만)
 	void FlushPending();              // pending Add/Remove 일괄 적용

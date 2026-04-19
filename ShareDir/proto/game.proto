@@ -46,13 +46,15 @@ message S_EnterGame {
     int64 guid = 3;              // 본인 GameObject GUID — 서버 측 식별자 (Projectile target_guid 매칭용)
 }
 
+// 공통 Player DTO — S_PlayerSpawn / S_PlayerList 에서 재사용.
+message PlayerInfo {
+    int32 player_id = 1;
+    string name = 2;
+    Vector3 position = 3;
+    int64 guid = 4;              // 해당 플레이어의 GameObject GUID
+}
+
 message S_PlayerList {
-    message PlayerInfo {
-        int32 player_id = 1;
-        string name = 2;
-        Vector3 position = 3;
-        int64 guid = 4;          // 해당 플레이어의 GameObject GUID
-    }
     repeated PlayerInfo players = 1;
 }
 
@@ -75,10 +77,7 @@ message S_PlayerLeave {
 // 신규 유저가 Zone에 입장했음을 Zone 내 기존 유저들에게 알림.
 // 본인도 같은 패킷을 받으므로 클라는 자기 player_id 는 skip.
 message S_PlayerSpawn {
-    int32 player_id = 1;
-    string name = 2;
-    Vector3 position = 3;
-    int64 guid = 4;
+    PlayerInfo player = 1;
 }
 
 message S_RequestUseSkill {
@@ -100,13 +99,18 @@ message S_Error {
 
 // --- Monster ---
 
-message S_MonsterSpawn {
+// 공통 Monster DTO — S_MonsterSpawn / S_MonsterList 에서 재사용.
+message MonsterInfo {
     int64 guid = 1;
     string name = 2;
     Vector3 position = 3;
     float detect_range = 4;
     int32 hp = 5;
     int32 max_hp = 6;
+}
+
+message S_MonsterSpawn {
+    MonsterInfo monster = 1;
 }
 
 message S_MonsterMove {
@@ -119,14 +123,6 @@ message S_MonsterDespawn {
 }
 
 message S_MonsterList {
-    message MonsterInfo {
-        int64 guid = 1;
-        string name = 2;
-        Vector3 position = 3;
-        float detect_range = 4;
-        int32 hp = 5;
-        int32 max_hp = 6;
-    }
     repeated MonsterInfo monsters = 1;
 }
 

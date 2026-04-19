@@ -246,15 +246,16 @@ def _h_player_move(state: GameState, msg):
 
 
 def _h_player_spawn(state: GameState, msg):
-    if msg.player_id == state.me.player_id:
+    p = msg.player
+    if p.player_id == state.me.player_id:
         return
-    px, py, pz = msg.position.x, msg.position.y, msg.position.z
-    ps = state.others.setdefault(msg.player_id, PlayerState(player_id=msg.player_id))
-    ps.name = msg.name
-    ps.guid = msg.guid
+    px, py, pz = p.position.x, p.position.y, p.position.z
+    ps = state.others.setdefault(p.player_id, PlayerState(player_id=p.player_id))
+    ps.name = p.name
+    ps.guid = p.guid
     ps.x, ps.y, ps.z = px, py, pz
     ps.tx, ps.ty, ps.tz = px, py, pz
-    log_game.info("player joined: id=%d name=%s", msg.player_id, msg.name)
+    log_game.info("player joined: id=%d name=%s", p.player_id, p.name)
 
 
 def _h_player_leave(state: GameState, msg):
@@ -285,13 +286,14 @@ def _h_monster_list(state: GameState, msg):
 
 
 def _h_monster_spawn(state: GameState, msg):
-    px, py, pz = msg.position.x, msg.position.y, msg.position.z
-    state.monsters[msg.guid] = MonsterState(
-        guid=msg.guid, name=msg.name,
+    m = msg.monster
+    px, py, pz = m.position.x, m.position.y, m.position.z
+    state.monsters[m.guid] = MonsterState(
+        guid=m.guid, name=m.name,
         x=px, y=py, z=pz, tx=px, ty=py, tz=pz,
-        detect_range=msg.detect_range if msg.detect_range > 0 else 10.0,
-        hp=msg.hp if msg.max_hp > 0 else 100,
-        max_hp=msg.max_hp if msg.max_hp > 0 else 100)
+        detect_range=m.detect_range if m.detect_range > 0 else 10.0,
+        hp=m.hp if m.max_hp > 0 else 100,
+        max_hp=m.max_hp if m.max_hp > 0 else 100)
 
 
 def _h_monster_move(state: GameState, msg):

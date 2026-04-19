@@ -52,6 +52,9 @@
     <ClCompile Include="GamePacketHandler.cpp">
       <Filter>Network</Filter>
     </ClCompile>
+    <ClCompile Include="PacketMaker.cpp">
+      <Filter>Network</Filter>
+    </ClCompile>
     <ClCompile Include="GamePacketRegister.cpp">
       <Filter>Network</Filter>
     </ClCompile>
@@ -103,6 +106,9 @@
       <Filter>Network</Filter>
     </ClInclude>
     <ClInclude Include="GamePacketHandler.h">
+      <Filter>Network</Filter>
+    </ClInclude>
+    <ClInclude Include="PacketMaker.h">
       <Filter>Network</Filter>
     </ClInclude>
     <ClInclude Include="ResourceManager.h">

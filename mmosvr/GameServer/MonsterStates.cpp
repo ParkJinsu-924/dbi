@@ -5,6 +5,7 @@
 #include "Player.h"
 #include <cmath>
 #include <random>
+#include "PacketMaker.h"
 
 
 // ===========================================================================
@@ -18,7 +19,7 @@ void MonsterGlobalState::OnUpdate(Monster& owner, float deltaTime)
 	case MonsterStateId::Idle:
 	case MonsterStateId::Patrol:
 	{
-		// 1순위: 이미 누적된 aggro 가 있으면 top 대상으로 Chase
+		// 이미 누적된 aggro 가 있으면 top 대상으로 Chase
 		if (owner.HasAggro())
 		{
 			const long long topGuid = owner.ResolveTopAggroGuid();
@@ -29,14 +30,15 @@ void MonsterGlobalState::OnUpdate(Monster& owner, float deltaTime)
 				break;
 			}
 		}
-		// 2순위 (기존): 거리 기반 탐지 — detect range 내 가장 가까운 플레이어 Chase
-		const auto player = owner.GetZone()->FindNearestPlayer(
-			owner.GetPosition(), owner.GetDetectRange());
+		
+		{ // 가까운 Player 탐지 시 Aggro 세팅
+			const auto player = owner.GetZone()->FindNearestPlayer(
+				owner.GetPosition(), owner.GetDetectRange());
 
-		if (player)
-		{
-			owner.SetTarget(player->GetGuid());
-			owner.GetFSM().ChangeState(MonsterStateId::Chase);
+			if (player)
+			{
+				owner.AddAggro(player->GetGuid(), 0); // Aggro 최소치 세팅
+			}
 		}
 	}
 	break;
@@ -46,10 +48,11 @@ void MonsterGlobalState::OnUpdate(Monster& owner, float deltaTime)
 		// 전투 상태에서만 OOC 타이머 진행.
 		// 5초간 새 aggro 이벤트(피격 등) 가 없으면 AggroTable 이 스스로 Clear 하고 true 반환
 		// → 여기서 Return 으로 전이시켜 전투 종료. ReturnState::OnEnter 가 target/aggro cleanup.
-		if (owner.TickAggroOOC(deltaTime))
-		{
-			owner.GetFSM().ChangeState(MonsterStateId::Return);
-		}
+		// 일단 비활성화
+		// if (owner.TickAggroOOC(deltaTime))
+		// {
+		// 	owner.GetFSM().ChangeState(MonsterStateId::Return);
+		// }
 	}
 	break;
 	case MonsterStateId::Return:
@@ -73,7 +76,7 @@ void IdleState::OnEnter(Monster& owner)
 void IdleState::OnUpdate(Monster& owner, const float deltaTime)
 {
 	idleTime_ += deltaTime;
-	if (idleTime_ >= 1.0f)
+	if (idleTime_ >= 4.0f)
 	{
 		idleTime_ = 0.0f;
 		owner.GetFSM().ChangeState(MonsterStateId::Patrol);
@@ -125,8 +128,7 @@ void PatrolState::OnUpdate(Monster& owner, const float deltaTime)
 
 void ChaseState::OnUpdate(Monster& owner, float deltaTime)
 {
-	// Phase 1: 매 틱 top aggro 재계산. 현재 target 과 달라졌으면 즉시 전환.
-	// Phase 3 에서 transition 110% 규칙 도입 시 여기에 비교 로직 추가.
+	// 매 틱 top aggro 재계산. 현재 target 과 달라졌으면 즉시 전환.
 	const long long topGuid = owner.ResolveTopAggroGuid();
 	if (topGuid != 0)
 	{
@@ -199,13 +201,9 @@ void ReturnState::OnEnter(Monster& owner)
 	
 	// TODO: Buff 시스템을 도입한 후, 무적 버프 추가 필요.
 	
-	if (auto zone = owner.GetZone())
+	if (const auto zone = owner.GetZone())
 	{
-		Proto::S_UnitHp pkt;
-		pkt.set_guid(owner.GetGuid());
-		pkt.set_hp(owner.GetHp());
-		pkt.set_max_hp(owner.GetMaxHp());
-		zone->Broadcast(pkt);
+		zone->Broadcast(PacketMaker::MakeUnitHp(owner));
 	}
 }
 

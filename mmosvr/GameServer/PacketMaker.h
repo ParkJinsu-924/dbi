@@ -1,0 +1,58 @@
+#pragma once
+
+#include "game.pb.h"
+#include "MonsterStates.h"   // MonsterStateId
+#include <memory>
+#include <vector>
+#include <string>
+
+class Monster;
+class Player;
+class Unit;
+class Projectile;
+class HomingProjectile;
+class SkillshotProjectile;
+
+
+// 서버에서 클라이언트로 보내는 모든 S_* 패킷을 생성하는 헬퍼.
+// 호출부는 `zone->Broadcast(PacketMaker::MakeXxx(...))` 한 줄로 끝난다.
+// 필드 추가/수정 시 여기 한 곳만 고치면 모든 호출부가 자동으로 따라온다.
+//
+// 규칙:
+//  - 도메인 오브젝트가 모든 필드를 제공할 수 있으면 해당 오브젝트 레퍼런스 하나를 받는다.
+//  - 도메인 바깥 값(채팅 메시지, 스폰 위치 등)은 추가 파라미터로 받는다.
+class PacketMaker
+{
+public:
+	// --- Player ---
+	static Proto::S_EnterGame      MakeEnterGame(const Player& player, const Proto::Vector3& spawnPos);
+	static Proto::S_PlayerSpawn    MakePlayerSpawn(const Player& player);
+	static Proto::S_PlayerList     MakePlayerList(const std::vector<std::shared_ptr<Player>>& players);
+	static Proto::S_PlayerMove     MakePlayerMove(const Player& player);
+	static Proto::S_PlayerLeave    MakePlayerLeave(int32 playerId);
+	static Proto::S_Chat           MakeChat(const Player& sender, const std::string& message);
+	static Proto::S_MoveCorrection MakeMoveCorrection(const Proto::Vector3& position);
+
+	// --- Monster ---
+	static Proto::S_MonsterSpawn   MakeMonsterSpawn(const Monster& monster);
+	static Proto::S_MonsterList    MakeMonsterList(const std::vector<std::shared_ptr<Monster>>& monsters);
+	static Proto::S_MonsterMove    MakeMonsterMove(const Monster& monster);
+	static Proto::S_MonsterDespawn MakeMonsterDespawn(long long guid);
+	static Proto::S_MonsterState   MakeMonsterState(const Monster& monster, MonsterStateId nextState);
+	static Proto::S_MonsterAttack  MakeMonsterAttack(const Monster& attacker, long long targetGuid, int32 damage);
+	static Proto::S_HitscanAttack  MakeHitscanAttack(const Unit& attacker, const Unit& target, int32 damage);
+
+	// --- Unit (generic, Player/Monster/Npc 공통) ---
+	static Proto::S_UnitHp MakeUnitHp(const Unit& unit);
+
+	// --- Projectile ---
+	static Proto::S_ProjectileSpawn   MakeHomingProjectileSpawn(const HomingProjectile& projectile);
+	static Proto::S_ProjectileSpawn   MakeSkillshotProjectileSpawn(const SkillshotProjectile& projectile);
+	static Proto::S_ProjectileHit     MakeProjectileHit(const Projectile& projectile, const Unit& target, const Proto::Vector3& hitPos);
+	static Proto::S_ProjectileDestroy MakeProjectileDestroy(long long projectileGuid, Proto::S_ProjectileDestroy_Reason reason);
+
+private:
+	// 내부 DTO 빌더 — S_*Spawn / S_*List 구현에서 공용으로 사용.
+	static Proto::MonsterInfo MakeMonsterInfo(const Monster& monster);
+	static Proto::PlayerInfo  MakePlayerInfo(const Player& player);
+};

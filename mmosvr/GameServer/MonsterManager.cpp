@@ -6,6 +6,7 @@
 #include "Zone.h"
 #include "game.pb.h"
 #include "SpawnEntry.h"
+#include "PacketMaker.h"
 
 
 std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, const std::string& name,
@@ -21,14 +22,7 @@ std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, const std::string& 
 
 	zone->Add(monster);
 
-	Proto::S_MonsterSpawn pkt;
-	pkt.set_guid(monster->GetGuid());
-	pkt.set_name(monster->GetName());
-	*pkt.mutable_position() = monster->GetPosition();
-	pkt.set_detect_range(monster->GetDetectRange());
-	pkt.set_hp(monster->GetHp());
-	pkt.set_max_hp(monster->GetMaxHp());
-	zone->Broadcast(pkt);
+	zone->Broadcast(PacketMaker::MakeMonsterSpawn(*monster));
 
 	LOG_INFO("Monster spawned: guid=" + std::to_string(monster->GetGuid())
 		+ " name=" + name + " zone=" + std::to_string(zoneId));
@@ -65,14 +59,7 @@ std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, int32 templateId,
 
 	zone->Add(monster);
 
-	Proto::S_MonsterSpawn pkt;
-	pkt.set_guid(monster->GetGuid());
-	pkt.set_name(monster->GetName());
-	*pkt.mutable_position() = monster->GetPosition();
-	pkt.set_detect_range(monster->GetDetectRange());
-	pkt.set_hp(monster->GetHp());
-	pkt.set_max_hp(monster->GetMaxHp());
-	zone->Broadcast(pkt);
+	zone->Broadcast(PacketMaker::MakeMonsterSpawn(*monster));
 
 	LOG_INFO(std::format("Monster spawned: guid={} template={} name={} zone={}",
 		monster->GetGuid(), templateId, tmpl->name, zoneId));
@@ -85,10 +72,7 @@ void MonsterManager::Despawn(int32 zoneId, long long guid)
 	if (!zone) return;
 
 	zone->Remove(guid);
-
-	Proto::S_MonsterDespawn pkt;
-	pkt.set_guid(guid);
-	zone->Broadcast(pkt);
+	zone->Broadcast(PacketMaker::MakeMonsterDespawn(guid));
 
 	LOG_INFO("Monster despawned: guid=" + std::to_string(guid));
 }

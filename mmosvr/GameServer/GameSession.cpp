@@ -4,6 +4,7 @@
 #include "Server/SessionManager.h"
 #include "ZoneManager.h"
 #include "Packet/PacketHandler.h"
+#include "PacketMaker.h"
 #include "game.pb.h"
 
 
@@ -42,10 +43,8 @@ void GameSession::OnDisconnected()
 
 				playerService.RemovePlayer(playerId);
 
-				Proto::S_PlayerLeave leavePkt;
-				leavePkt.set_player_id(playerId);
 				if (auto* zone = GetZoneManager().GetZone(zoneId))
-					zone->Broadcast(leavePkt);
+					zone->Broadcast(PacketMaker::MakePlayerLeave(playerId));
 			});
 		}
 	}

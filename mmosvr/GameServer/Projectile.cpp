@@ -4,6 +4,7 @@
 #include "Unit.h"
 #include "Player.h"
 #include "Monster.h"
+#include "PacketMaker.h"
 
 
 void Projectile::Update(const float dt)
@@ -32,25 +33,16 @@ void Projectile::ApplyHit(Unit& target, const Proto::Vector3& hitPos)
 	const auto hpBefore = target.GetHp();
 	target.TakeDamage(damage_);
 
-	Proto::S_ProjectileHit pkt;
-	pkt.set_projectile_guid(GetGuid());
-	pkt.set_target_guid(target.GetGuid());
-	pkt.set_damage(damage_);
-	*pkt.mutable_hit_pos() = hitPos;
-	zone_.Broadcast(pkt);
+	zone_.Broadcast(PacketMaker::MakeProjectileHit(*this, target, hitPos));
 
 	if (target.GetHp() != hpBefore)   // only sync when HP actually changed
 	{
 		// S_UnitHp 는 guid 기반이라 Player/Monster 공통으로 재사용 가능.
 		// 몬스터도 방송해야 클라가 HP 바를 갱신한다.
-		Proto::S_UnitHp hpPkt;
-		hpPkt.set_hp(target.GetHp());
-		hpPkt.set_max_hp(target.GetMaxHp());
-		hpPkt.set_guid(target.GetGuid());
-		zone_.Broadcast(hpPkt);
+		zone_.Broadcast(PacketMaker::MakeUnitHp(target));
 	}
 
-	// --- Aggro accumulation (Phase 1) ---
+	// --- Aggro accumulation ---
 	// 플레이어가 몬스터에게 데미지를 주면 피해량 만큼 해당 몬스터의 AggroTable 에 누적.
 	// 실제 변화량(damage applied) 이 아닌 의도한 damage_ 를 쓴다 — overkill 에도 모든 기여가 반영.
 	if (ownerType_ == GameObjectType::Player &&
@@ -62,10 +54,7 @@ void Projectile::ApplyHit(Unit& target, const Proto::Vector3& hitPos)
 
 	consumed_ = true;
 
-	Proto::S_ProjectileDestroy destroyPkt;
-	destroyPkt.set_projectile_guid(GetGuid());
-	destroyPkt.set_reason(Proto::S_ProjectileDestroy_Reason_HIT);
-	zone_.Broadcast(destroyPkt);
+	zone_.Broadcast(PacketMaker::MakeProjectileDestroy(GetGuid(), Proto::S_ProjectileDestroy_Reason_HIT));
 }
 
 void Projectile::DestroyWith(Proto::S_ProjectileDestroy_Reason reason)
@@ -74,10 +63,7 @@ void Projectile::DestroyWith(Proto::S_ProjectileDestroy_Reason reason)
 		return;
 	consumed_ = true;
 
-	Proto::S_ProjectileDestroy pkt;
-	pkt.set_projectile_guid(GetGuid());
-	pkt.set_reason(reason);
-	zone_.Broadcast(pkt);
+	zone_.Broadcast(PacketMaker::MakeProjectileDestroy(GetGuid(), reason));
 }
 
 bool Projectile::IsHostile(const GameObject& other) const

@@ -1,0 +1,227 @@
+#include "pch.h"
+#include "PacketMaker.h"
+#include "Monster.h"
+#include "Player.h"
+#include "Unit.h"
+#include "Projectile.h"
+#include "HomingProjectile.h"
+#include "SkillshotProjectile.h"
+
+
+// ===========================================================================
+// Player
+// ===========================================================================
+
+Proto::S_EnterGame PacketMaker::MakeEnterGame(const Player& player, const Proto::Vector3& spawnPos)
+{
+	Proto::S_EnterGame pkt;
+	pkt.set_player_id(player.GetPlayerId());
+	pkt.set_guid(player.GetGuid());
+	*pkt.mutable_spawn_position() = spawnPos;
+	return pkt;
+}
+
+Proto::S_PlayerSpawn PacketMaker::MakePlayerSpawn(const Player& player)
+{
+	Proto::S_PlayerSpawn pkt;
+	*pkt.mutable_player() = MakePlayerInfo(player);
+	return pkt;
+}
+
+Proto::S_PlayerList PacketMaker::MakePlayerList(const std::vector<std::shared_ptr<Player>>& players)
+{
+	Proto::S_PlayerList pkt;
+	for (const auto& p : players)
+		*pkt.add_players() = MakePlayerInfo(*p);
+	return pkt;
+}
+
+Proto::S_PlayerMove PacketMaker::MakePlayerMove(const Player& player)
+{
+	Proto::S_PlayerMove pkt;
+	pkt.set_player_id(player.GetPlayerId());
+	*pkt.mutable_position() = player.GetPosition();
+	pkt.set_yaw(player.GetYaw());
+	return pkt;
+}
+
+Proto::S_PlayerLeave PacketMaker::MakePlayerLeave(const int32 playerId)
+{
+	Proto::S_PlayerLeave pkt;
+	pkt.set_player_id(playerId);
+	return pkt;
+}
+
+Proto::S_Chat PacketMaker::MakeChat(const Player& sender, const std::string& message)
+{
+	Proto::S_Chat pkt;
+	pkt.set_player_id(sender.GetPlayerId());
+	pkt.set_sender(sender.GetName());
+	pkt.set_message(message);
+	return pkt;
+}
+
+Proto::S_MoveCorrection PacketMaker::MakeMoveCorrection(const Proto::Vector3& position)
+{
+	Proto::S_MoveCorrection pkt;
+	*pkt.mutable_position() = position;
+	return pkt;
+}
+
+
+// ===========================================================================
+// Monster
+// ===========================================================================
+
+Proto::S_MonsterSpawn PacketMaker::MakeMonsterSpawn(const Monster& monster)
+{
+	Proto::S_MonsterSpawn pkt;
+	*pkt.mutable_monster() = MakeMonsterInfo(monster);
+	return pkt;
+}
+
+Proto::S_MonsterList PacketMaker::MakeMonsterList(const std::vector<std::shared_ptr<Monster>>& monsters)
+{
+	Proto::S_MonsterList pkt;
+	for (const auto& m : monsters)
+		*pkt.add_monsters() = MakeMonsterInfo(*m);
+	return pkt;
+}
+
+Proto::S_MonsterMove PacketMaker::MakeMonsterMove(const Monster& monster)
+{
+	Proto::S_MonsterMove pkt;
+	pkt.set_guid(monster.GetGuid());
+	*pkt.mutable_position() = monster.GetPosition();
+	return pkt;
+}
+
+Proto::S_MonsterDespawn PacketMaker::MakeMonsterDespawn(const long long guid)
+{
+	Proto::S_MonsterDespawn pkt;
+	pkt.set_guid(guid);
+	return pkt;
+}
+
+Proto::S_MonsterState PacketMaker::MakeMonsterState(const Monster& monster, const MonsterStateId nextState)
+{
+	Proto::S_MonsterState pkt;
+	pkt.set_guid(monster.GetGuid());
+	pkt.set_state(static_cast<uint32>(nextState));
+	pkt.set_target_guid(monster.GetTargetGuid());
+	return pkt;
+}
+
+Proto::S_MonsterAttack PacketMaker::MakeMonsterAttack(const Monster& attacker, const long long targetGuid, const int32 damage)
+{
+	Proto::S_MonsterAttack pkt;
+	pkt.set_monster_guid(attacker.GetGuid());
+	pkt.set_target_guid(targetGuid);
+	pkt.set_damage(damage);
+	return pkt;
+}
+
+Proto::S_HitscanAttack PacketMaker::MakeHitscanAttack(const Unit& attacker, const Unit& target, const int32 damage)
+{
+	Proto::S_HitscanAttack pkt;
+	pkt.set_attacker_guid(attacker.GetGuid());
+	pkt.set_target_guid(target.GetGuid());
+	*pkt.mutable_start_position() = attacker.GetPosition();
+	*pkt.mutable_hit_position() = target.GetPosition();
+	pkt.set_damage(damage);
+	return pkt;
+}
+
+
+// ===========================================================================
+// Unit
+// ===========================================================================
+
+Proto::S_UnitHp PacketMaker::MakeUnitHp(const Unit& unit)
+{
+	Proto::S_UnitHp pkt;
+	pkt.set_guid(unit.GetGuid());
+	pkt.set_hp(unit.GetHp());
+	pkt.set_max_hp(unit.GetMaxHp());
+	return pkt;
+}
+
+
+// ===========================================================================
+// Projectile
+// ===========================================================================
+
+Proto::S_ProjectileSpawn PacketMaker::MakeHomingProjectileSpawn(const HomingProjectile& projectile)
+{
+	Proto::S_ProjectileSpawn pkt;
+	pkt.set_guid(projectile.GetGuid());
+	pkt.set_owner_guid(projectile.GetOwnerGuid());
+	pkt.set_kind(Proto::PROJECTILE_HOMING);
+	*pkt.mutable_start_pos() = projectile.GetPosition();
+	pkt.set_speed(projectile.GetSpeed());
+	pkt.set_target_guid(projectile.GetTargetGuid());
+	pkt.set_max_lifetime(projectile.GetLifetimeLimit());
+	return pkt;
+}
+
+Proto::S_ProjectileSpawn PacketMaker::MakeSkillshotProjectileSpawn(const SkillshotProjectile& projectile)
+{
+	Proto::S_ProjectileSpawn pkt;
+	pkt.set_guid(projectile.GetGuid());
+	pkt.set_owner_guid(projectile.GetOwnerGuid());
+	pkt.set_kind(Proto::PROJECTILE_SKILLSHOT);
+	*pkt.mutable_start_pos() = projectile.GetPosition();
+	pkt.set_speed(projectile.GetSpeed());
+	auto* dir = pkt.mutable_dir();
+	dir->set_x(projectile.GetDirX());
+	dir->set_y(0.0f);
+	dir->set_z(projectile.GetDirZ());
+	pkt.set_radius(projectile.GetRadius());
+	pkt.set_max_range(projectile.GetRangeLimit());
+	return pkt;
+}
+
+Proto::S_ProjectileHit PacketMaker::MakeProjectileHit(const Projectile& projectile, const Unit& target, const Proto::Vector3& hitPos)
+{
+	Proto::S_ProjectileHit pkt;
+	pkt.set_projectile_guid(projectile.GetGuid());
+	pkt.set_target_guid(target.GetGuid());
+	pkt.set_damage(projectile.GetDamage());
+	*pkt.mutable_hit_pos() = hitPos;
+	return pkt;
+}
+
+Proto::S_ProjectileDestroy PacketMaker::MakeProjectileDestroy(const long long projectileGuid, const Proto::S_ProjectileDestroy_Reason reason)
+{
+	Proto::S_ProjectileDestroy pkt;
+	pkt.set_projectile_guid(projectileGuid);
+	pkt.set_reason(reason);
+	return pkt;
+}
+
+
+// ===========================================================================
+// Private DTO builders
+// ===========================================================================
+
+Proto::MonsterInfo PacketMaker::MakeMonsterInfo(const Monster& monster)
+{
+	Proto::MonsterInfo info;
+	info.set_guid(monster.GetGuid());
+	info.set_name(monster.GetName());
+	*info.mutable_position() = monster.GetPosition();
+	info.set_detect_range(monster.GetDetectRange());
+	info.set_hp(monster.GetHp());
+	info.set_max_hp(monster.GetMaxHp());
+	return info;
+}
+
+Proto::PlayerInfo PacketMaker::MakePlayerInfo(const Player& player)
+{
+	Proto::PlayerInfo info;
+	info.set_player_id(player.GetPlayerId());
+	info.set_name(player.GetName());
+	*info.mutable_position() = player.GetPosition();
+	info.set_guid(player.GetGuid());
+	return info;
+}

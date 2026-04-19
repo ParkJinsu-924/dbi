@@ -27,6 +27,9 @@ public:
 	bool IsConsumed() const { return consumed_; }
 	long long GetOwnerGuid() const { return ownerGuid_; }
 	GameObjectType GetOwnerType() const { return ownerType_; }
+	int32 GetDamage() const { return damage_; }
+	float GetSpeed() const { return speed_; }
+	float GetLifetimeLimit() const { return lifetimeLimit_; }
 
 protected:
 	virtual void Step(float dt)  = 0;

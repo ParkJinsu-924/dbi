@@ -4,7 +4,7 @@
 
 void AggroTable::Add(const long long playerGuid, const float amount)
 {
-	if (playerGuid == 0 || amount <= 0.0f)
+	if (playerGuid == 0)
 		return;
 	table_[playerGuid] += amount;
 	oocTimer_ = 0.0f;  // 전투 활동 감지 → OOC 카운터 리셋
