@@ -3,7 +3,6 @@
 #include "GameObject.h"
 #include "BuffContainer.h"
 
-class Zone;
 struct Effect;
 
 
@@ -33,10 +32,6 @@ public:
 		hp_ = (std::max)(0, hp_ - amount);
 	}
 	void Heal(int32 amount) { hp_ = (std::min)(maxHp_, hp_ + amount); }
-
-	// Zone 참조 — BuffContainer 가 S_BuffApplied/Removed 브로드캐스트 시 사용.
-	// 파생 클래스 (Monster/Player) 가 override.
-	virtual Zone* GetZone() const { return nullptr; }
 
 	// ─── Buff 시스템 facade (실체는 BuffContainer) ─────────────────
 	// 모든 메서드는 buffs_ 로 위임. 버프 관련 정책/상태는 BuffContainer.h/cpp 참조.

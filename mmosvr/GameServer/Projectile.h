@@ -19,8 +19,9 @@ public:
 		, damage_(damage)
 		, speed_(speed)
 		, lifetimeLimit_(lifetimeLimit)
-		, zone_(zone)
 	{
+		// Projectile 은 언제나 Zone 과 함께 태어난다 — GameObject::zone_ 를 ctor 에서 고정.
+		SetZone(&zone);
 	}
 
 	void Update(float dt) override final;
@@ -54,5 +55,4 @@ protected:
 	float          lifetime_      = 0.0f;
 	float          lifetimeLimit_;        // 0 이하 = 비활성 (구 maxLifetime_ — max 매크로 충돌 회피)
 	bool           consumed_      = false;
-	Zone&          zone_;                 // 생성자에서 Zone::this 바인딩, 수명 동안 고정
 };

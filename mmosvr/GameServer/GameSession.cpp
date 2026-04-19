@@ -28,23 +28,21 @@ void GameSession::OnDisconnected()
 			jobQueue->Push([playerId]()
 			{
 				auto& playerService = GetPlayerManager();
-				int32 zoneId = 0;
+				Zone* zone = nullptr;
 				long long guid = 0;
 
 				if (auto player = playerService.FindPlayer(playerId))
 				{
-					zoneId = player->GetZoneId();
+					zone = player->GetZone();
 					guid = player->GetGuid();
 					player->UnbindSession();
 				}
 
-				if (auto* zone = GetZoneManager().GetZone(zoneId))
-					zone->Remove(guid);
+				if (zone) zone->Remove(guid);
 
 				playerService.RemovePlayer(playerId);
 
-				if (auto* zone = GetZoneManager().GetZone(zoneId))
-					zone->Broadcast(PacketMaker::MakePlayerLeave(playerId));
+				if (zone) zone->Broadcast(PacketMaker::MakePlayerLeave(playerId));
 			});
 		}
 	}

@@ -11,11 +11,10 @@
 #include <cmath>
 
 
-void Monster::InitAI(const Proto::Vector2& spawnPos, Zone* zone)
+void Monster::InitAI(const Proto::Vector2& spawnPos)
 {
 	spawnPos_ = spawnPos;
 	position_ = spawnPos;
-	zone_ = zone;
 
 	// GlobalState: detect player in Idle/Patrol -> Chase
 	fsm_.SetGlobalState<MonsterGlobalState>();
@@ -79,7 +78,7 @@ std::shared_ptr<Player> Monster::GetTarget() const
 {
 	if (targetGuid_ == 0 || !zone_)
 		return nullptr;
-	return zone_->FindAs<Player>(targetGuid_);
+	return GetZone()->FindAs<Player>(targetGuid_);
 }
 
 float Monster::DistanceToSpawn() const
@@ -137,5 +136,5 @@ void Monster::BroadcastState(MonsterStateId /*prev*/, MonsterStateId next)
 {
 	if (!zone_)
 		return;
-	zone_->Broadcast(PacketMaker::MakeMonsterState(*this, next));
+	GetZone()->Broadcast(PacketMaker::MakeMonsterState(*this, next));
 }

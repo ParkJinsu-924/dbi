@@ -78,8 +78,7 @@ Proto::ErrorCode GamePacketHandler::SS_ValidateToken(std::shared_ptr<ServerSessi
 	gameSession->SetPlayerId(playerId);
 	player->BindSession(gameSession);
 
-	// Put the player into the default zone
-	player->SetZoneId(DEFAULT_ZONE_ID);
+	// Put the player into the default zone — Zone::Add 가 player->SetZone(this) 자동 수행
 	if (auto* zone = GetZoneManager().GetZone(DEFAULT_ZONE_ID))
 	{
 		zone->Add(player);
@@ -138,7 +137,7 @@ Proto::ErrorCode GamePacketHandler::C_PlayerMove(std::shared_ptr<GameSession> se
 	player->SetPosition(validatedPos);
 	player->SetYaw(pkt.yaw());
 
-	if (auto* zone = GetZoneManager().GetZone(player->GetZoneId()))
+	if (auto* zone = player->GetZone())
 		zone->Broadcast(PacketMaker::MakePlayerMove(*player));
 	return Proto::ErrorCode::OK;
 }
@@ -177,7 +176,7 @@ Proto::ErrorCode GamePacketHandler::C_StopMove(std::shared_ptr<GameSession> sess
 	player->ClearDestination();
 
 	// 정지 시점 최종 위치를 1회 브로드캐스트해서 다른 클라이언트의 보간이 정확히 끝나도록 한다
-	if (auto* zone = GetZoneManager().GetZone(player->GetZoneId()))
+	if (auto* zone = player->GetZone())
 		zone->Broadcast(PacketMaker::MakePlayerMove(*player));
 
 	return Proto::ErrorCode::OK;
@@ -189,7 +188,7 @@ Proto::ErrorCode GamePacketHandler::C_Chat(std::shared_ptr<GameSession> session,
 	if (!player)
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
 
-	if (auto* zone = GetZoneManager().GetZone(player->GetZoneId()))
+	if (auto* zone = player->GetZone())
 		zone->Broadcast(PacketMaker::MakeChat(*player, pkt.message()));
 
 	LOG_INFO("[Chat] " + player->GetName() + ": " + pkt.message());

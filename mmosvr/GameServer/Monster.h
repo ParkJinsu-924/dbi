@@ -5,7 +5,6 @@
 #include "AttackTypes.h"
 #include "AggroTable.h"
 
-class Zone;
 class Player;
 struct SkillTemplate;
 
@@ -21,7 +20,8 @@ public:
 	void Update(float deltaTime) override;
 
 	// --- AI 초기화 ---
-	void InitAI(const Proto::Vector2& spawnPos, Zone* zone);
+	// 호출 전에 Zone::Add 로 존에 배치되어 있어야 한다 (GetZone() 사용).
+	void InitAI(const Proto::Vector2& spawnPos);
 
 	// --- FSM 접근 ---
 	MonsterFSM&       GetFSM()       { return fsm_; }
@@ -29,7 +29,6 @@ public:
 	MonsterStateId    GetStateId() const { return fsm_.GetCurrentStateId(); }
 
 	// --- 상태에서 사용하는 public 유틸리티 ---
-	Zone*                 GetZone()  const override { return zone_; }
 	const Proto::Vector2& GetSpawnPos() const { return spawnPos_; }
 
 	void SetTarget(long long guid) { targetGuid_ = guid; }
@@ -67,7 +66,6 @@ private:
 
 	// --- FSM ---
 	MonsterFSM fsm_;
-	Zone* zone_ = nullptr;
 	Proto::Vector2 spawnPos_;
 	long long targetGuid_ = 0;
 

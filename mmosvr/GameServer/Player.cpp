@@ -1,7 +1,5 @@
 ﻿#include "pch.h"
 #include "Player.h"
-#include "Zone.h"
-#include "ZoneManager.h"
 #include "Utils/MathUtil.h"
 
 
@@ -45,11 +43,6 @@ bool Player::TryConsumeCooldown(const int32 skillId, const float cooldownSec)
 
 	skillCooldowns_[skillId] = now + cooldownSec;
 	return true;
-}
-
-Zone* Player::GetZone() const
-{
-	return GetZoneManager().GetZone(GetZoneId());
 }
 
 void Player::Update(const float deltaTime)

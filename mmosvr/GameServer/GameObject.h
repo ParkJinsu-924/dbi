@@ -6,6 +6,8 @@
 #include "Utils/ObjectGuidGenerator.h"
 #include <string>
 
+class Zone;
+
 
 enum class GameObjectType
 {
@@ -65,9 +67,11 @@ public:
 		return MathUtil::Distance2DSq(position_, other.position_);
 	}
 
-	// Zone
-	int32 GetZoneId() const { return zoneId_; }
-	void SetZoneId(int32 id) { zoneId_ = id; }
+	// Zone — 모든 GameObject 는 "현재 어떤 Zone 에 있는가" 를 zone_ 포인터로 보유.
+	// nullptr = 아직 어떤 Zone 에도 배치되지 않음. Zone::Add 가 자동으로 SetZone 을 호출.
+	Zone* GetZone() const { return zone_; }
+	void  SetZone(Zone* z) { zone_ = z; }
+	int32 GetZoneId() const;   // zone_ ? zone_->GetId() : 0  (정의는 GameObject.cpp)
 
 protected:
 	const GameObjectType type_;
@@ -75,5 +79,5 @@ protected:
 	std::string name_;
 
 	Proto::Vector2 position_;
-	int32 zoneId_ = 0;
+	Zone* zone_ = nullptr;
 };

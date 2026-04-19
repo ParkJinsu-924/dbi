@@ -21,6 +21,7 @@ namespace
 
 void Zone::Add(std::shared_ptr<GameObject> obj)
 {
+	obj->SetZone(this);
 	InsertObject(std::move(obj));
 }
 
@@ -227,7 +228,7 @@ std::shared_ptr<HomingProjectile> Zone::SpawnHomingProjectile(
 		ownerGuid, ownerType, targetGuid,
 		skillId, damage, speed, lifetime, *this);
 	p->SetPosition(startPos);
-	p->SetZoneId(zoneId_);
+	p->SetZone(this);
 
 	pendingAdd_.push_back(p);
 
@@ -246,7 +247,7 @@ std::shared_ptr<SkillshotProjectile> Zone::SpawnSkillshotProjectile(
 		ownerGuid, ownerType, dirX, dirZ,
 		skillId, damage, speed, radius, range, *this);
 	p->SetPosition(startPos);
-	p->SetZoneId(zoneId_);
+	p->SetZone(this);
 
 	pendingAdd_.push_back(p);
 

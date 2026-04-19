@@ -17,10 +17,8 @@ std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, const std::string& 
 		return nullptr;
 
 	auto monster = std::make_shared<Monster>(name);
-	monster->SetZoneId(zoneId);
-	monster->InitAI(spawnPos, zone);
-
-	zone->Add(monster);
+	zone->Add(monster);                 // Zone::Add 가 obj->SetZone(this) 자동 수행
+	monster->InitAI(spawnPos);          // FSM 시작 시 BroadcastState 가 GetZone() 사용 — Add 이후여야 함
 
 	zone->Broadcast(PacketMaker::MakeMonsterSpawn(*monster));
 
@@ -44,16 +42,14 @@ std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, int32 templateId,
 		return nullptr;
 
 	auto monster = std::make_shared<Monster>(tmpl->name);
-	monster->SetZoneId(zoneId);
 	monster->SetHp(tmpl->hp);
 	monster->SetMaxHp(tmpl->maxHp);
 	monster->SetDetectRange(tmpl->detectRange);
 	monster->SetLeashRange(tmpl->leashRange);
 	monster->SetMoveSpeed(tmpl->moveSpeed);
 	monster->SetBasicSkillId(tmpl->basicSkillId);
-	monster->InitAI(spawnPos, zone);
-
-	zone->Add(monster);
+	zone->Add(monster);                 // Zone::Add 가 obj->SetZone(this) 자동 수행
+	monster->InitAI(spawnPos);          // FSM 시작 시 BroadcastState 가 GetZone() 사용 — Add 이후여야 함
 
 	zone->Broadcast(PacketMaker::MakeMonsterSpawn(*monster));
 

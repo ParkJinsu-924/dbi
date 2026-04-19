@@ -34,7 +34,7 @@ void Projectile::ApplyHit(Unit& target, const Proto::Vector2& hitPos)
 	const int32 hpBefore = target.GetHp();
 
 	// caster Unit 조회 (OnHit Self-scope Effect 와 Aggro 용). 사라졌으면 nullptr.
-	auto ownerObj = zone_.Find(ownerGuid_);
+	auto ownerObj = GetZone()->Find(ownerGuid_);
 	Unit* casterUnit = nullptr;
 	if (ownerObj &&
 		(ownerObj->GetType() == GameObjectType::Player ||
@@ -49,12 +49,12 @@ void Projectile::ApplyHit(Unit& target, const Proto::Vector2& hitPos)
 
 	const int32 actualDmg = hpBefore - target.GetHp();   // 0 if invulnerable or no Damage effect
 
-	zone_.Broadcast(PacketMaker::MakeSkillHit(
+	GetZone()->Broadcast(PacketMaker::MakeSkillHit(
 		ownerGuid_, target.GetGuid(), skillId_, actualDmg,
 		GetPosition(), hitPos));
 
 	if (actualDmg != 0)
-		zone_.Broadcast(PacketMaker::MakeUnitHp(target));
+		GetZone()->Broadcast(PacketMaker::MakeUnitHp(target));
 
 	// --- Aggro accumulation ---
 	// 플레이어 → 몬스터 피격 시 실제 적용 데미지를 aggro 로 누적.
@@ -68,7 +68,7 @@ void Projectile::ApplyHit(Unit& target, const Proto::Vector2& hitPos)
 
 	consumed_ = true;
 
-	zone_.Broadcast(PacketMaker::MakeProjectileDestroy(GetGuid(), Proto::S_ProjectileDestroy_Reason_HIT));
+	GetZone()->Broadcast(PacketMaker::MakeProjectileDestroy(GetGuid(), Proto::S_ProjectileDestroy_Reason_HIT));
 }
 
 void Projectile::DestroyWith(Proto::S_ProjectileDestroy_Reason reason)
@@ -77,7 +77,7 @@ void Projectile::DestroyWith(Proto::S_ProjectileDestroy_Reason reason)
 		return;
 	consumed_ = true;
 
-	zone_.Broadcast(PacketMaker::MakeProjectileDestroy(GetGuid(), reason));
+	GetZone()->Broadcast(PacketMaker::MakeProjectileDestroy(GetGuid(), reason));
 }
 
 bool Projectile::IsHostile(const GameObject& other) const
