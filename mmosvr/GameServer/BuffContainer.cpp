@@ -93,3 +93,33 @@ void BuffContainer::GetStatModifier(const StatType stat, float& outFlat, float& 
 			outFlat    += eff->magnitude;
 	}
 }
+
+void BuffContainer::ApplyEffect(const Effect& e, const long long casterGuid)
+{
+	switch (e.type)
+	{
+	case EffectType::Damage:
+		owner_->TakeDamage(static_cast<int32>(e.magnitude));
+		break;
+
+	case EffectType::Heal:
+		owner_->Heal(static_cast<int32>(e.magnitude));
+		break;
+
+	case EffectType::StatMod:
+	case EffectType::CCState:
+		Add(e, casterGuid);
+		break;
+
+	default:
+		// Dash/Summon 등은 Phase 2+.
+		break;
+	}
+}
+
+float BuffContainer::EffectiveMoveSpeed(const float baseSpeed) const
+{
+	float flat = 0.0f, pct = 0.0f;
+	GetStatModifier(StatType::MoveSpeed, flat, pct);
+	return (std::max)(0.0f, baseSpeed * (1.0f + pct) + flat);
+}

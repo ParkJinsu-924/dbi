@@ -29,7 +29,7 @@ public:
 	MonsterStateId    GetStateId() const { return fsm_.GetCurrentStateId(); }
 
 	// --- 상태에서 사용하는 public 유틸리티 ---
-	Zone*  GetZone()  const { return zone_; }
+	Zone*                 GetZone()  const override { return zone_; }
 	const Proto::Vector2& GetSpawnPos() const { return spawnPos_; }
 
 	void SetTarget(long long guid) { targetGuid_ = guid; }

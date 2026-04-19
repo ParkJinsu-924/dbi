@@ -92,7 +92,6 @@
         <ClCompile Include="GamePacketHandler.cpp"/>
         <ClCompile Include="PacketMaker.cpp"/>
         <ClCompile Include="BuffContainer.cpp"/>
-        <ClCompile Include="Unit.cpp"/>
         <ClCompile Include="Monster.cpp"/>
         <ClCompile Include="MonsterStates.cpp"/>
         <ClCompile Include="AggroTable.cpp"/>

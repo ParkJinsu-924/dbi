@@ -42,6 +42,10 @@ public:
 	// 외부 해제 (Dispel 등). true = 실제 제거됨.
 	bool Remove(int32 eid);
 
+	// SkillRuntime 이 OnCast/OnHit 트리거의 Effect 를 이 메서드로 적용한다.
+	// 즉발(Damage/Heal) 은 owner 에 즉시 처리, 지속(StatMod/CCState) 은 Add.
+	void ApplyEffect(const Effect& e, long long casterGuid);
+
 	// 부착된 모든 Buff 의 cc_flag bitwise OR.
 	uint32 GetCCFlags() const;
 
@@ -50,7 +54,24 @@ public:
 	// outPercent: 비율 보정 (0.3 = +30%, -0.3 = -30%). 중첩은 단순 합산.
 	void GetStatModifier(StatType stat, float& outFlat, float& outPercent) const;
 
+	// base 이동속도에 MoveSpeed 버프 적용. 최종값 = max(0, base*(1+pct)+flat).
+	float EffectiveMoveSpeed(float baseSpeed) const;
+
 	const std::vector<Entry>& GetEntries() const { return entries_; }
+
+	// ─── CC 상태 (원시 플래그 조회) ────────────────────────────
+	bool IsStunned() const      { return GetCCFlags() & static_cast<uint32>(CCFlag::Stun); }
+	bool IsSilenced() const     { return GetCCFlags() & static_cast<uint32>(CCFlag::Silence); }
+	bool IsRooted() const       { return GetCCFlags() & static_cast<uint32>(CCFlag::Root); }
+	bool IsInvulnerable() const { return GetCCFlags() & static_cast<uint32>(CCFlag::Invulnerable); }
+
+	// ─── 의미적 능력 체크 — "어떤 CC 가 어떤 액션을 막는가" 정책 단일 소스 ───
+	// 새 CC 가 추가되어도 여기만 수정하면 모든 호출 지점에 자동 반영.
+	bool CanAct()			const { return !IsStunned(); }                   // 총체적 행동 가능 여부 (Monster FSM 등)
+	bool CanMove()			const { return !(IsStunned() || IsRooted()); }   // 이동 가능
+	bool CanAttack()		const { return !IsStunned(); }                   // 평타 (Silence 는 평타 허용)
+	bool CanCastSkill()		const { return !(IsStunned() || IsSilenced()); } // 스킬 시전
+	bool CanIgnoreDamage () const { return IsInvulnerable(); }
 
 private:
 	Unit* owner_;
