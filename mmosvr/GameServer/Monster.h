@@ -12,8 +12,8 @@ struct SkillTemplate;
 class Monster : public Npc
 {
 public:
-	explicit Monster(std::string name = "")
-		: Npc(GameObjectType::Monster, std::move(name))
+	Monster(std::string name, Zone& zone)
+		: Npc(GameObjectType::Monster, zone, std::move(name))
 	{
 	}
 

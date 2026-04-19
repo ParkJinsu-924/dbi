@@ -71,24 +71,24 @@ Proto::ErrorCode GamePacketHandler::SS_ValidateToken(std::shared_ptr<ServerSessi
 		return Proto::ErrorCode::OK;
 	}
 	
+	// Zone 확보를 Player 생성 전에 선행 — 좀비 Player(zone 미설정 상태 등록) 방지.
+	auto* zone = GetZoneManager().GetZone(DEFAULT_ZONE_ID);
+	if (!zone)
+	{
+		SendErrorTo<Proto::C_EnterGame>(gameSession, Proto::ErrorCode::INTERNAL_ERROR);
+		LOG_ERROR("DEFAULT_ZONE_ID not available — rejecting C_EnterGame");
+		return Proto::ErrorCode::OK;
+	}
+
 	const std::string playerName = pkt.username();
-	const auto player = GetPlayerManager().AddPlayer(playerName);
+	const auto player = GetPlayerManager().CreatePlayerInZone(playerName, *zone, gameSession);
 	const int32 playerId = player->GetPlayerId();
 
-	gameSession->SetPlayerId(playerId);
-	player->BindSession(gameSession);
-
-	// Put the player into the default zone — Zone::Add 가 player->SetZone(this) 자동 수행
-	if (auto* zone = GetZoneManager().GetZone(DEFAULT_ZONE_ID))
-	{
-		zone->Add(player);
-
-		// Notify existing players in the zone about the new arrival.
-		// 본인은 아직 S_EnterGame 도 못 받은 시점이라 제외한다
-		// (그냥 Broadcast 하면 본인 세션에 S_PlayerSpawn 이 S_EnterGame 보다 먼저 도착해서
-		//  클라가 자기 자신을 others 에 등록하는 버그 발생).
-		zone->BroadcastExcept(PacketMaker::MakePlayerSpawn(*player), player->GetGuid());
-	}
+	// Notify existing players in the zone about the new arrival.
+	// 본인은 아직 S_EnterGame 도 못 받은 시점이라 제외한다
+	// (그냥 Broadcast 하면 본인 세션에 S_PlayerSpawn 이 S_EnterGame 보다 먼저 도착해서
+	//  클라가 자기 자신을 others 에 등록하는 버그 발생).
+	zone->BroadcastExcept(PacketMaker::MakePlayerSpawn(*player), player->GetGuid());
 
 	Proto::Vector2 spawnPos;
 	spawnPos.set_x(0.0f);
@@ -97,11 +97,7 @@ Proto::ErrorCode GamePacketHandler::SS_ValidateToken(std::shared_ptr<ServerSessi
 
 	gameSession->Send(PacketMaker::MakePlayerList(GetPlayerManager().GetAllPlayers()));
 
-	// Send existing monsters in the zone
-	auto* defaultZone = GetZoneManager().GetZone(DEFAULT_ZONE_ID);
-	auto monstersInZone = defaultZone ? defaultZone->GetObjectsByType<Monster>()
-		: std::vector<std::shared_ptr<Monster>>{};
-	gameSession->Send(PacketMaker::MakeMonsterList(monstersInZone));
+	gameSession->Send(PacketMaker::MakeMonsterList(zone->GetObjectsByType<Monster>()));
 
 	LOG_INFO("Player entered game: id=" + std::to_string(playerId) + " name=" + playerName);
 	return Proto::ErrorCode::OK;
@@ -137,8 +133,7 @@ Proto::ErrorCode GamePacketHandler::C_PlayerMove(std::shared_ptr<GameSession> se
 	player->SetPosition(validatedPos);
 	player->SetYaw(pkt.yaw());
 
-	if (auto* zone = player->GetZone())
-		zone->Broadcast(PacketMaker::MakePlayerMove(*player));
+	player->GetZone().Broadcast(PacketMaker::MakePlayerMove(*player));
 	return Proto::ErrorCode::OK;
 }
 
@@ -176,8 +171,7 @@ Proto::ErrorCode GamePacketHandler::C_StopMove(std::shared_ptr<GameSession> sess
 	player->ClearDestination();
 
 	// 정지 시점 최종 위치를 1회 브로드캐스트해서 다른 클라이언트의 보간이 정확히 끝나도록 한다
-	if (auto* zone = player->GetZone())
-		zone->Broadcast(PacketMaker::MakePlayerMove(*player));
+	player->GetZone().Broadcast(PacketMaker::MakePlayerMove(*player));
 
 	return Proto::ErrorCode::OK;
 }
@@ -188,8 +182,7 @@ Proto::ErrorCode GamePacketHandler::C_Chat(std::shared_ptr<GameSession> session,
 	if (!player)
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
 
-	if (auto* zone = player->GetZone())
-		zone->Broadcast(PacketMaker::MakeChat(*player, pkt.message()));
+	player->GetZone().Broadcast(PacketMaker::MakeChat(*player, pkt.message()));
 
 	LOG_INFO("[Chat] " + player->GetName() + ": " + pkt.message());
 	return Proto::ErrorCode::OK;
@@ -201,9 +194,7 @@ Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> sess
 	if (!player)
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
 
-	auto* zone = player->GetZone();
-	if (!zone)
-		return Proto::ErrorCode::INTERNAL_ERROR;
+	Zone& playerZone = player->GetZone();
 	// 스킬 시전 CC 차단 — 조용히 무시 (쿨다운도 소비하지 않음)
 	if (!player->CanCastSkill())
 		return Proto::ErrorCode::OK;
@@ -229,17 +220,17 @@ Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> sess
 			std::shared_ptr<Monster> target;
 			if (pkt.target_guid() != 0)
 			{
-				target = zone->FindAs<Monster>(pkt.target_guid());
+				target = playerZone.FindAs<Monster>(pkt.target_guid());
 			}
 			else
 			{
-				target = zone->FindNearestMonster(player->GetPosition(), 30.0f);
+				target = playerZone.FindNearestMonster(player->GetPosition(), 30.0f);
 			}
 
 			if (!target || !target->IsAlive())
 				return Proto::ErrorCode::OK;  // 적 없음 — 조용히 무시
 
-			SkillRuntime::CastHoming(*player, target->GetGuid(), *sk, *zone);
+			SkillRuntime::CastHoming(*player, target->GetGuid(), *sk, playerZone);
 		}
 		break;
 		case SkillKind::Skillshot:
@@ -248,7 +239,7 @@ Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> sess
 			if (!dir)
 				return Proto::ErrorCode::INVALID_REQUEST;
 
-			SkillRuntime::CastSkillshot(*player, dir->x, dir->y, *sk, *zone);
+			SkillRuntime::CastSkillshot(*player, dir->x, dir->y, *sk, playerZone);
 		}
 		break;
 		default: ;

@@ -33,7 +33,7 @@ void GameSession::OnDisconnected()
 
 				if (auto player = playerService.FindPlayer(playerId))
 				{
-					zone = player->GetZone();
+					zone = &player->GetZone();
 					guid = player->GetGuid();
 					player->UnbindSession();
 				}

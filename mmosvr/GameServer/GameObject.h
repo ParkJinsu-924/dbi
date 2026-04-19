@@ -21,16 +21,17 @@ class GameObject
 {
 public:
 	// Explicit GUID (used by Player — GUID distinct from playerId)
-	GameObject(const GameObjectType type, const long long guid, std::string name = "")
+	GameObject(const GameObjectType type, Zone& zone, const long long guid, std::string name = "")
 		: type_(type)
 		, guid_(guid)
 		, name_(std::move(name))
+		, zone_(zone)
 	{
 	}
 
-	// Auto-allocated GUID (used by Monster, Npc)
-	explicit GameObject(GameObjectType type, std::string name = "")
-		: GameObject(type, GetObjectGuidGenerator().Generate(), std::move(name))
+	// Auto-allocated GUID (used by Monster, Npc, Projectile)
+	GameObject(GameObjectType type, Zone& zone, std::string name = "")
+		: GameObject(type, zone, GetObjectGuidGenerator().Generate(), std::move(name))
 	{
 	}
 
@@ -67,11 +68,10 @@ public:
 		return MathUtil::Distance2DSq(position_, other.position_);
 	}
 
-	// Zone — 모든 GameObject 는 "현재 어떤 Zone 에 있는가" 를 zone_ 포인터로 보유.
-	// nullptr = 아직 어떤 Zone 에도 배치되지 않음. Zone::Add 가 자동으로 SetZone 을 호출.
-	Zone* GetZone() const { return zone_; }
-	void  SetZone(Zone* z) { zone_ = z; }
-	int32 GetZoneId() const;   // zone_ ? zone_->GetId() : 0  (정의는 GameObject.cpp)
+	// Zone — 모든 GameObject 는 ctor 에서 Zone 에 바인딩되고, 그 zone 에서 수명 동안 고정.
+	// Zone 간 이동은 "객체 재생성" 모델로 처리 (현 zone 에서 Remove → 새 zone 에서 Create).
+	Zone& GetZone() const { return zone_; }
+	int32 GetZoneId() const;   // zone_.GetId()  (정의는 GameObject.cpp)
 
 protected:
 	const GameObjectType type_;
@@ -79,5 +79,5 @@ protected:
 	std::string name_;
 
 	Proto::Vector2 position_;
-	Zone* zone_ = nullptr;
+	Zone& zone_;   // ctor 에서 바인딩, 재할당 불가
 };

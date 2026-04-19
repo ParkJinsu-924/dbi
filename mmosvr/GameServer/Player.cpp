@@ -3,8 +3,8 @@
 #include "Utils/MathUtil.h"
 
 
-Player::Player(int32 playerId, const std::string& name)
-	: Unit(GameObjectType::Player, GetObjectGuidGenerator().Generate(), name)
+Player::Player(int32 playerId, const std::string& name, Zone& zone)
+	: Unit(GameObjectType::Player, zone, GetObjectGuidGenerator().Generate(), name)
 	, playerId_(playerId)
 {
 	position_.set_x(0.0f);

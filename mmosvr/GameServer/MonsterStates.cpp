@@ -33,7 +33,7 @@ void MonsterGlobalState::OnUpdate(Monster& owner, float deltaTime)
 		}
 		
 		{ // 가까운 Player 탐지 시 Aggro 세팅
-			const auto player = owner.GetZone()->FindNearestPlayer(
+			const auto player = owner.GetZone().FindNearestPlayer(
 				owner.GetPosition(), owner.GetDetectRange());
 
 			if (player)
@@ -197,10 +197,7 @@ void ReturnState::OnEnter(Monster& owner)
 	
 	// TODO: Buff 시스템을 도입한 후, 무적 버프 추가 필요.
 	
-	if (const auto zone = owner.GetZone())
-	{
-		zone->Broadcast(PacketMaker::MakeUnitHp(owner));
-	}
+	owner.GetZone().Broadcast(PacketMaker::MakeUnitHp(owner));
 }
 
 void ReturnState::OnUpdate(Monster& owner, const float deltaTime)

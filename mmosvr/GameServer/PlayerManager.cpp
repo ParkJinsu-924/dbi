@@ -1,18 +1,26 @@
 ﻿#include "pch.h"
 #include "PlayerManager.h"
+#include "Zone.h"
 
 
-std::shared_ptr<Player> PlayerManager::AddPlayer(const std::string& name)
+std::shared_ptr<Player> PlayerManager::CreatePlayerInZone(
+	const std::string& name,
+	Zone& zone,
+	const std::shared_ptr<GameSession>& session)
 {
-	int32 id = nextPlayerId_.fetch_add(1);
-	auto player = std::make_shared<Player>(id, name);
+	const int32 id = nextPlayerId_.fetch_add(1);
+	auto player = std::make_shared<Player>(id, name, zone);   // zone_ ref 는 ctor 에서 바인딩
 
-	players_.Write([&](auto& m)
-		{
-			m[id] = player;
-		});
+	zone.Add(player);                                         // zone 의 object map 에 등록
+	if (session)
+	{
+		session->SetPlayerId(id);
+		player->BindSession(session);
+	}
 
-	LOG_INFO("Player added: id=" + std::to_string(id) + " name=" + name);
+	players_.Write([&](auto& m) { m[id] = player; });
+
+	LOG_INFO(std::format("Player created: id={} name={} zone={}", id, name, zone.GetId()));
 	return player;
 }
 

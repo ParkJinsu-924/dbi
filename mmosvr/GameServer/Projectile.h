@@ -12,7 +12,7 @@ class Projectile : public GameObject
 public:
 	Projectile(long long ownerGuid, GameObjectType ownerType,
 	           int32 skillId, int32 damage, float speed, float lifetimeLimit, Zone& zone)
-		: GameObject(GameObjectType::Projectile)
+		: GameObject(GameObjectType::Projectile, zone)
 		, ownerGuid_(ownerGuid)
 		, ownerType_(ownerType)
 		, skillId_(skillId)
@@ -20,8 +20,6 @@ public:
 		, speed_(speed)
 		, lifetimeLimit_(lifetimeLimit)
 	{
-		// Projectile 은 언제나 Zone 과 함께 태어난다 — GameObject::zone_ 를 ctor 에서 고정.
-		SetZone(&zone);
 	}
 
 	void Update(float dt) override final;

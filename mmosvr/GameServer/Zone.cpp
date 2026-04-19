@@ -21,7 +21,9 @@ namespace
 
 void Zone::Add(std::shared_ptr<GameObject> obj)
 {
-	obj->SetZone(this);
+	// obj 의 zone_ 멤버는 ctor 에서 이미 바인딩 — 이 Zone 과 같아야 한다.
+	// (object 재생성 모델이라 한 객체가 다른 Zone 으로 옮겨가지 않는다.)
+	assert(&obj->GetZone() == this);
 	InsertObject(std::move(obj));
 }
 
@@ -228,7 +230,6 @@ std::shared_ptr<HomingProjectile> Zone::SpawnHomingProjectile(
 		ownerGuid, ownerType, targetGuid,
 		skillId, damage, speed, lifetime, *this);
 	p->SetPosition(startPos);
-	p->SetZone(this);
 
 	pendingAdd_.push_back(p);
 
@@ -247,7 +248,6 @@ std::shared_ptr<SkillshotProjectile> Zone::SpawnSkillshotProjectile(
 		ownerGuid, ownerType, dirX, dirZ,
 		skillId, damage, speed, radius, range, *this);
 	p->SetPosition(startPos);
-	p->SetZone(this);
 
 	pendingAdd_.push_back(p);
 

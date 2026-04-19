@@ -18,15 +18,13 @@ bool BuffContainer::Add(const Effect& e, const long long casterGuid)
 		{
 			entry.remainingDuration = e.duration;
 			entry.casterGuid        = casterGuid;
-			if (const auto zone = owner_->GetZone())
-				zone->Broadcast(PacketMaker::MakeBuffApplied(owner_->GetGuid(), e, casterGuid));
+			owner_->GetZone().Broadcast(PacketMaker::MakeBuffApplied(owner_->GetGuid(), e, casterGuid));
 			return true;
 		}
 	}
 
 	entries_.push_back({ &e, casterGuid, e.duration });
-	if (const auto zone = owner_->GetZone())
-		zone->Broadcast(PacketMaker::MakeBuffApplied(owner_->GetGuid(), e, casterGuid));
+	owner_->GetZone().Broadcast(PacketMaker::MakeBuffApplied(owner_->GetGuid(), e, casterGuid));
 	return true;
 }
 
@@ -35,7 +33,7 @@ void BuffContainer::Tick(const float dt)
 	if (entries_.empty())
 		return;
 
-	Zone* zone = owner_->GetZone();
+	Zone& zone = owner_->GetZone();
 
 	// 만료된 엔트리 제거 (swap-and-pop 대신 erase-remove 로 순서 유지 — 로그 가독성).
 	for (auto it = entries_.begin(); it != entries_.end();)
@@ -45,8 +43,7 @@ void BuffContainer::Tick(const float dt)
 		{
 			const int32 expiredEid = it->effect->eid;
 			it = entries_.erase(it);
-			if (zone)
-				zone->Broadcast(PacketMaker::MakeBuffRemoved(owner_->GetGuid(), expiredEid));
+			zone.Broadcast(PacketMaker::MakeBuffRemoved(owner_->GetGuid(), expiredEid));
 		}
 		else
 		{
@@ -62,8 +59,7 @@ bool BuffContainer::Remove(const int32 eid)
 		if (it->effect->eid == eid)
 		{
 			entries_.erase(it);
-			if (const auto zone = owner_->GetZone())
-				zone->Broadcast(PacketMaker::MakeBuffRemoved(owner_->GetGuid(), eid));
+			owner_->GetZone().Broadcast(PacketMaker::MakeBuffRemoved(owner_->GetGuid(), eid));
 			return true;
 		}
 	}

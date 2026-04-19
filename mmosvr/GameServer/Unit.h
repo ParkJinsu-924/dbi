@@ -9,13 +9,13 @@ struct Effect;
 class Unit : public GameObject
 {
 public:
-	explicit Unit(GameObjectType type, std::string name = "")
-		: GameObject(type, std::move(name)), buffs_(*this)
+	Unit(GameObjectType type, Zone& zone, std::string name = "")
+		: GameObject(type, zone, std::move(name)), buffs_(*this)
 	{
 	}
 
-	Unit(GameObjectType type, long long guid, std::string name)
-		: GameObject(type, guid, std::move(name)), buffs_(*this)
+	Unit(GameObjectType type, Zone& zone, long long guid, std::string name)
+		: GameObject(type, zone, guid, std::move(name)), buffs_(*this)
 	{
 	}
 

@@ -5,5 +5,5 @@
 
 int32 GameObject::GetZoneId() const
 {
-	return zone_ ? zone_->GetId() : 0;
+	return zone_.GetId();
 }

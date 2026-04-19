@@ -76,9 +76,9 @@ void Monster::ClearAggro()
 
 std::shared_ptr<Player> Monster::GetTarget() const
 {
-	if (targetGuid_ == 0 || !zone_)
+	if (targetGuid_ == 0)
 		return nullptr;
-	return GetZone()->FindAs<Player>(targetGuid_);
+	return GetZone().FindAs<Player>(targetGuid_);
 }
 
 float Monster::DistanceToSpawn() const
@@ -115,7 +115,6 @@ const SkillTemplate* Monster::GetBasicSkill() const
 
 void Monster::DoAttack(Player& target)
 {
-	if (!zone_) return;
 	// Monster 평타는 "기본 공격" 성격이라 Silence 는 면역 (LoL 관습). Stun 만 차단.
 	if (!CanAttack()) return;
 	const SkillTemplate* sk = GetBasicSkill();
@@ -125,7 +124,7 @@ void Monster::DoAttack(Player& target)
 			std::to_string(basicSkillId_) + " not found in SkillTable");
 		return;
 	}
-	SkillRuntime::Cast(*sk, *this, target, *zone_);
+	SkillRuntime::Cast(*sk, *this, target, GetZone());
 }
 
 // ---------------------------------------------------------------------------
@@ -134,7 +133,5 @@ void Monster::DoAttack(Player& target)
 
 void Monster::BroadcastState(MonsterStateId /*prev*/, MonsterStateId next)
 {
-	if (!zone_)
-		return;
-	GetZone()->Broadcast(PacketMaker::MakeMonsterState(*this, next));
+	GetZone().Broadcast(PacketMaker::MakeMonsterState(*this, next));
 }

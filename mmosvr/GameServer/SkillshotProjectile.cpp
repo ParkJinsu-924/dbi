@@ -48,7 +48,7 @@ void SkillshotProjectile::CheckHit()
 		};
 
 	if (ownerType_ == GameObjectType::Monster)
-		checkUnits(GetZone()->GetObjectsByType<Player>());
+		checkUnits(GetZone().GetObjectsByType<Player>());
 	else if (ownerType_ == GameObjectType::Player)
-		checkUnits(GetZone()->GetObjectsByType<Monster>());
+		checkUnits(GetZone().GetObjectsByType<Monster>());
 }

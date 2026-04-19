@@ -6,14 +6,14 @@
 class Npc : public Unit
 {
 public:
-	explicit Npc(std::string name)
-		: Unit(GameObjectType::Npc, std::move(name))
+	Npc(std::string name, Zone& zone)
+		: Unit(GameObjectType::Npc, zone, std::move(name))
 	{
 	}
 
 protected:
-	Npc(GameObjectType type, std::string name)
-		: Unit(type, std::move(name))
+	Npc(GameObjectType type, Zone& zone, std::string name)
+		: Unit(type, zone, std::move(name))
 	{
 	}
 };

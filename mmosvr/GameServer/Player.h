@@ -11,7 +11,7 @@ class GameSession;
 class Player : public Unit
 {
 public:
-	Player(int32 playerId, const std::string& name);
+	Player(int32 playerId, const std::string& name, Zone& zone);
 	~Player() override = default;
 
 	Player(const Player&) = delete;
