@@ -51,7 +51,7 @@ void Monster::AddAggro(const long long playerGuid, const float amount)
 	aggro_.Add(playerGuid, amount);
 }
 
-long long Monster::ResolveTopAggroGuid() const
+long long Monster::GetTopAggroGuid() const
 {
 	return aggro_.ResolveTop();
 }
@@ -109,64 +109,23 @@ void Monster::MoveToward(const Proto::Vector3& target, const float deltaTime)
 	position_.set_z(position_.z() + nz * step);
 }
 
+const SkillTemplate* Monster::GetBasicSkill() const
+{
+	const auto* skTable = GetResourceManager().Get<SkillTemplate>();
+	return skTable ? skTable->Find(basicSkillId_) : nullptr;
+}
+
 void Monster::DoAttack(Player& target)
 {
-	switch (attackType_)
+	if (!zone_) return;
+	const SkillTemplate* sk = GetBasicSkill();
+	if (!sk)
 	{
-	case AttackType::Melee:
-	case AttackType::Hitscan:
-	{
-		target.TakeDamage(attackDamage_);
-
-		if (attackType_ == AttackType::Hitscan)
-			zone_->Broadcast(PacketMaker::MakeHitscanAttack(*this, target, attackDamage_));
-		else
-			BroadcastAttack(target.GetGuid(), attackDamage_);
-
-		zone_->Broadcast(PacketMaker::MakeUnitHp(target));
-		break;
+		LOG_WARN("Monster [" + GetName() + "] basicSkillId=" +
+			std::to_string(basicSkillId_) + " not found in SkillTable");
+		return;
 	}
-	case AttackType::Homing:
-	case AttackType::Skillshot:
-	{
-		if (!zone_) break;
-		const auto* skTable = GetResourceManager().Get<SkillTemplate>();
-		const SkillTemplate* sk = skTable ? skTable->Find(skillId_) : nullptr;
-		if (!sk)
-		{
-			LOG_WARN("Monster [" + GetName() + "] has attackType=" + std::to_string(static_cast<int32>(attackType_)) + " but skillId=" + std::to_string(skillId_) + " not found in SkillTable");
-			break;
-		}
-
-		// SkillEffect 에 OnHit Damage 가 정의돼 있으면 그 합을 사용, 없으면 attackDamage_ 로 fallback.
-		const int32 effectDmg = SkillRuntime::ComputeOnHitDamage(sk->sid);
-		const int32 fallback  = (effectDmg > 0) ? 0 : attackDamage_;
-
-		if (attackType_ == AttackType::Homing)
-		{
-			SkillRuntime::CastHoming(
-				GetGuid(), GameObjectType::Monster, GetPosition(),
-				target.GetGuid(), *sk, *zone_, fallback);
-		}
-		else if (attackType_ == AttackType::Skillshot)
-		{
-			// 발사 시점의 타겟 방향으로 직진
-			float dx = target.GetPosition().x() - GetPosition().x();
-			float dz = target.GetPosition().z() - GetPosition().z();
-			const float len = std::sqrt(dx * dx + dz * dz);
-			if (len > 1e-4f) { dx /= len; dz /= len; }
-			else { dx = 1.0f; dz = 0.0f; }
-
-			SkillRuntime::CastSkillshot(
-				GetGuid(), GameObjectType::Monster, GetPosition(),
-				dx, dz, *sk, *zone_, fallback);
-		}
-		break;
-	}
-	default:
-		LOG_WARN("Monster [" + GetName() + "] unknown attackType=" + std::to_string(static_cast<int32>(attackType_)));
-		break;
-	}
+	SkillRuntime::Cast(*sk, *this, target, *zone_);
 }
 
 // ---------------------------------------------------------------------------
@@ -178,11 +137,4 @@ void Monster::BroadcastState(MonsterStateId /*prev*/, MonsterStateId next)
 	if (!zone_)
 		return;
 	zone_->Broadcast(PacketMaker::MakeMonsterState(*this, next));
-}
-
-void Monster::BroadcastAttack(long long targetGuid, int32 damage)
-{
-	if (!zone_)
-		return;
-	zone_->Broadcast(PacketMaker::MakeMonsterAttack(*this, targetGuid, damage));
 }

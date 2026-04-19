@@ -1,9 +1,16 @@
 # Phase 1: 스킬 메타데이터만 보관. 데미지/버프 등의 "효과"는 effects.csv + skill_effects.csv 로 분리.
-# targeting: Homing | Skillshot  (대소문자 무관, 숫자도 허용 — 0=Homing, 1=Skillshot)
-# projectile_* : 투사체 파라미터. Homing 은 speed/lifetime 사용, Skillshot 은 speed/radius/range 사용.
+# targeting: Melee | Hitscan | Homing | Skillshot  (대소문자 무관, 숫자도 허용 — 0=Melee, 1=Hitscan, 2=Homing, 3=Skillshot)
+# projectile_* : 투사체 파라미터. Melee/Hitscan 은 0. Homing 은 speed/lifetime, Skillshot 은 speed/radius/range 사용.
 # cost       : 자원 소모 (마나 등). Phase 1 은 0.
-# cast_range : 사거리 체크용 (서버측 validation, Phase 2 에서 활용).
+# cast_range : 사거리. Melee/Hitscan 은 공격 리치, Homing/Skillshot 은 서버측 validation.
+# cooldown   : 스킬 재사용 대기 (평타의 attack speed 역할 포함).
 sid,name,targeting,projectile_speed,projectile_radius,projectile_range,projectile_lifetime,cooldown,cost,cast_range
+1001,goblin_auto,Melee,0.0,0.0,0.0,0.0,1.2,0,2.0
+1002,orc_auto,Melee,0.0,0.0,0.0,0.0,2.0,0,2.5
+1003,slime_auto,Melee,0.0,0.0,0.0,0.0,1.0,0,1.5
+1004,sniper_shot,Hitscan,0.0,0.0,0.0,0.0,2.0,0,10.0
+1005,archer_homing,Homing,12.0,0.0,0.0,5.0,1.8,0,8.0
+1006,caster_bolt,Skillshot,18.0,0.6,16.0,0.0,2.5,0,10.0
 2001,auto_attack,Homing,12.0,0.0,0.0,5.0,0.6,0,30.0
 2002,bolt,Skillshot,18.0,0.6,16.0,0.0,1.5,0,20.0
 2003,strike,Homing,14.0,0.0,0.0,3.0,2.0,0,25.0

@@ -39,8 +39,12 @@ public:
 	static Proto::S_MonsterMove    MakeMonsterMove(const Monster& monster);
 	static Proto::S_MonsterDespawn MakeMonsterDespawn(long long guid);
 	static Proto::S_MonsterState   MakeMonsterState(const Monster& monster, MonsterStateId nextState);
-	static Proto::S_MonsterAttack  MakeMonsterAttack(const Monster& attacker, long long targetGuid, int32 damage);
-	static Proto::S_HitscanAttack  MakeHitscanAttack(const Unit& attacker, const Unit& target, int32 damage);
+
+	// --- 통합 공격 적중 (Melee/Hitscan/Homing/Skillshot 모두) ---
+	static Proto::S_SkillHit MakeSkillHit(long long casterGuid, long long targetGuid,
+	                                      int32 skillId, int32 damage,
+	                                      const Proto::Vector3& casterPos,
+	                                      const Proto::Vector3& hitPos);
 
 	// --- Unit (generic, Player/Monster/Npc 공통) ---
 	static Proto::S_UnitHp MakeUnitHp(const Unit& unit);
@@ -48,7 +52,6 @@ public:
 	// --- Projectile ---
 	static Proto::S_ProjectileSpawn   MakeHomingProjectileSpawn(const HomingProjectile& projectile);
 	static Proto::S_ProjectileSpawn   MakeSkillshotProjectileSpawn(const SkillshotProjectile& projectile);
-	static Proto::S_ProjectileHit     MakeProjectileHit(const Projectile& projectile, const Unit& target, const Proto::Vector3& hitPos);
 	static Proto::S_ProjectileDestroy MakeProjectileDestroy(long long projectileGuid, Proto::S_ProjectileDestroy_Reason reason);
 
 private:

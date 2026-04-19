@@ -2,6 +2,12 @@
 # trigger : OnCast (캐스트 즉시) | OnHit (투사체 명중 시) | OnTick (주기적, Phase 2+)
 # delay   : trigger 후 대기 시간(초). Phase 2 에서 지연 폭발/딜레이드 명중 구현용.
 sid,eid,trigger,delay
+1001,1001,OnHit,0.0
+1002,1002,OnHit,0.0
+1003,1003,OnHit,0.0
+1004,1004,OnHit,0.0
+1005,1005,OnHit,0.0
+1006,1006,OnHit,0.0
 2001,3001,OnHit,0.0
 2002,3002,OnHit,0.0
 2003,3003,OnHit,0.0

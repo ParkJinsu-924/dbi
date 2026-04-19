@@ -18,7 +18,7 @@ public:
 	static Proto::ErrorCode C_MoveCommand(std::shared_ptr<GameSession> session, const Proto::C_MoveCommand& pkt);
 	static Proto::ErrorCode C_StopMove(std::shared_ptr<GameSession> session, const Proto::C_StopMove& pkt);
 	static Proto::ErrorCode C_Chat(std::shared_ptr<GameSession> session, const Proto::C_Chat& pkt);
-	static Proto::ErrorCode C_RequestUseSkill(std::shared_ptr<GameSession> session, const Proto::C_RequestUseSkill& pkt);
+	static Proto::ErrorCode C_UseSkill(std::shared_ptr<GameSession> session, const Proto::C_UseSkill& pkt);
 	static Proto::ErrorCode SS_ValidateToken(std::shared_ptr<ServerSession> session, const Proto::SS_ValidateTokenResult& pkt);
 
 	static Synchronized<std::unordered_map<std::string, std::weak_ptr<GameSession>>, std::mutex> sPendingValidations;

@@ -225,12 +225,12 @@ void Zone::BroadcastPlayerPositions()
 
 std::shared_ptr<HomingProjectile> Zone::SpawnHomingProjectile(
 	long long ownerGuid, GameObjectType ownerType, long long targetGuid,
-	const Proto::Vector3& startPos,
+	int32 skillId, const Proto::Vector3& startPos,
 	int32 damage, float speed, float lifetime)
 {
 	auto p = std::make_shared<HomingProjectile>(
 		ownerGuid, ownerType, targetGuid,
-		damage, speed, lifetime, *this);
+		skillId, damage, speed, lifetime, *this);
 	p->SetPosition(startPos);
 	p->SetZoneId(id_);
 
@@ -243,13 +243,13 @@ std::shared_ptr<HomingProjectile> Zone::SpawnHomingProjectile(
 
 std::shared_ptr<SkillshotProjectile> Zone::SpawnSkillshotProjectile(
 	long long ownerGuid, GameObjectType ownerType,
-	const Proto::Vector3& startPos,
+	int32 skillId, const Proto::Vector3& startPos,
 	float dirX, float dirZ,
 	int32 damage, float speed, float radius, float range)
 {
 	auto p = std::make_shared<SkillshotProjectile>(
 		ownerGuid, ownerType, dirX, dirZ,
-		damage, speed, radius, range, *this);
+		skillId, damage, speed, radius, range, *this);
 	p->SetPosition(startPos);
 	p->SetZoneId(id_);
 

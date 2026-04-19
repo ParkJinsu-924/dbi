@@ -3,6 +3,7 @@
 #include "Monster.h"
 #include "Zone.h"
 #include "Player.h"
+#include "SkillTemplate.h"
 #include <cmath>
 #include <random>
 #include "PacketMaker.h"
@@ -22,7 +23,7 @@ void MonsterGlobalState::OnUpdate(Monster& owner, float deltaTime)
 		// 이미 누적된 aggro 가 있으면 top 대상으로 Chase
 		if (owner.HasAggro())
 		{
-			const long long topGuid = owner.ResolveTopAggroGuid();
+			const long long topGuid = owner.GetTopAggroGuid();
 			if (topGuid != 0)
 			{
 				owner.SetTarget(topGuid);
@@ -66,12 +67,15 @@ void IdleState::OnUpdate(Monster& owner, const float deltaTime)
 	idleTime_ += deltaTime;
 	if (idleTime_ >= 4.0f)
 	{
-		idleTime_ = 0.0f;
 		owner.GetFSM().ChangeState(MonsterStateId::Patrol);
 		return;
 	}
 }
 
+void IdleState::OnExit(Monster& owner)
+{
+	idleTime_ = 0.0f;
+}
 
 // ===========================================================================
 // Patrol — move to a random point within range of spawn, then go Idle
@@ -114,10 +118,10 @@ void PatrolState::OnUpdate(Monster& owner, const float deltaTime)
 // Chase
 // ===========================================================================
 
-void ChaseState::OnUpdate(Monster& owner, float deltaTime)
+void ChaseState::OnUpdate(Monster& owner, const float deltaTime)
 {
 	// 매 틱 top aggro 재계산. 현재 target 과 달라졌으면 즉시 전환.
-	const long long topGuid = owner.ResolveTopAggroGuid();
+	const long long topGuid = owner.GetTopAggroGuid();
 	if (topGuid != 0)
 	{
 		const auto cur = owner.GetTarget();
@@ -125,7 +129,7 @@ void ChaseState::OnUpdate(Monster& owner, float deltaTime)
 			owner.SetTarget(topGuid);
 	}
 
-	auto target = owner.GetTarget();
+	const auto target = owner.GetTarget();
 
 	if (!target || !target->IsAlive() || owner.DistanceToSpawn() > owner.GetLeashRange())
 	{
@@ -133,9 +137,11 @@ void ChaseState::OnUpdate(Monster& owner, float deltaTime)
 		return;
 	}
 
-	float dist = owner.DistanceTo(target->GetPosition());
+	const float dist = owner.DistanceTo(target->GetPosition());
+	const auto* sk = owner.GetBasicSkill();
+	const float attackRange = sk ? sk->cast_range : 2.0f;
 
-	if (dist <= owner.GetAttackRange())
+	if (dist <= attackRange)
 	{
 		owner.GetFSM().ChangeState(MonsterStateId::Attack);
 		return;
@@ -149,7 +155,7 @@ void ChaseState::OnUpdate(Monster& owner, float deltaTime)
 // Attack
 // ===========================================================================
 
-void AttackState::OnUpdate(Monster& owner, const float deltaTime)
+void AttackState::OnUpdate(Monster& owner, const float /*deltaTime*/)
 {
 	auto target = owner.GetTarget();
 
@@ -160,15 +166,18 @@ void AttackState::OnUpdate(Monster& owner, const float deltaTime)
 	}
 
 	const float dist = owner.DistanceTo(target->GetPosition());
+	const auto* sk = owner.GetBasicSkill();
+	const float attackRange = sk ? sk->cast_range : 2.0f;
 
-	if (dist > owner.GetAttackRange())
+	if (dist > attackRange)
 	{
 		owner.GetFSM().ChangeState(MonsterStateId::Chase);
 		return;
 	}
 
+	const float cooldown = sk ? sk->cooldown : 1.5f;
 	const float now = GetTimeManager().GetTotalTime();
-	if (now - owner.GetLastAttackTime() >= owner.GetAttackCooldown())
+	if (now - owner.GetLastAttackTime() >= cooldown)
 	{
 		owner.DoAttack(*target);
 		owner.SetLastAttackTime(now);
@@ -195,7 +204,7 @@ void ReturnState::OnEnter(Monster& owner)
 	}
 }
 
-void ReturnState::OnUpdate(Monster& owner, float deltaTime)
+void ReturnState::OnUpdate(Monster& owner, const float deltaTime)
 {
 	float dist = owner.DistanceTo(owner.GetSpawnPos());
 	if (dist <= 1.0f)

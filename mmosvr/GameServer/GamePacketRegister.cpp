@@ -18,7 +18,7 @@ struct AutoPacketRegister
 		GetPacketHandler().Register(&GamePacketHandler::C_MoveCommand);
 		GetPacketHandler().Register(&GamePacketHandler::C_StopMove);
 		GetPacketHandler().Register(&GamePacketHandler::C_Chat);
-		GetPacketHandler().Register(&GamePacketHandler::C_RequestUseSkill);
+		GetPacketHandler().Register(&GamePacketHandler::C_UseSkill);
 
 		// Server (LoginServer → GameServer)
 		GetPacketHandler().Register(&GamePacketHandler::SS_ValidateToken);

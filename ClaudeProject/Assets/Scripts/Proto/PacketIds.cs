@@ -6,7 +6,7 @@ namespace Proto
     public partial class C_EnterGame { public const uint PacketId = 3; }
     public partial class C_PlayerMove { public const uint PacketId = 4; }
     public partial class C_Chat { public const uint PacketId = 5; }
-    public partial class C_RequestUseSkill { public const uint PacketId = 6; }
+    public partial class C_UseSkill { public const uint PacketId = 6; }
     public partial class C_MoveCommand { public const uint PacketId = 7; }
     public partial class C_StopMove { public const uint PacketId = 8; }
     public partial class S_EnterGame { public const uint PacketId = 9; }
@@ -23,10 +23,8 @@ namespace Proto
     public partial class S_MonsterDespawn { public const uint PacketId = 20; }
     public partial class S_MonsterList { public const uint PacketId = 21; }
     public partial class S_MonsterState { public const uint PacketId = 22; }
-    public partial class S_MonsterAttack { public const uint PacketId = 23; }
-    public partial class S_HitscanAttack { public const uint PacketId = 24; }
-    public partial class S_UnitHp { public const uint PacketId = 25; }
-    public partial class S_ProjectileSpawn { public const uint PacketId = 26; }
-    public partial class S_ProjectileHit { public const uint PacketId = 27; }
-    public partial class S_ProjectileDestroy { public const uint PacketId = 28; }
+    public partial class S_SkillHit { public const uint PacketId = 23; }
+    public partial class S_UnitHp { public const uint PacketId = 24; }
+    public partial class S_ProjectileSpawn { public const uint PacketId = 25; }
+    public partial class S_ProjectileDestroy { public const uint PacketId = 26; }
 }

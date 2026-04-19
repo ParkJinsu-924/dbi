@@ -33,7 +33,10 @@ void Projectile::ApplyHit(Unit& target, const Proto::Vector3& hitPos)
 	const auto hpBefore = target.GetHp();
 	target.TakeDamage(damage_);
 
-	zone_.Broadcast(PacketMaker::MakeProjectileHit(*this, target, hitPos));
+	// 투사체 명중도 Melee/Hitscan 과 동일한 S_SkillHit 로 표현. caster_pos 는 투사체 현재 위치.
+	zone_.Broadcast(PacketMaker::MakeSkillHit(
+		ownerGuid_, target.GetGuid(), skillId_, damage_,
+		GetPosition(), hitPos));
 
 	if (target.GetHp() != hpBefore)   // only sync when HP actually changed
 	{

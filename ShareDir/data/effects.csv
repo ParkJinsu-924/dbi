@@ -5,6 +5,12 @@
 # scaling_ad : 시전자 공격력 계수 (Phase 2+ — 시전자 스탯 * 계수 가 magnitude 에 더해짐).
 # scaling_ap : 시전자 마법력 계수 (Phase 2+).
 eid,type,magnitude,duration,scaling_ad,scaling_ap
+1001,Damage,8,0.0,0.0,0.0
+1002,Damage,15,0.0,0.0,0.0
+1003,Damage,5,0.0,0.0,0.0
+1004,Damage,5,0.0,0.0,0.0
+1005,Damage,12,0.0,0.0,0.0
+1006,Damage,20,0.0,0.0,0.0
 3001,Damage,15,0.0,0.0,0.0
 3002,Damage,30,0.0,0.0,0.0
 3003,Damage,25,0.0,0.0,0.0

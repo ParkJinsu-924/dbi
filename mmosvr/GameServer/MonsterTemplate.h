@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "ResourceManager.h"
 #include "AttackTypes.h"
@@ -17,20 +17,15 @@ struct MonsterTemplate
 	int32       hp             = 100;
 	int32       maxHp          = 100;
 	float       detectRange    = 10.0f;
-	float       attackRange    = 2.0f;
 	float       leashRange     = 15.0f;
 	float       moveSpeed      = 3.0f;
-	float       attackCooldown = 1.5f;
-	int32       attackDamage   = 10;
-	AttackType  attackType     = AttackType::Melee;
-	int32       skillId        = 0;    // attackType=Homing/Skillshot 일 때 SkillTemplate.sid (0=미사용)
+	int32       basicSkillId   = 0;    // 평타(자동 공격) 스킬. 사거리/쿨다운/데미지/연출은 SkillTemplate + SkillEffect 에서.
 
 	KeyType GetKey() const { return tid; }
 
 	CSV_DEFINE_TYPE(MonsterTemplate,
 		tid, name, hp, maxHp,
-		detectRange, attackRange, leashRange,
-		moveSpeed, attackCooldown, attackDamage, attackType, skillId)
+		detectRange, leashRange, moveSpeed, basicSkillId)
 };
 
 
@@ -59,11 +54,11 @@ public:
 
 		for (const auto& [tid, m] : map_)
 		{
-			if (m.skillId != 0 && !skills->Find(m.skillId))
+			if (m.basicSkillId != 0 && !skills->Find(m.basicSkillId))
 			{
 				LOG_ERROR(std::format(
-					"monster_templates: tid={} ({}) references non-existent skillId={}",
-					tid, m.name, m.skillId));
+					"monster_templates: tid={} ({}) references non-existent basicSkillId={}",
+					tid, m.name, m.basicSkillId));
 				++errors;
 			}
 		}

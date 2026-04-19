@@ -313,20 +313,22 @@ def _h_monster_state(state: GameState, msg):
         ms.target_guid = msg.target_guid
 
 
-def _h_monster_attack(state: GameState, msg):
-    ms = state.monsters.get(msg.monster_guid)
-    if ms:
-        log_game.info("%s attacks player (dmg=%d)", ms.name, msg.damage)
+def _h_skill_hit(state: GameState, msg):
+    """모든 공격 적중의 단일 핸들러 (Melee/Hitscan/Homing/Skillshot 공통).
+    caster→hit 사이 거리가 일정 이상이면 hitscan 라인으로 간주해 그려준다 —
+    길이가 짧은 Melee/Projectile 은 자연스럽게 눈에 띄지 않는다."""
+    dx = msg.hit_pos.x - msg.caster_pos.x
+    dz = msg.hit_pos.z - msg.caster_pos.z
+    if dx * dx + dz * dz > 4.0:   # 2m 초과 = 원거리 적중 → 라인 표시
+        state.hitscan_lines.append((
+            msg.caster_pos.x, msg.caster_pos.z,
+            msg.hit_pos.x, msg.hit_pos.z,
+            time.time() + config.HITSCAN_LINE_LIFETIME))
 
-
-def _h_hitscan_attack(state: GameState, msg):
-    state.hitscan_lines.append((
-        msg.start_position.x, msg.start_position.z,
-        msg.hit_position.x, msg.hit_position.z,
-        time.time() + config.HITSCAN_LINE_LIFETIME))
-    ms = state.monsters.get(msg.attacker_guid)
+    ms = state.monsters.get(msg.caster_guid)
     name = ms.name if ms else "?"
-    log_game.info("%s hitscan -> player (dmg=%d)", name, msg.damage)
+    log_game.info("%s skill=%d -> guid=%d (dmg=%d)",
+                  name, msg.skill_id, msg.target_guid, msg.damage)
 
 
 def _h_unit_hp(state: GameState, msg):
@@ -364,19 +366,6 @@ def _h_projectile_spawn(state: GameState, msg):
         spawned_at=time.time())
 
 
-def _h_projectile_hit(state: GameState, msg):
-    state.projectiles.pop(msg.projectile_guid, None)
-    if msg.target_guid in state.monsters:
-        log_hit.info("%s took %d dmg", state.monsters[msg.target_guid].name, msg.damage)
-        return
-    if msg.target_guid == state.me.guid:
-        log_hit.info("you took %d dmg", msg.damage)
-        return
-    other = next((p for p in state.others.values() if p.guid == msg.target_guid), None)
-    tag = other.name if other else f"guid={msg.target_guid}"
-    log_hit.info("%s took %d dmg", tag, msg.damage)
-
-
 def _h_projectile_destroy(state: GameState, msg):
     state.projectiles.pop(msg.projectile_guid, None)
 
@@ -394,11 +383,9 @@ PACKET_HANDLERS = {
     packet_ids.S_MONSTER_MOVE:       _h_monster_move,
     packet_ids.S_MONSTER_DESPAWN:    _h_monster_despawn,
     packet_ids.S_MONSTER_STATE:      _h_monster_state,
-    packet_ids.S_MONSTER_ATTACK:     _h_monster_attack,
-    packet_ids.S_HITSCAN_ATTACK:     _h_hitscan_attack,
+    packet_ids.S_SKILL_HIT:          _h_skill_hit,
     packet_ids.S_UNIT_HP:            _h_unit_hp,
     packet_ids.S_PROJECTILE_SPAWN:   _h_projectile_spawn,
-    packet_ids.S_PROJECTILE_HIT:     _h_projectile_hit,
     packet_ids.S_PROJECTILE_DESTROY: _h_projectile_destroy,
 }
 
@@ -425,7 +412,7 @@ def _cast_skill(state: GameState, client: PacketClient, skill_id: int,
         return False
 
     mode = _resolve_input_mode(tpl)
-    req = game_pb2.C_RequestUseSkill()
+    req = game_pb2.C_UseSkill()
     req.skill_id = tpl.sid
     cursor_wx, cursor_wz = cursor_world
 

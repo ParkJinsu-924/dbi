@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "Npc.h"
 #include "MonsterStates.h"
@@ -7,6 +7,7 @@
 
 class Zone;
 class Player;
+struct SkillTemplate;
 
 
 class Monster : public Npc
@@ -39,7 +40,7 @@ public:
 	// --- Aggro ---
 	// 실제 저장/집계는 AggroTable 이 담당. Monster 는 얇은 위임만 한다.
 	void AddAggro(long long playerGuid, float amount);
-	long long ResolveTopAggroGuid() const;                  // 없으면 0
+	long long GetTopAggroGuid() const;                  // 없으면 0
 	bool HasAggro() const;
 	void ClearAggro();
 
@@ -50,28 +51,20 @@ public:
 
 	// --- AI 파라미터 접근 ---
 	float GetDetectRange()    const { return detectRange_; }
-	float GetAttackRange()    const { return attackRange_; }
 	float GetLeashRange()     const { return leashRange_; }
 	float GetMoveSpeed()      const { return moveSpeed_; }
-	float GetAttackCooldown() const { return attackCooldown_; }
-	int32 GetAttackDamage()   const { return attackDamage_; }
-	AttackType GetAttackType() const { return attackType_; }
-	int32 GetSkillId()        const { return skillId_; }
+	int32 GetBasicSkillId()   const { return basicSkillId_; }
+	const SkillTemplate* GetBasicSkill() const;   // ResourceManager 조회. 미존재 시 nullptr.
 	float GetLastAttackTime() const { return lastAttackTime_; }
 	void  SetLastAttackTime(float t) { lastAttackTime_ = t; }
 
 	void SetDetectRange(float v)    { detectRange_ = v; }
-	void SetAttackRange(float v)    { attackRange_ = v; }
 	void SetLeashRange(float v)     { leashRange_ = v; }
 	void SetMoveSpeed(float v)      { moveSpeed_ = v; }
-	void SetAttackCooldown(float v) { attackCooldown_ = v; }
-	void SetAttackDamage(int32 v)   { attackDamage_ = v; }
-	void SetAttackType(AttackType v) { attackType_ = v; }
-	void SetSkillId(int32 v)        { skillId_ = v; }
+	void SetBasicSkillId(int32 v)   { basicSkillId_ = v; }
 
 private:
 	void BroadcastState(MonsterStateId prev, MonsterStateId next);
-	void BroadcastAttack(long long targetGuid, int32 damage);
 
 	// --- FSM ---
 	MonsterFSM fsm_;
@@ -80,15 +73,13 @@ private:
 	long long targetGuid_ = 0;
 
 	// --- AI 파라미터 ---
-	float detectRange_    = 10.0f;
-	float attackRange_    = 2.0f;
-	float leashRange_     = 15.0f;
-	float moveSpeed_      = 3.0f;
-	float attackCooldown_ = 1.5f;
-	int32       attackDamage_   = 10;
-	AttackType  attackType_     = AttackType::Melee;
-	int32       skillId_        = 0;    // attackType=Homing/Skillshot 일 때 SkillTemplate.sid
-	float       lastAttackTime_ = 0.0f; // GameTime::GetTotalTime() 기준
+	// 공격 관련 파라미터(사거리/쿨다운/데미지)는 basicSkillId_ 가 가리키는 SkillTemplate + SkillEffect 에서 로드.
+	// Monster 자체는 "어떤 평타 스킬을 쓰는가" 만 알면 된다.
+	float detectRange_ = 10.0f;
+	float leashRange_  = 15.0f;
+	float moveSpeed_   = 3.0f;
+	int32 basicSkillId_   = 0;
+	float lastAttackTime_ = 0.0f; // GameTime::GetTotalTime() 기준 — AttackState 쿨다운 판정용
 
 	// --- Aggro ---
 	AggroTable aggro_;

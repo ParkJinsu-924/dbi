@@ -35,6 +35,7 @@ class IdleState : public IState<Monster>
 public:
 	void OnEnter(Monster& owner) override;
 	void OnUpdate(Monster& owner, float deltaTime) override;
+	void OnExit(Monster& owner) override;
 	
 private:
 	float idleTime_ = 0.0f;

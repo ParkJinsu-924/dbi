@@ -42,11 +42,9 @@ _MSG_CLASS_MAP = {
     packet_ids.S_MONSTER_DESPAWN:     game_pb2.S_MonsterDespawn,
     packet_ids.S_MONSTER_LIST:        game_pb2.S_MonsterList,
     packet_ids.S_MONSTER_STATE:       game_pb2.S_MonsterState,
-    packet_ids.S_MONSTER_ATTACK:      game_pb2.S_MonsterAttack,
-    packet_ids.S_HITSCAN_ATTACK:      game_pb2.S_HitscanAttack,
+    packet_ids.S_SKILL_HIT:           game_pb2.S_SkillHit,
     packet_ids.S_UNIT_HP:             game_pb2.S_UnitHp,
     packet_ids.S_PROJECTILE_SPAWN:    game_pb2.S_ProjectileSpawn,
-    packet_ids.S_PROJECTILE_HIT:      game_pb2.S_ProjectileHit,
     packet_ids.S_PROJECTILE_DESTROY:  game_pb2.S_ProjectileDestroy,
 }
 
@@ -58,7 +56,7 @@ _ID_MAP = {
     game_pb2.C_MoveCommand:      packet_ids.C_MOVE_COMMAND,
     game_pb2.C_StopMove:         packet_ids.C_STOP_MOVE,
     game_pb2.C_Chat:             packet_ids.C_CHAT,
-    game_pb2.C_RequestUseSkill:  packet_ids.C_REQUEST_USE_SKILL,
+    game_pb2.C_UseSkill:         packet_ids.C_USE_SKILL,
 }
 
 

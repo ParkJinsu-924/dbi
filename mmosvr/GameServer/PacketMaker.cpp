@@ -112,23 +112,18 @@ Proto::S_MonsterState PacketMaker::MakeMonsterState(const Monster& monster, cons
 	return pkt;
 }
 
-Proto::S_MonsterAttack PacketMaker::MakeMonsterAttack(const Monster& attacker, const long long targetGuid, const int32 damage)
+Proto::S_SkillHit PacketMaker::MakeSkillHit(const long long casterGuid, const long long targetGuid,
+                                            const int32 skillId, const int32 damage,
+                                            const Proto::Vector3& casterPos,
+                                            const Proto::Vector3& hitPos)
 {
-	Proto::S_MonsterAttack pkt;
-	pkt.set_monster_guid(attacker.GetGuid());
+	Proto::S_SkillHit pkt;
+	pkt.set_caster_guid(casterGuid);
 	pkt.set_target_guid(targetGuid);
+	pkt.set_skill_id(skillId);
 	pkt.set_damage(damage);
-	return pkt;
-}
-
-Proto::S_HitscanAttack PacketMaker::MakeHitscanAttack(const Unit& attacker, const Unit& target, const int32 damage)
-{
-	Proto::S_HitscanAttack pkt;
-	pkt.set_attacker_guid(attacker.GetGuid());
-	pkt.set_target_guid(target.GetGuid());
-	*pkt.mutable_start_position() = attacker.GetPosition();
-	*pkt.mutable_hit_position() = target.GetPosition();
-	pkt.set_damage(damage);
+	*pkt.mutable_caster_pos() = casterPos;
+	*pkt.mutable_hit_pos()    = hitPos;
 	return pkt;
 }
 
@@ -178,16 +173,6 @@ Proto::S_ProjectileSpawn PacketMaker::MakeSkillshotProjectileSpawn(const Skillsh
 	dir->set_z(projectile.GetDirZ());
 	pkt.set_radius(projectile.GetRadius());
 	pkt.set_max_range(projectile.GetRangeLimit());
-	return pkt;
-}
-
-Proto::S_ProjectileHit PacketMaker::MakeProjectileHit(const Projectile& projectile, const Unit& target, const Proto::Vector3& hitPos)
-{
-	Proto::S_ProjectileHit pkt;
-	pkt.set_projectile_guid(projectile.GetGuid());
-	pkt.set_target_guid(target.GetGuid());
-	pkt.set_damage(projectile.GetDamage());
-	*pkt.mutable_hit_pos() = hitPos;
 	return pkt;
 }
 

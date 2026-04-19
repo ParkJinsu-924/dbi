@@ -19,7 +19,7 @@ message C_Chat {
     string message = 1;
 }
 
-message C_RequestUseSkill {
+message C_UseSkill {
     int32 skill_id = 1;    	    // SkillTemplate.sid 으로 룩업
     Vector3 dir = 2;            // Skillshot 정규화 방향. Homing/Point-click/Ground-target 시 무시
     int64 target_guid = 3;      // Homing/Point-click 대상. 0이면 서버 자동 선택(Homing 전용)
@@ -132,18 +132,18 @@ message S_MonsterState {
     int64 target_guid = 3;      // Chase/Attack target player GUID
 }
 
-message S_MonsterAttack {
-    int64 monster_guid = 1;
-    int64 target_guid = 2;
-    int32 damage = 3;
-}
-
-message S_HitscanAttack {
-    int64 attacker_guid = 1;
-    int64 target_guid = 2;
-    Vector3 start_position = 3;
-    Vector3 hit_position = 4;
-    int32 damage = 5;
+// 모든 유닛의 "스킬 적중" 을 단일 패킷으로 표현한다.
+// Melee/Hitscan/Homing/Skillshot 모두 caster 가 target 에게 skill_id 효과를 가한 순간을 뜻한다.
+// 클라이언트는 skill_id 로 SkillTemplate 을 조회해 시각 연출(라인/이펙트/애니메이션) 을 결정한다.
+// caster_pos 는 Hitscan 라인 렌더링처럼 시작점이 필요한 경우에 사용, 다른 타입은 장식용.
+// hit_pos 는 데미지 팝업/이펙트 위치.
+message S_SkillHit {
+    int64   caster_guid = 1;
+    int64   target_guid = 2;
+    int32   skill_id    = 3;
+    int32   damage      = 4;
+    Vector3 caster_pos  = 5;
+    Vector3 hit_pos     = 6;
 }
 
 // Unit(Player/Monster/NPC 등 HP를 가진 모든 GameObject) 의 HP 변경을 알리는 범용 패킷.
@@ -172,13 +172,6 @@ message S_ProjectileSpawn {
     float radius = 8;            // Skillshot 전용
     float max_range = 9;         // Skillshot 전용
     float max_lifetime = 10;     // Homing 전용
-}
-
-message S_ProjectileHit {
-    int64 projectile_guid = 1;
-    int64 target_guid = 2;
-    int32 damage = 3;
-    Vector3 hit_pos = 4;
 }
 
 message S_ProjectileDestroy {

@@ -1,30 +1,22 @@
-﻿#pragma once
+#pragma once
 
 #include "Utils/Types.h"
 #include "game.pb.h"
 
 
-// Monster/Player 의 공격 수행 방식.
-// CSV (monster_templates.csv 의 attackType 컬럼) 에 숫자로 저장되고,
-// CsvParser::Row::GetOr 의 is_enum_v 분기가 static_cast 로 변환해 로드한다.
-enum class AttackType : int32
-{
-	Melee     = 0,  // 즉시 데미지
-	Hitscan   = 1,  // 즉시 데미지 + 광선 시각화 패킷
-	Homing    = 2,  // HomingProjectile 발사
-	Skillshot = 3,  // SkillshotProjectile 발사
-};
-
-
-// SkillTemplate.kind — 발사할 투사체 종류.
-// Proto::ProjectileKind 와 값이 일치해야 한다 (S_ProjectileSpawn 에서 proto enum 으로 변환되므로).
+// SkillTemplate.targeting — 스킬 수행 방식.
+// Monster/Player 공통: 모든 공격(평타 포함)은 Skill 을 거쳐 실행된다.
+//   Melee     : 즉시 데미지 (시각적 근접 타격)
+//   Hitscan   : 즉시 데미지 + 광선 라인 연출
+//   Homing    : HomingProjectile 발사
+//   Skillshot : SkillshotProjectile 발사
+//
+// Proto::ProjectileKind(HOMING=0, SKILLSHOT=1) 와 값이 더 이상 일치하지 않는다 —
+// PacketMaker 가 projectile spawn 패킷을 만들 때 명시적으로 매핑한다.
 enum class SkillKind : int32
 {
-	Homing    = 0,
-	Skillshot = 1,
+	Melee     = 0,
+	Hitscan   = 1,
+	Homing    = 2,
+	Skillshot = 3,
 };
-
-static_assert(static_cast<int32>(SkillKind::Homing)    == Proto::PROJECTILE_HOMING,
-	"SkillKind::Homing must match Proto::PROJECTILE_HOMING");
-static_assert(static_cast<int32>(SkillKind::Skillshot) == Proto::PROJECTILE_SKILLSHOT,
-	"SkillKind::Skillshot must match Proto::PROJECTILE_SKILLSHOT");

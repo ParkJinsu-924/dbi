@@ -48,13 +48,9 @@ std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, int32 templateId,
 	monster->SetHp(tmpl->hp);
 	monster->SetMaxHp(tmpl->maxHp);
 	monster->SetDetectRange(tmpl->detectRange);
-	monster->SetAttackRange(tmpl->attackRange);
 	monster->SetLeashRange(tmpl->leashRange);
 	monster->SetMoveSpeed(tmpl->moveSpeed);
-	monster->SetAttackCooldown(tmpl->attackCooldown);
-	monster->SetAttackDamage(tmpl->attackDamage);
-	monster->SetAttackType(tmpl->attackType);
-	monster->SetSkillId(tmpl->skillId);
+	monster->SetBasicSkillId(tmpl->basicSkillId);
 	monster->InitAI(spawnPos, zone);
 
 	zone->Add(monster);

@@ -205,7 +205,7 @@ Proto::ErrorCode GamePacketHandler::C_Chat(std::shared_ptr<GameSession> session,
 	return Proto::ErrorCode::OK;
 }
 
-Proto::ErrorCode GamePacketHandler::C_RequestUseSkill(std::shared_ptr<GameSession> session, const Proto::C_RequestUseSkill& pkt)
+Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> session, const Proto::C_UseSkill& pkt)
 {
 	auto player = GetPlayerManager().FindBySession(session);
 	if (!player)
@@ -219,7 +219,7 @@ Proto::ErrorCode GamePacketHandler::C_RequestUseSkill(std::shared_ptr<GameSessio
 	const SkillTemplate* sk = skTable ? skTable->Find(pkt.skill_id()) : nullptr;
 	if (!sk)
 	{
-		LOG_WARN("C_RequestUseSkill: unknown skill name '" + std::to_string(pkt.skill_id()) + "'");
+		LOG_WARN("C_UseSkill: unknown skill id '" + std::to_string(pkt.skill_id()) + "'");
 		return Proto::ErrorCode::INVALID_REQUEST;
 	}
 
