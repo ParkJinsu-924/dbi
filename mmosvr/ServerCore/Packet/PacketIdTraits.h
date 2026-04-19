@@ -31,6 +31,8 @@ namespace Proto
 	class S_SkillHit;
 	class S_UnitHp;
 	class S_ProjectileSpawn;
+	class S_BuffApplied;
+	class S_BuffRemoved;
 	class S_ProjectileDestroy;
 	class SS_ValidateToken;
 	class SS_ValidateTokenResult;
@@ -68,6 +70,8 @@ PACKET_ID_TRAIT(S_MonsterState, S_MONSTER_STATE)
 PACKET_ID_TRAIT(S_SkillHit, S_SKILL_HIT)
 PACKET_ID_TRAIT(S_UnitHp, S_UNIT_HP)
 PACKET_ID_TRAIT(S_ProjectileSpawn, S_PROJECTILE_SPAWN)
+PACKET_ID_TRAIT(S_BuffApplied, S_BUFF_APPLIED)
+PACKET_ID_TRAIT(S_BuffRemoved, S_BUFF_REMOVED)
 PACKET_ID_TRAIT(S_ProjectileDestroy, S_PROJECTILE_DESTROY)
 PACKET_ID_TRAIT(SS_ValidateToken, SS_VALIDATE_TOKEN)
 PACKET_ID_TRAIT(SS_ValidateTokenResult, SS_VALIDATE_TOKEN_RESULT)

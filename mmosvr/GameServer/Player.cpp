@@ -54,7 +54,10 @@ Zone* Player::GetZone() const
 
 void Player::Update(const float deltaTime)
 {
-	if (!isMoving_)
+	TickBuffs(deltaTime);
+
+	// Stun/Root 시 이동 불가. Stun 이면 스킬 입력도 차단이지만 그건 핸들러측 책임.
+	if (!isMoving_ || IsStunned() || IsRooted())
 		return;
 
 	const float dx = destination_.x() - position_.x();
@@ -67,7 +70,7 @@ void Player::Update(const float deltaTime)
 		return;
 	}
 
-	const float step = moveSpeed_ * deltaTime;
+	const float step = GetEffectiveMoveSpeed(moveSpeed_) * deltaTime;
 	if (step >= dist)
 	{
 		// 도착: destination 에 snap 하고 이동 종료

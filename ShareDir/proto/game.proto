@@ -174,6 +174,21 @@ message S_ProjectileSpawn {
     float max_lifetime = 10;     // Homing 전용
 }
 
+// ─── Buff / Effect 상태 동기화 ─────────────────────────────────────
+// 서버가 Unit 에 Buff 를 부착하거나 해제할 때 브로드캐스트.
+// 클라는 eid 로 effects.csv 조회해 아이콘/파티클/지속시간 UI 처리.
+message S_BuffApplied {
+    int64 target_guid = 1;
+    int32 eid         = 2;
+    int64 caster_guid = 3;
+    float duration    = 4;    // 부여 시점 기준 총 지속시간(초). refresh 된 경우도 동일.
+}
+
+message S_BuffRemoved {
+    int64 target_guid = 1;
+    int32 eid         = 2;
+}
+
 message S_ProjectileDestroy {
     enum Reason {
         EXPIRED = 0;

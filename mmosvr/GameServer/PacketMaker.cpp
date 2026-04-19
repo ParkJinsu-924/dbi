@@ -6,6 +6,7 @@
 #include "Projectile.h"
 #include "HomingProjectile.h"
 #include "SkillshotProjectile.h"
+#include "Effect.h"
 
 
 // ===========================================================================
@@ -138,6 +139,29 @@ Proto::S_UnitHp PacketMaker::MakeUnitHp(const Unit& unit)
 	pkt.set_guid(unit.GetGuid());
 	pkt.set_hp(unit.GetHp());
 	pkt.set_max_hp(unit.GetMaxHp());
+	return pkt;
+}
+
+
+// ===========================================================================
+// Buff
+// ===========================================================================
+
+Proto::S_BuffApplied PacketMaker::MakeBuffApplied(const long long targetGuid, const Effect& e, const long long casterGuid)
+{
+	Proto::S_BuffApplied pkt;
+	pkt.set_target_guid(targetGuid);
+	pkt.set_eid(e.eid);
+	pkt.set_caster_guid(casterGuid);
+	pkt.set_duration(e.duration);
+	return pkt;
+}
+
+Proto::S_BuffRemoved PacketMaker::MakeBuffRemoved(const long long targetGuid, const int32 eid)
+{
+	Proto::S_BuffRemoved pkt;
+	pkt.set_target_guid(targetGuid);
+	pkt.set_eid(eid);
 	return pkt;
 }
 

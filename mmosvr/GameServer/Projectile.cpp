@@ -5,6 +5,7 @@
 #include "Player.h"
 #include "Monster.h"
 #include "PacketMaker.h"
+#include "SkillRuntime.h"
 
 
 void Projectile::Update(const float dt)
@@ -30,29 +31,39 @@ void Projectile::Update(const float dt)
 
 void Projectile::ApplyHit(Unit& target, const Proto::Vector3& hitPos)
 {
-	const auto hpBefore = target.GetHp();
-	target.TakeDamage(damage_);
+	const int32 hpBefore = target.GetHp();
 
-	// 투사체 명중도 Melee/Hitscan 과 동일한 S_SkillHit 로 표현. caster_pos 는 투사체 현재 위치.
-	zone_.Broadcast(PacketMaker::MakeSkillHit(
-		ownerGuid_, target.GetGuid(), skillId_, damage_,
-		GetPosition(), hitPos));
-
-	if (target.GetHp() != hpBefore)   // only sync when HP actually changed
+	// caster Unit 조회 (OnHit Self-scope Effect 와 Aggro 용). 사라졌으면 nullptr.
+	auto ownerObj = zone_.Find(ownerGuid_);
+	Unit* casterUnit = nullptr;
+	if (ownerObj &&
+		(ownerObj->GetType() == GameObjectType::Player ||
+		 ownerObj->GetType() == GameObjectType::Monster))
 	{
-		// S_UnitHp 는 guid 기반이라 Player/Monster 공통으로 재사용 가능.
-		// 몬스터도 방송해야 클라가 HP 바를 갱신한다.
-		zone_.Broadcast(PacketMaker::MakeUnitHp(target));
+		casterUnit = static_cast<Unit*>(ownerObj.get());
 	}
 
+	// OnHit 효과 전체 적용 (Damage / Slow / Stun / Heal 등).
+	// Unit::TakeDamage 가 Invulnerable 체크를 포함하므로 여기서 별도 분기 불필요.
+	SkillRuntime::ApplyEffects(skillId_, EffectTrigger::OnHit, casterUnit, &target);
+
+	const int32 actualDmg = hpBefore - target.GetHp();   // 0 if invulnerable or no Damage effect
+
+	zone_.Broadcast(PacketMaker::MakeSkillHit(
+		ownerGuid_, target.GetGuid(), skillId_, actualDmg,
+		GetPosition(), hitPos));
+
+	if (actualDmg != 0)
+		zone_.Broadcast(PacketMaker::MakeUnitHp(target));
+
 	// --- Aggro accumulation ---
-	// 플레이어가 몬스터에게 데미지를 주면 피해량 만큼 해당 몬스터의 AggroTable 에 누적.
-	// 실제 변화량(damage applied) 이 아닌 의도한 damage_ 를 쓴다 — overkill 에도 모든 기여가 반영.
+	// 플레이어 → 몬스터 피격 시 실제 적용 데미지를 aggro 로 누적.
 	if (ownerType_ == GameObjectType::Player &&
-		target.GetType() == GameObjectType::Monster)
+		target.GetType() == GameObjectType::Monster &&
+		actualDmg > 0)
 	{
 		auto& monster = static_cast<Monster&>(target);
-		monster.AddAggro(ownerGuid_, static_cast<float>(damage_));
+		monster.AddAggro(ownerGuid_, static_cast<float>(actualDmg));
 	}
 
 	consumed_ = true;

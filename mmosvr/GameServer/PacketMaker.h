@@ -12,6 +12,7 @@ class Unit;
 class Projectile;
 class HomingProjectile;
 class SkillshotProjectile;
+struct Effect;
 
 
 // 서버에서 클라이언트로 보내는 모든 S_* 패킷을 생성하는 헬퍼.
@@ -48,6 +49,10 @@ public:
 
 	// --- Unit (generic, Player/Monster/Npc 공통) ---
 	static Proto::S_UnitHp MakeUnitHp(const Unit& unit);
+
+	// --- Buff / Effect ---
+	static Proto::S_BuffApplied MakeBuffApplied(long long targetGuid, const Effect& e, long long casterGuid);
+	static Proto::S_BuffRemoved MakeBuffRemoved(long long targetGuid, int32 eid);
 
 	// --- Projectile ---
 	static Proto::S_ProjectileSpawn   MakeHomingProjectileSpawn(const HomingProjectile& projectile);

@@ -33,6 +33,7 @@ import packet_ids
 import config
 import log_setup
 import skill_data
+import effect_data
 from network import PacketClient
 from renderer import Renderer
 
@@ -42,6 +43,7 @@ log_hit = logging.getLogger("hit")
 
 # 시작 시 1회 CSV 로드. 이후 조회만 한다 (테스트에서는 임시 table로 교체 가능).
 SKILL_TABLE: skill_data.SkillTable = skill_data.load_from_csv()
+EFFECT_TABLE: effect_data.EffectTable = effect_data.load_from_csv()
 
 
 @dataclass
@@ -62,6 +64,11 @@ class PlayerState:
     destination_z: float = 0.0
     is_moving: bool = False
 
+    # 활성 Buff/Debuff — eid → remaining_duration(sec).
+    # 서버의 S_BuffApplied 로 추가, Tick 과 S_BuffRemoved 로 제거.
+    # self(me) 의 경우 move_toward_destination 이 MoveSpeed 버프를 반영한다.
+    buffs: dict[int, float] = field(default_factory=dict)
+
     def set_target(self, x, y, z):
         """다른 플레이어 위치 교정용 보간 타깃 설정."""
         self.tx, self.ty, self.tz = x, y, z
@@ -79,6 +86,32 @@ class PlayerState:
         self.destination_z = wz
         self.is_moving = True
 
+    def get_effective_move_speed(self) -> float:
+        """활성 MoveSpeed StatMod buff 를 반영한 최종 이동속도.
+        서버의 Unit::GetEffectiveMoveSpeed 와 같은 공식: base * (1 + pct) + flat."""
+        flat = 0.0
+        pct = 0.0
+        for eid in self.buffs:
+            e = EFFECT_TABLE.get(eid)
+            if not e or e.type != "StatMod" or e.stat != "MoveSpeed":
+                continue
+            if e.is_percent:
+                pct += e.magnitude
+            else:
+                flat += e.magnitude
+        return max(0.0, config.MOVE_SPEED * (1.0 + pct) + flat)
+
+    def tick_buffs(self, dt: float):
+        """남은 지속시간 감소. 0 이하는 제거. 서버 S_BuffRemoved 와 경미한 오차 가능
+        (서버 권위이지만 이 dict 는 prediction 용이라 자체 만료해도 안전)."""
+        if not self.buffs:
+            return
+        expired = [eid for eid, remaining in self.buffs.items() if remaining - dt <= 0.0]
+        for eid in self.buffs:
+            self.buffs[eid] -= dt
+        for eid in expired:
+            self.buffs.pop(eid, None)
+
     def move_toward_destination(self, dt: float):
         """자기 캐릭터 이동 시뮬 (서버와 동일 규칙)."""
         if not self.is_moving:
@@ -89,7 +122,7 @@ class PlayerState:
         if dist < 0.001:
             self.is_moving = False
             return
-        step = config.MOVE_SPEED * dt
+        step = self.get_effective_move_speed() * dt
         if step >= dist:
             self.x = self.destination_x
             self.z = self.destination_z
@@ -370,6 +403,21 @@ def _h_projectile_destroy(state: GameState, msg):
     state.projectiles.pop(msg.projectile_guid, None)
 
 
+def _h_buff_applied(state: GameState, msg):
+    """self 버프는 local prediction(이동속도 등)에 반영되도록 me.buffs 에 저장.
+    다른 유닛 대상은 현재 Phase 1 에선 로그만."""
+    if msg.target_guid == state.me.guid:
+        state.me.buffs[msg.eid] = msg.duration
+    log_game.info("BUFF+  target=%d eid=%d caster=%d dur=%.1fs",
+                  msg.target_guid, msg.eid, msg.caster_guid, msg.duration)
+
+
+def _h_buff_removed(state: GameState, msg):
+    if msg.target_guid == state.me.guid:
+        state.me.buffs.pop(msg.eid, None)
+    log_game.info("BUFF-  target=%d eid=%d", msg.target_guid, msg.eid)
+
+
 PACKET_HANDLERS = {
     packet_ids.S_ENTER_GAME:         _h_enter_game,
     packet_ids.S_PLAYER_LIST:        _h_player_list,
@@ -387,6 +435,8 @@ PACKET_HANDLERS = {
     packet_ids.S_UNIT_HP:            _h_unit_hp,
     packet_ids.S_PROJECTILE_SPAWN:   _h_projectile_spawn,
     packet_ids.S_PROJECTILE_DESTROY: _h_projectile_destroy,
+    packet_ids.S_BUFF_APPLIED:       _h_buff_applied,
+    packet_ids.S_BUFF_REMOVED:       _h_buff_removed,
 }
 
 
@@ -633,6 +683,8 @@ def run_game(token: str, game_host: str, game_port: int, username: str) -> None:
             handler(state, msg)
 
         dt_frame = 1 / config.TARGET_FPS
+        # Buff 만료 tick (effective move speed 계산 전에 반영)
+        state.me.tick_buffs(dt_frame)
         # 자기 캐릭터: 목적지 방향 직선 예측 이동
         state.me.move_toward_destination(dt_frame)
         # 다른 플레이어/몬스터: 서버가 보내준 타깃으로 보간

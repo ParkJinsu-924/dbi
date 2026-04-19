@@ -1,17 +1,25 @@
 # Phase 1: "효과" 를 1급 객체로 분리. 여러 스킬이 같은 효과를 재사용할 수 있다.
-# type       : Damage (Phase 1 구현). Heal/ApplyBuff/Dash/Summon 은 Phase 2+ 예약.
-# magnitude  : Damage 면 데미지 값, Heal 이면 회복량, Buff 면 효과 크기 (예: 슬로우 % 값).
-# duration   : Buff 지속시간 초 (Damage 는 0).
-# scaling_ad : 시전자 공격력 계수 (Phase 2+ — 시전자 스탯 * 계수 가 magnitude 에 더해짐).
+# type       : Damage | Heal | StatMod | CCState. Dash/Summon 은 Phase 2+ 예약.
+# magnitude  : Damage=dmg, Heal=hp, StatMod=수치(+/-), CCState=0.
+# duration   : Buff 지속시간 초 (Damage/Heal 은 0 = 즉발).
+# scaling_ad : 시전자 공격력 계수 (Phase 2+).
 # scaling_ap : 시전자 마법력 계수 (Phase 2+).
-eid,type,magnitude,duration,scaling_ad,scaling_ap
-1001,Damage,8,0.0,0.0,0.0
-1002,Damage,15,0.0,0.0,0.0
-1003,Damage,5,0.0,0.0,0.0
-1004,Damage,5,0.0,0.0,0.0
-1005,Damage,12,0.0,0.0,0.0
-1006,Damage,20,0.0,0.0,0.0
-3001,Damage,15,0.0,0.0,0.0
-3002,Damage,30,0.0,0.0,0.0
-3003,Damage,25,0.0,0.0,0.0
-3004,Damage,50,0.0,0.0,0.0
+# stat       : StatMod 대상 스탯 (None|MoveSpeed|AttackSpeed|MaxHp|Damage).
+# is_percent : StatMod 해석 (true=%, false=flat). 0.3 = +30%.
+# cc_flag    : 부여 CC 분류 (None|Stun|Silence|Root|Slow|Invulnerable).
+eid,type,magnitude,duration,scaling_ad,scaling_ap,stat,is_percent,cc_flag
+1001,Damage,2,0.0,0.0,0.0,None,false,None
+1002,Damage,3,0.0,0.0,0.0,None,false,None
+1003,Damage,1,0.0,0.0,0.0,None,false,None
+1004,Damage,2,0.0,0.0,0.0,None,false,None
+1005,Damage,2,0.0,0.0,0.0,None,false,None
+1006,Damage,3,0.0,0.0,0.0,None,false,None
+3001,Damage,3,0.0,0.0,0.0,None,false,None
+3002,Damage,4,0.0,0.0,0.0,None,false,None
+3003,Damage,3,0.0,0.0,0.0,None,false,None
+3004,Damage,5,0.0,0.0,0.0,None,false,None
+# --- Phase 1 Buff/Debuff 예시 ---
+4001,StatMod,-0.3,3.0,0.0,0.0,MoveSpeed,true,Slow
+4002,CCState,0,1.5,0.0,0.0,None,false,Stun
+4003,StatMod,0.5,4.0,0.0,0.0,MoveSpeed,true,None
+4004,CCState,0,3.0,0.0,0.0,None,false,Invulnerable

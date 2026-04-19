@@ -39,6 +39,11 @@ void Monster::InitAI(const Proto::Vector3& spawnPos, Zone* zone)
 
 void Monster::Update(const float deltaTime)
 {
+	TickBuffs(deltaTime);
+	// Stunned 상태에서는 FSM 을 돌리지 않아 이동/공격을 모두 차단한다.
+	// (버프 tick 은 이미 수행됐으므로 stun 자체는 시간이 지나며 풀린다)
+	if (IsStunned())
+		return;
 	fsm_.Update(deltaTime);
 }
 
@@ -91,6 +96,10 @@ float Monster::DistanceToSpawn() const
 
 void Monster::MoveToward(const Proto::Vector3& target, const float deltaTime)
 {
+	// Rooted 상태면 이동하지 못함 (공격은 다른 state 책임이라 여기선 이동만 차단).
+	if (IsRooted())
+		return;
+
 	float dx = target.x() - position_.x();
 	float dz = target.z() - position_.z();
 	float dist = std::sqrt(dx * dx + dz * dz);
@@ -98,7 +107,7 @@ void Monster::MoveToward(const Proto::Vector3& target, const float deltaTime)
 	if (dist < 0.001f)
 		return;
 
-	float step = moveSpeed_ * deltaTime;
+	float step = GetEffectiveMoveSpeed(moveSpeed_) * deltaTime;
 	if (step > dist)
 		step = dist;
 

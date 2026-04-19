@@ -114,6 +114,10 @@ Proto::ErrorCode GamePacketHandler::C_PlayerMove(std::shared_ptr<GameSession> se
 	if (!player)
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
 
+	// Stun/Root 상태면 이동 입력 무시 (클라에는 별도 응답 없음, 서버 위치 기준 재동기화는 클라 쪽 책임).
+	if (player->IsStunned() || player->IsRooted())
+		return Proto::ErrorCode::OK;
+
 	Proto::Vector3 validatedPos = pkt.position();
 
 	auto& mapService = GetMapManager();
@@ -154,6 +158,9 @@ Proto::ErrorCode GamePacketHandler::C_MoveCommand(std::shared_ptr<GameSession> s
 	auto player = GetPlayerManager().FindBySession(session);
 	if (!player)
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
+
+	if (player->IsStunned() || player->IsRooted())
+		return Proto::ErrorCode::OK;
 
 	Proto::Vector3 target = pkt.target_pos();
 
@@ -215,6 +222,9 @@ Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> sess
 	if (!zone)
 		return Proto::ErrorCode::INTERNAL_ERROR;
 
+	if (!player->IsSkillUsable()) // Stun/Silence 시 스킬 사용 차단 — 조용히 무시 (쿨다운도 소비하지 않음)
+		return Proto::ErrorCode::OK;
+
 	const auto* skTable = GetResourceManager().Get<SkillTemplate>();
 	const SkillTemplate* sk = skTable ? skTable->Find(pkt.skill_id()) : nullptr;
 	if (!sk)
@@ -246,9 +256,7 @@ Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> sess
 			if (!target || !target->IsAlive())
 				return Proto::ErrorCode::OK;  // 적 없음 — 조용히 무시
 
-			SkillRuntime::CastHoming(
-				player->GetGuid(), GameObjectType::Player, player->GetPosition(),
-				target->GetGuid(), *sk, *zone);		
+			SkillRuntime::CastHoming(*player, target->GetGuid(), *sk, *zone);
 			}
 		break;
 		case SkillKind::Skillshot:
@@ -261,9 +269,7 @@ Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> sess
 			dx /= len;
 			dz /= len;
 
-			SkillRuntime::CastSkillshot(
-				player->GetGuid(), GameObjectType::Player, player->GetPosition(),
-				dx, dz, *sk, *zone);
+			SkillRuntime::CastSkillshot(*player, dx, dz, *sk, *zone);
 		}
 		break;
 		default: ;

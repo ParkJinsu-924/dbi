@@ -46,6 +46,8 @@ _MSG_CLASS_MAP = {
     packet_ids.S_UNIT_HP:             game_pb2.S_UnitHp,
     packet_ids.S_PROJECTILE_SPAWN:    game_pb2.S_ProjectileSpawn,
     packet_ids.S_PROJECTILE_DESTROY:  game_pb2.S_ProjectileDestroy,
+    packet_ids.S_BUFF_APPLIED:        game_pb2.S_BuffApplied,
+    packet_ids.S_BUFF_REMOVED:        game_pb2.S_BuffRemoved,
 }
 
 # Map message class -> PacketId (for sending)

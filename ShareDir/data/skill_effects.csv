@@ -1,14 +1,24 @@
 # 스킬-효과 N:M 조인 테이블.
-# trigger : OnCast (캐스트 즉시) | OnHit (투사체 명중 시) | OnTick (주기적, Phase 2+)
+# trigger : OnCast (캐스트 즉시) | OnHit (명중 시) | OnTick (주기적, Phase 2+)
 # delay   : trigger 후 대기 시간(초). Phase 2 에서 지연 폭발/딜레이드 명중 구현용.
-sid,eid,trigger,delay
-1001,1001,OnHit,0.0
-1002,1002,OnHit,0.0
-1003,1003,OnHit,0.0
-1004,1004,OnHit,0.0
-1005,1005,OnHit,0.0
-1006,1006,OnHit,0.0
-2001,3001,OnHit,0.0
-2002,3002,OnHit,0.0
-2003,3003,OnHit,0.0
-2004,3004,OnHit,0.0
+# target  : Self | Enemy | Ally. Self=caster 자신에 적용, Enemy=피격 대상.
+sid,eid,trigger,delay,target
+# Monster 평타 OnHit Damage (적에게)
+1001,1001,OnHit,0.0,Enemy
+1002,1002,OnHit,0.0,Enemy
+1003,1003,OnHit,0.0,Enemy
+1004,1004,OnHit,0.0,Enemy
+1005,1005,OnHit,0.0,Enemy
+1006,1006,OnHit,0.0,Enemy
+# Player 스킬 OnHit Damage
+2001,3001,OnHit,0.0,Enemy
+2002,3002,OnHit,0.0,Enemy
+2003,3003,OnHit,0.0,Enemy
+2004,3004,OnHit,0.0,Enemy
+# --- Phase 1 버프/디버프 시연 ---
+# bolt(2002) 가 맞힌 적에게 3초 30% 슬로우도 함께 부여
+2002,4001,OnHit,0.0,Enemy
+# strike(2003) 가 캐스트 순간 본인에게 4초 이속 +50% 부여
+2003,4003,OnCast,0.0,Self
+# nuke(2004) 가 맞힌 적에게 1.5초 기절 추가
+2004,4002,OnHit,0.0,Enemy

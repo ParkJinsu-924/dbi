@@ -24,6 +24,18 @@ enum class EffectTrigger : int32
 };
 
 
+// Effect 의 적용 대상. OnHit 에서 enemy/self 구분 필요.
+//   Self  : 시전자 자신에게 (자기 강화 버프)
+//   Enemy : 맞은 적에게 (데미지/슬로우/기절)
+//   Ally  : 아군 (힐/버프) — Phase 2+
+enum class EffectTargetScope : int32
+{
+	Self  = 0,
+	Enemy = 1,
+	Ally  = 2,
+};
+
+
 class SkillEffectTable;
 
 
@@ -34,17 +46,18 @@ struct SkillEffectEntry
 	using KeyType = int64;
 	using Table   = SkillEffectTable;
 
-	int32         sid     = 0;
-	int32         eid     = 0;
-	EffectTrigger trigger = EffectTrigger::OnHit;
-	float         delay   = 0.0f;
+	int32             sid     = 0;
+	int32             eid     = 0;
+	EffectTrigger     trigger = EffectTrigger::OnHit;
+	float             delay   = 0.0f;
+	EffectTargetScope target  = EffectTargetScope::Enemy;
 
 	KeyType GetKey() const
 	{
 		return (static_cast<int64>(sid) << 32) | static_cast<uint32>(eid);
 	}
 
-	CSV_DEFINE_TYPE(SkillEffectEntry, sid, eid, trigger, delay)
+	CSV_DEFINE_TYPE(SkillEffectEntry, sid, eid, trigger, delay, target)
 };
 
 
