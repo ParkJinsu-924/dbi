@@ -52,7 +52,7 @@ public:
 	// --- Skill Cooldown ---
 	// 마지막 사용 시각 + cooldown 이 현재 시각 이하면 사용 가능 → 시간 갱신 후 true.
 	// 그 외엔 false (사용 거절).
-	bool TryConsumeCooldown(const std::string& skillName, float cooldownSec);
+	bool TryConsumeCooldown(int32 skillId, float cooldownSec);
 	
 	// Player 가 속한 Zone을 가져온다.
 	Zone* GetZone() const;
@@ -73,7 +73,7 @@ private:
 	bool isMoving_ = false;
 	float moveSpeed_ = 5.0f;   // 월드 유닛/초. debug_tool config.MOVE_SPEED 와 동일값.
 
-	std::unordered_map<std::string, float> skillCooldowns_;  // name -> next-usable time (TimeManager.totalTime)
+	std::unordered_map<int32, float> skillCooldowns_;  // sid -> next-usable time (TimeManager.totalTime)
 };
 
 // Send<T> requires full GameSession definition for PacketSession::Send<T>

@@ -19,7 +19,40 @@ python client.py
 python client.py <username> <password>
 ```
 
-Windows에서는 `run_client.bat`이 Python 설치 및 의존성까지 자동 확인해 줍니다.
+Windows에서는 `scripts/run_client.bat` 이 Python 설치 및 의존성까지 자동 확인해 줍니다
+(처음 실행 시 Python 미설치라면 winget 으로 user 스코프 설치 제안 → 의존성 pip install
+→ client.py 실행).
+
+## 봇 투입기 (`bot.py`)
+
+많은 유저가 동시에 맵을 누비는 풍경을 보거나 서버 부하 테스트를 할 때 사용합니다.
+헤드리스(pygame 창 없음)로 한 프로세스가 N마리의 봇을 쓰레드로 띄웁니다.
+
+```bash
+# 기본 10마리 (bot_0001 ~ bot_0010)
+python bot.py
+
+# 개수 지정
+python bot.py 50
+
+# 개수 + 접두어 지정 → loader_0001 ~ loader_0030
+python bot.py 30 loader
+```
+
+Windows 에서는 `scripts/run_bot.bat` 을 더블클릭하거나 인자 전달:
+
+```bat
+scripts\run_bot.bat
+scripts\run_bot.bat 50
+scripts\run_bot.bat 30 loader
+```
+
+각 봇은 무작위 지점으로 이동하고 주기적으로 스킬을 시전합니다. 행동 간격과 이동
+범위는 `bot.py` 상단의 `# ── 봇 행동 파라미터 ──` 섹션에서 조정. Ctrl+C 로 정지.
+
+**주의**: 봇은 LoginServer/GameServer 에 실제로 접속하므로 서버가 먼저 떠있어야 합니다.
+스킬 쿨다운이 0 (`skill_templates.csv` 의 플레이어 스킬) 인 상태에서는 쿨다운 없이
+난사하므로 서버 부하에 유의하세요.
 
 ## 테스트
 
@@ -32,6 +65,7 @@ python -m pytest tests/ -v
 - `tests/test_network.py`: 패킷 프레이밍, ID 매핑, 실제 로컬 TCP 라운드트립
 - `tests/test_feedback.py`: damage popup/파티클/카메라 shake/오디오 fallback 동작
 - `tests/test_cc_visuals.py`: CC 레지스트리 완전성, `_apply_cc_to_target` 라우팅
+- `tests/test_bot.py`: Bot 인스턴스화, 이동 범위, 스킬 요청 빌드
 - `tests/test_skill_data.py`: 스킬 CSV 파싱
 
 ## 파일 구성
@@ -39,6 +73,8 @@ python -m pytest tests/ -v
 | 파일                | 역할                                      | 수정 가능? |
 | ------------------- | ----------------------------------------- | :--------: |
 | `client.py`         | 메인 루프, 입력, 패킷 디스패치            |     O      |
+| `bot.py`            | 헤드리스 봇 N마리 투입기 (부하/시각 데모용) |     O      |
+| `scripts/`          | Windows 실행 런처 모음 (`run_client.bat` / `run_bot.bat` / `_setup_python.bat`) | O |
 | `network.py`        | TCP 소켓 + 패킷 프레이밍                  |     O      |
 | `renderer.py`       | pygame 기반 2D 렌더링                     |     O      |
 | `feedback.py`       | damage popup/파티클/카메라 shake/오디오   |     O      |
@@ -49,7 +85,6 @@ python -m pytest tests/ -v
 | `log_setup.py`      | 로깅 초기화                               |     O      |
 | `assets/sounds/`    | 선택적 `.wav` 오버라이드 (없으면 절차 합성) |     O      |
 | `requirements.txt`  | 파이썬 의존성                             |     O      |
-| `run_client.bat`    | Windows 실행 스크립트                     |     O      |
 | `common_pb2.py`     | **자동 생성** (protobuf)                  |     X      |
 | `login_pb2.py`      | **자동 생성** (protobuf)                  |     X      |
 | `game_pb2.py`       | **자동 생성** (protobuf)                  |     X      |

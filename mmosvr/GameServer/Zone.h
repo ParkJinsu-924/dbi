@@ -22,9 +22,9 @@ class SkillshotProjectile;
 class Zone
 {
 public:
-	explicit Zone(const int32 id) : id_(id) {}
+	explicit Zone(const int32 id) : zoneId_(id) {}
 
-	int32 GetId() const { return id_; }
+	int32 GetId() const { return zoneId_; }
 
 	// Unified API for all GameObject types.
 	void Add(std::shared_ptr<GameObject> obj);
@@ -134,14 +134,14 @@ private:
 	void BroadcastChunkExcept(const SendBufferChunkPtr& chunk, long long excludeGuid) const;
 	void SendChunkTo(const SendBufferChunkPtr& chunk, long long guid) const;
 	void BroadcastChunkTo(const SendBufferChunkPtr& chunk, std::span<const long long> guids) const;
-	void BroadcastMonsterPositions();
-	void BroadcastPlayerPositions();  // 클릭 이동 시뮬 결과를 주기적으로 방송 (이동 중인 Player만)
-	void FlushPending();              // pending Add/Remove 일괄 적용
+	void CollectDeadObjects();                // consumed projectile 등 제거 대상 pendingRemove_ 에 수집
+	void FlushPendingObjects();               // pending Add/Remove 일괄 적용
+	void BroadcastObjectPositions(float deltaTime);
 
 	void InsertObject(std::shared_ptr<GameObject> obj);  // objects_ + objectsByType_ 동시 갱신
 	void EraseObject(long long guid);
 
-	const int32 id_;
+	const int32 zoneId_;
 
 	// guid 직접 검색용 (Find / FindAs) — O(1).
 	std::unordered_map<long long, std::shared_ptr<GameObject>> objects_;

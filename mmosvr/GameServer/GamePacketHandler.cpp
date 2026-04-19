@@ -217,7 +217,7 @@ Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> sess
 		return Proto::ErrorCode::INVALID_REQUEST;
 	}
 
-	if (!player->TryConsumeCooldown(sk->name, sk->cooldown))
+	if (!player->TryConsumeCooldown(sk->sid, sk->cooldown))
 		return Proto::ErrorCode::OK;  // 쿨다운 중 — 조용히 무시
 
 	// LoL 스타일: 스킬 사용 시 진행 중이던 이동을 자동 중단한다
@@ -241,15 +241,15 @@ Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> sess
 				return Proto::ErrorCode::OK;  // 적 없음 — 조용히 무시
 
 			SkillRuntime::CastHoming(*player, target->GetGuid(), *sk, *zone);
-			}
+		}
 		break;
 		case SkillKind::Skillshot:
 		{
-			const float len = MathUtil::Length2D(pkt.dir().x(), pkt.dir().y());
-			if (len < 1e-4f)
+			const auto dir = MathUtil::TryNormalize2D(pkt.dir().x(), pkt.dir().y());
+			if (!dir)
 				return Proto::ErrorCode::INVALID_REQUEST;
 
-			SkillRuntime::CastSkillshot(*player, pkt.dir().x() / len, pkt.dir().y() / len, *sk, *zone);
+			SkillRuntime::CastSkillshot(*player, dir->x, dir->y, *sk, *zone);
 		}
 		break;
 		default: ;

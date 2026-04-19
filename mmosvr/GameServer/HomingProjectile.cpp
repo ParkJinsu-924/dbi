@@ -31,9 +31,6 @@ void HomingProjectile::Step(const float dt)
 		return;
 	}
 
-	if (dist < 1e-4f)
-		return;
-
 	float step = speed_ * dt;
 	if (step > dist)
 		step = dist;

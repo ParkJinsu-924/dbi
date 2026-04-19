@@ -58,40 +58,21 @@ void Zone::EraseObject(const long long guid)
 
 void Zone::Update(const float deltaTime)
 {
-	// 1. Tick all objects
+	// 1. 모든 객체 tick
 	for (const auto& obj : objects_ | std::views::values)
 		obj->Update(deltaTime);
-	
-	// 2. Auto-cleanup consumed projectiles (Update 중 적중/만료된 것)
-	ForEachOfType(GameObjectType::Projectile, 
-		[&](const long long guid, const std::shared_ptr<GameObject>& obj)
-		{
-			const auto p = std::static_pointer_cast<Projectile>(obj);
-			if (p->IsConsumed())
-				pendingRemove_.push_back(guid);
-		});
 
-	// 3. Flush pending Add/Remove (Spawn 호출 결과 + 위 cleanup)
-	FlushPending();
+	// 2. 제거 대상 수집 (consumed projectile 등) → pendingRemove_
+	CollectDeadObjects();
 
-	// 4. Broadcast monster positions periodically
-	monsterBroadcastAccum_ += deltaTime;
-	if (monsterBroadcastAccum_ >= MONSTER_BROADCAST_INTERVAL)
-	{
-		monsterBroadcastAccum_ = 0.0f;
-		BroadcastMonsterPositions();
-	}
+	// 3. pending Add/Remove 일괄 반영 (Spawn 결과 + 위 수집분)
+	FlushPendingObjects();
 
-	// 5. Broadcast moving-player positions periodically (LoL-style click-to-move)
-	playerBroadcastAccum_ += deltaTime;
-	if (playerBroadcastAccum_ >= PLAYER_BROADCAST_INTERVAL)
-	{
-		playerBroadcastAccum_ = 0.0f;
-		BroadcastPlayerPositions();
-	}
+	// 4. 주기적 위치 방송 (Monster / 이동 중인 Player)
+	BroadcastObjectPositions(deltaTime);
 }
 
-void Zone::FlushPending()
+void Zone::FlushPendingObjects()
 {
 	if (pendingAdd_.empty() && pendingRemove_.empty())
 		return;
@@ -103,6 +84,34 @@ void Zone::FlushPending()
 
 	pendingAdd_.clear();
 	pendingRemove_.clear();
+}
+
+void Zone::BroadcastObjectPositions(const float deltaTime)
+{
+	// Monster — 모든 몬스터의 현재 위치를 주기적으로 방송.
+	monsterBroadcastAccum_ += deltaTime;
+	if (monsterBroadcastAccum_ >= MONSTER_BROADCAST_INTERVAL)
+	{
+		monsterBroadcastAccum_ = 0.0f;
+		ForEachOfType(GameObjectType::Monster, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
+			{
+				Broadcast(PacketMaker::MakeMonsterMove(*std::static_pointer_cast<Monster>(obj)));
+			});
+	}
+
+	// Player — 이동 중인 플레이어만 방송. 정지 플레이어는 C_StopMove 수신 시 최종 위치를 한 번 방송했음.
+	playerBroadcastAccum_ += deltaTime;
+	if (playerBroadcastAccum_ >= PLAYER_BROADCAST_INTERVAL)
+	{
+		playerBroadcastAccum_ = 0.0f;
+		ForEachOfType(GameObjectType::Player, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
+			{
+				auto player = std::static_pointer_cast<Player>(obj);
+				if (!player->IsMoving())
+					return;
+				Broadcast(PacketMaker::MakePlayerMove(*player));
+			});
+	}
 }
 
 void Zone::BroadcastChunk(const SendBufferChunkPtr& chunk) const
@@ -196,23 +205,16 @@ std::shared_ptr<Monster> Zone::FindNearestMonster(const Proto::Vector2& from, fl
 	return nearest;
 }
 
-void Zone::BroadcastMonsterPositions()
+void Zone::CollectDeadObjects()
 {
-	ForEachOfType(GameObjectType::Monster, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
+	// consumed projectile (Update 중 적중/만료된 것) → pendingRemove_ 큐에 적재.
+	// 실제 erase 는 FlushPendingObjects 에서 수행 (순회 중 수정 방지).
+	ForEachOfType(GameObjectType::Projectile,
+		[&](const long long guid, const std::shared_ptr<GameObject>& obj)
 		{
-			Broadcast(PacketMaker::MakeMonsterMove(*std::static_pointer_cast<Monster>(obj)));
-		});
-}
-
-void Zone::BroadcastPlayerPositions()
-{
-	// 이동 중인 플레이어만 방송한다. 정지 플레이어는 C_StopMove 수신 시 이미 최종 위치를 한 번 방송했음.
-	ForEachOfType(GameObjectType::Player, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
-		{
-			auto player = std::static_pointer_cast<Player>(obj);
-			if (!player->IsMoving())
-				return;
-			Broadcast(PacketMaker::MakePlayerMove(*player));
+			const auto p = std::static_pointer_cast<Projectile>(obj);
+			if (p->IsConsumed())
+				pendingRemove_.push_back(guid);
 		});
 }
 
@@ -225,7 +227,7 @@ std::shared_ptr<HomingProjectile> Zone::SpawnHomingProjectile(
 		ownerGuid, ownerType, targetGuid,
 		skillId, damage, speed, lifetime, *this);
 	p->SetPosition(startPos);
-	p->SetZoneId(id_);
+	p->SetZoneId(zoneId_);
 
 	pendingAdd_.push_back(p);
 
@@ -244,7 +246,7 @@ std::shared_ptr<SkillshotProjectile> Zone::SpawnSkillshotProjectile(
 		ownerGuid, ownerType, dirX, dirZ,
 		skillId, damage, speed, radius, range, *this);
 	p->SetPosition(startPos);
-	p->SetZoneId(id_);
+	p->SetZoneId(zoneId_);
 
 	pendingAdd_.push_back(p);
 
