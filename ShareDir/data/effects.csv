@@ -14,6 +14,8 @@ eid,type,magnitude,duration,scaling_ad,scaling_ap,stat,is_percent,cc_flag
 1004,Damage,2,0.0,0.0,0.0,None,false,None
 1005,Damage,2,0.0,0.0,0.0,None,false,None
 1006,Damage,3,0.0,0.0,0.0,None,false,None
+# 몬스터 스페셜 스킬 데미지 (평타보다 강함)
+1101,Damage,8,0.0,0.0,0.0,None,false,None
 3001,Damage,3,0.0,0.0,0.0,None,false,None
 3002,Damage,4,0.0,0.0,0.0,None,false,None
 3003,Damage,3,0.0,0.0,0.0,None,false,None

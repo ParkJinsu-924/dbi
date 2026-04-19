@@ -33,13 +33,15 @@ struct MonsterSkillEntry
 	int32 skillId     = 0;
 	int32 weight      = 1;      // 상대 가중치 (양수)
 	float minInterval = 0.0f;   // AI 관점의 최소 재사용 간격 (초)
+	bool  is_basic    = false;  // true 면 이 스킬이 교전 기준 — cast_range 가 Chase→Attack 임계값.
+	                            //         tid 당 정확히 1개만 true (OnValidate 강제).
 
 	KeyType GetKey() const
 	{
 		return (static_cast<int64>(tid) << 32) | static_cast<uint32>(skillId);
 	}
 
-	CSV_DEFINE_TYPE(MonsterSkillEntry, tid, skillId, weight, minInterval)
+	CSV_DEFINE_TYPE(MonsterSkillEntry, tid, skillId, weight, minInterval, is_basic)
 };
 
 
@@ -54,12 +56,20 @@ public:
 		return it != tidIndex_.end() ? it->second : kEmpty;
 	}
 
+	// 한 몬스터 tid 의 basic 엔트리. tid 당 1개 보장 (OnValidate). 없으면 nullptr.
+	const MonsterSkillEntry* FindBasicByMonster(int32 tid) const
+	{
+		const auto it = basicIndex_.find(tid);
+		return it != basicIndex_.end() ? it->second : nullptr;
+	}
+
 	int OnValidate() const override
 	{
 		int errors = 0;
 		const auto* monsters = GetResourceManager().Get<MonsterTemplate>();
 		const auto* skills   = GetResourceManager().Get<SkillTemplate>();
 
+		// (1) 행별 무결성: FK + weight 양수.
 		for (const auto& [k, e] : map_)
 		{
 			if (monsters && !monsters->Find(e.tid))
@@ -84,6 +94,28 @@ public:
 				++errors;
 			}
 		}
+
+		// (2) tid 당 정확히 1개의 is_basic=true 강제. monster_templates 의 모든 tid 가
+		//     스킬 목록을 갖고 있다는 전제로 검사.
+		if (monsters)
+		{
+			std::unordered_map<int32, int32> basicCount;
+			for (const auto& [k, e] : map_)
+			{
+				if (e.is_basic) ++basicCount[e.tid];
+				else            basicCount.try_emplace(e.tid, 0);
+			}
+			for (const auto& [tid, count] : basicCount)
+			{
+				if (count != 1)
+				{
+					LOG_ERROR(std::format(
+						"monster_skills: tid={} — must have exactly 1 row with is_basic=true (got {})",
+						tid, count));
+					++errors;
+				}
+			}
+		}
 		return errors;
 	}
 
@@ -93,10 +125,15 @@ protected:
 	void OnLoaded() override
 	{
 		tidIndex_.clear();
+		basicIndex_.clear();
 		for (const auto& [k, e] : map_)
+		{
 			tidIndex_[e.tid].push_back(&e);
+			if (e.is_basic) basicIndex_[e.tid] = &e;
+		}
 	}
 
 private:
 	std::unordered_map<int32, std::vector<const MonsterSkillEntry*>> tidIndex_;
+	std::unordered_map<int32, const MonsterSkillEntry*> basicIndex_;
 };

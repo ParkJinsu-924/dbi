@@ -10,6 +10,9 @@ sid,eid,trigger,delay,target
 1004,1004,OnHit,0.0,Enemy
 1005,1005,OnHit,0.0,Enemy
 1006,1006,OnHit,0.0,Enemy
+# Goblin 스페셜 (1101): 큰 데미지(1101) + 슬로우(4001 재사용)
+1101,1101,OnHit,0.0,Enemy
+1101,4001,OnHit,0.0,Enemy
 # Player 스킬 OnHit Damage
 2001,3001,OnHit,0.0,Enemy
 2002,3002,OnHit,0.0,Enemy

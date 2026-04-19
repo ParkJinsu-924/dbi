@@ -116,19 +116,17 @@ void Monster::DoAttack(const SkillTemplate& sk, Player& target)
 	SkillRuntime::Cast(sk, *this, target, GetZone());
 }
 
-float Monster::GetMaxAttackRange() const
+float Monster::GetBasicSkillRange() const
 {
-	const auto* skTable      = GetResourceManager().Get<SkillTemplate>();
+	const auto* skTable       = GetResourceManager().Get<SkillTemplate>();
 	const auto* monsterSkills = GetResourceManager().Get<MonsterSkillEntry>();
 	if (!skTable || !monsterSkills) return 0.0f;
 
-	float maxRange = 0.0f;
-	for (const auto* entry : monsterSkills->FindByMonster(templateId_))
-	{
-		const SkillTemplate* tmpl = skTable->Find(entry->skillId);
-		if (tmpl) maxRange = (std::max)(maxRange, tmpl->cast_range);
-	}
-	return maxRange;
+	const auto* basicEntry = monsterSkills->FindBasicByMonster(templateId_);
+	if (!basicEntry) return 0.0f;
+
+	const SkillTemplate* tmpl = skTable->Find(basicEntry->skillId);
+	return tmpl ? tmpl->cast_range : 0.0f;
 }
 
 std::optional<Monster::SkillChoice> Monster::PickCastable(const float now, const float distance) const

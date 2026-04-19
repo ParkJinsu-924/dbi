@@ -11,6 +11,8 @@ sid,name,targeting,projectile_speed,projectile_radius,projectile_range,projectil
 1004,sniper_shot,Hitscan,0.0,0.0,0.0,0.0,2.0,0,10.0
 1005,archer_homing,Homing,12.0,0.0,0.0,5.0,1.8,0,8.0
 1006,caster_bolt,Skillshot,18.0,0.6,16.0,0.0,2.5,0,10.0
+# Goblin 스페셜 스킬: 큰 폭탄을 던진다. 느리지만 큰 피탄 반경 + 슬로우 부여 (skill_effects 참조)
+1101,goblin_bomb,Skillshot,8.0,1.5,8.0,0.0,4.0,0,8.0
 2001,auto_attack,Homing,12.0,0.0,0.0,5.0,0.0,0,30.0
 2002,bolt,Skillshot,18.0,0.6,16.0,0.0,0.0,0,20.0
 2003,strike,Homing,14.0,0.0,0.0,3.0,0.0,0,25.0

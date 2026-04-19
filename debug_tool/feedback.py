@@ -25,6 +25,12 @@ from dataclasses import dataclass
 SAMPLE_RATE = 22050
 _SOUNDS_DIR = os.path.join(os.path.dirname(__file__), "assets", "sounds")
 
+# Special skill sids — 일반 평타 캐스트와 시각/청각적으로 구분해 강조한다.
+# 새 스페셜 스킬이 추가되면 여기에 sid 만 등록하면 된다 (skill_templates.csv 의 PK).
+SPECIAL_SKILL_IDS: set[int] = {
+    1101,   # goblin_bomb — Goblin 의 간헐 폭탄 투척
+}
+
 
 # ── Data types ──────────────────────────────────────────────────────
 @dataclass
@@ -129,11 +135,13 @@ class AudioManager:
     def _load_or_synth(self) -> None:
         # Event names must match what FeedbackSystem.play_sound dispatches.
         events = {
-            "hit":         lambda: self._synth_noise(140, 0.08, amp=0.40),
-            "crit":        lambda: self._synth_sweep(900, 320, 0.18, amp=0.50),
-            "skill_cast":  lambda: self._synth_sweep(220, 720, 0.20, amp=0.28),
-            "spawn":       lambda: self._synth_tone(160, 0.18, amp=0.25),
-            "me_hit":      lambda: self._synth_noise(90, 0.14, amp=0.55),
+            "hit":           lambda: self._synth_noise(140, 0.08, amp=0.40),
+            "crit":          lambda: self._synth_sweep(900, 320, 0.18, amp=0.50),
+            "skill_cast":    lambda: self._synth_sweep(220, 720, 0.20, amp=0.28),
+            # 스페셜 스킬: 더 낮은 시작음 + 긴 sweep + noise burst → 무거운 "쿵" 느낌.
+            "special_cast":  lambda: self._synth_sweep(80, 380, 0.45, amp=0.55),
+            "spawn":         lambda: self._synth_tone(160, 0.18, amp=0.25),
+            "me_hit":        lambda: self._synth_noise(90, 0.14, amp=0.55),
         }
         for name, synth in events.items():
             wav_path = os.path.join(_SOUNDS_DIR, f"{name}.wav")
@@ -259,13 +267,26 @@ class FeedbackSystem:
             # Softer feedback for others' hits — crit sound if big.
             self._play("crit" if damage >= 30 else "hit", volume=0.6)
 
-    def on_skill_cast(self, wx: float, wz: float, caster_is_me: bool) -> None:
-        # Expanding ring at the cast origin.
-        self._spawn_ring(wx, wz, color=(130, 190, 255),
-                         count=16, speed=3.8, lifetime=0.45)
-        if caster_is_me:
-            self.shake.bump(3.5)
-        self._play("skill_cast", volume=0.8 if caster_is_me else 0.5)
+    def on_skill_cast(self, wx: float, wz: float, caster_is_me: bool,
+                      skill_id: int = 0) -> None:
+        is_special = skill_id in SPECIAL_SKILL_IDS
+        if is_special:
+            # 시전 시점부터 "특수기" 임을 인지할 수 있게: 큰 적색 이중 링 + 강한 흔들림 + 무거운 사운드.
+            self._spawn_ring(wx, wz, color=(255, 90, 60),
+                             count=24, speed=6.5, lifetime=0.7)
+            self._spawn_ring(wx, wz, color=(255, 200, 90),
+                             count=18, speed=3.2, lifetime=0.55)
+            self._spawn_burst(wx, wz, color=(255, 140, 60),
+                              count=20, speed=(1.5, 4.5),
+                              size=(2.5, 4.5), lifetime=(0.4, 0.8))
+            self.shake.bump(8.0 if caster_is_me else 5.0)
+            self._play("special_cast", volume=1.0 if caster_is_me else 0.75)
+        else:
+            self._spawn_ring(wx, wz, color=(130, 190, 255),
+                             count=16, speed=3.8, lifetime=0.45)
+            if caster_is_me:
+                self.shake.bump(3.5)
+            self._play("skill_cast", volume=0.8 if caster_is_me else 0.5)
 
     def on_monster_spawn(self, wx: float, wz: float) -> None:
         self._spawn_burst(wx, wz, color=(180, 120, 220),

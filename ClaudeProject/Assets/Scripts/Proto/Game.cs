@@ -59,21 +59,21 @@ namespace Proto {
             "AxIQCghza2lsbF9pZBgDIAEoBRIOCgZkYW1hZ2UYBCABKAUSIgoKY2FzdGVy",
             "X3BvcxgFIAEoCzIOLlByb3RvLlZlY3RvcjISHwoHaGl0X3BvcxgGIAEoCzIO",
             "LlByb3RvLlZlY3RvcjIiNAoIU19Vbml0SHASCgoCaHAYASABKAUSDgoGbWF4",
-            "X2hwGAIgASgFEgwKBGd1aWQYAyABKAMi9wEKEVNfUHJvamVjdGlsZVNwYXdu",
+            "X2hwGAIgASgFEgwKBGd1aWQYAyABKAMiiQIKEVNfUHJvamVjdGlsZVNwYXdu",
             "EgwKBGd1aWQYASABKAMSEgoKb3duZXJfZ3VpZBgCIAEoAxIjCgRraW5kGAMg",
             "ASgOMhUuUHJvdG8uUHJvamVjdGlsZUtpbmQSIQoJc3RhcnRfcG9zGAQgASgL",
             "Mg4uUHJvdG8uVmVjdG9yMhINCgVzcGVlZBgFIAEoAhITCgt0YXJnZXRfZ3Vp",
             "ZBgGIAEoAxIbCgNkaXIYByABKAsyDi5Qcm90by5WZWN0b3IyEg4KBnJhZGl1",
             "cxgIIAEoAhIRCgltYXhfcmFuZ2UYCSABKAISFAoMbWF4X2xpZmV0aW1lGAog",
-            "ASgCIlgKDVNfQnVmZkFwcGxpZWQSEwoLdGFyZ2V0X2d1aWQYASABKAMSCwoD",
-            "ZWlkGAIgASgFEhMKC2Nhc3Rlcl9ndWlkGAMgASgDEhAKCGR1cmF0aW9uGAQg",
-            "ASgCIjEKDVNfQnVmZlJlbW92ZWQSEwoLdGFyZ2V0X2d1aWQYASABKAMSCwoD",
-            "ZWlkGAIgASgFIpIBChNTX1Byb2plY3RpbGVEZXN0cm95EhcKD3Byb2plY3Rp",
-            "bGVfZ3VpZBgBIAEoAxIxCgZyZWFzb24YAiABKA4yIS5Qcm90by5TX1Byb2pl",
-            "Y3RpbGVEZXN0cm95LlJlYXNvbiIvCgZSZWFzb24SCwoHRVhQSVJFRBAAEg8K",
-            "C1RBUkdFVF9MT1NUEAESBwoDSElUEAIqQQoOUHJvamVjdGlsZUtpbmQSFQoR",
-            "UFJPSkVDVElMRV9IT01JTkcQABIYChRQUk9KRUNUSUxFX1NLSUxMU0hPVBAB",
-            "YgZwcm90bzM="));
+            "ASgCEhAKCHNraWxsX2lkGAsgASgFIlgKDVNfQnVmZkFwcGxpZWQSEwoLdGFy",
+            "Z2V0X2d1aWQYASABKAMSCwoDZWlkGAIgASgFEhMKC2Nhc3Rlcl9ndWlkGAMg",
+            "ASgDEhAKCGR1cmF0aW9uGAQgASgCIjEKDVNfQnVmZlJlbW92ZWQSEwoLdGFy",
+            "Z2V0X2d1aWQYASABKAMSCwoDZWlkGAIgASgFIpIBChNTX1Byb2plY3RpbGVE",
+            "ZXN0cm95EhcKD3Byb2plY3RpbGVfZ3VpZBgBIAEoAxIxCgZyZWFzb24YAiAB",
+            "KA4yIS5Qcm90by5TX1Byb2plY3RpbGVEZXN0cm95LlJlYXNvbiIvCgZSZWFz",
+            "b24SCwoHRVhQSVJFRBAAEg8KC1RBUkdFVF9MT1NUEAESBwoDSElUEAIqQQoO",
+            "UHJvamVjdGlsZUtpbmQSFQoRUFJPSkVDVElMRV9IT01JTkcQABIYChRQUk9K",
+            "RUNUSUxFX1NLSUxMU0hPVBABYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Proto.CommonReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Proto.ProjectileKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -101,7 +101,7 @@ namespace Proto {
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterState), global::Proto.S_MonsterState.Parser, new[]{ "Guid", "State", "TargetGuid" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_SkillHit), global::Proto.S_SkillHit.Parser, new[]{ "CasterGuid", "TargetGuid", "SkillId", "Damage", "CasterPos", "HitPos" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_UnitHp), global::Proto.S_UnitHp.Parser, new[]{ "Hp", "MaxHp", "Guid" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_ProjectileSpawn), global::Proto.S_ProjectileSpawn.Parser, new[]{ "Guid", "OwnerGuid", "Kind", "StartPos", "Speed", "TargetGuid", "Dir", "Radius", "MaxRange", "MaxLifetime" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_ProjectileSpawn), global::Proto.S_ProjectileSpawn.Parser, new[]{ "Guid", "OwnerGuid", "Kind", "StartPos", "Speed", "TargetGuid", "Dir", "Radius", "MaxRange", "MaxLifetime", "SkillId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_BuffApplied), global::Proto.S_BuffApplied.Parser, new[]{ "TargetGuid", "Eid", "CasterGuid", "Duration" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_BuffRemoved), global::Proto.S_BuffRemoved.Parser, new[]{ "TargetGuid", "Eid" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_ProjectileDestroy), global::Proto.S_ProjectileDestroy.Parser, new[]{ "ProjectileGuid", "Reason" }, null, new[]{ typeof(global::Proto.S_ProjectileDestroy.Types.Reason) }, null, null)
@@ -6162,6 +6162,7 @@ namespace Proto {
       radius_ = other.radius_;
       maxRange_ = other.maxRange_;
       maxLifetime_ = other.maxLifetime_;
+      skillId_ = other.skillId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -6306,6 +6307,21 @@ namespace Proto {
       }
     }
 
+    /// <summary>Field number for the "skill_id" field.</summary>
+    public const int SkillIdFieldNumber = 11;
+    private int skillId_;
+    /// <summary>
+    /// 시전 스킬 sid — 클라가 skill_templates.csv 조회로 시각 구분용
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int SkillId {
+      get { return skillId_; }
+      set {
+        skillId_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -6331,6 +6347,7 @@ namespace Proto {
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(Radius, other.Radius)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(MaxRange, other.MaxRange)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(MaxLifetime, other.MaxLifetime)) return false;
+      if (SkillId != other.SkillId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -6348,6 +6365,7 @@ namespace Proto {
       if (Radius != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(Radius);
       if (MaxRange != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(MaxRange);
       if (MaxLifetime != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(MaxLifetime);
+      if (SkillId != 0) hash ^= SkillId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -6406,6 +6424,10 @@ namespace Proto {
         output.WriteRawTag(85);
         output.WriteFloat(MaxLifetime);
       }
+      if (SkillId != 0) {
+        output.WriteRawTag(88);
+        output.WriteInt32(SkillId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -6456,6 +6478,10 @@ namespace Proto {
         output.WriteRawTag(85);
         output.WriteFloat(MaxLifetime);
       }
+      if (SkillId != 0) {
+        output.WriteRawTag(88);
+        output.WriteInt32(SkillId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -6495,6 +6521,9 @@ namespace Proto {
       }
       if (MaxLifetime != 0F) {
         size += 1 + 4;
+      }
+      if (SkillId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(SkillId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -6543,6 +6572,9 @@ namespace Proto {
       }
       if (other.MaxLifetime != 0F) {
         MaxLifetime = other.MaxLifetime;
+      }
+      if (other.SkillId != 0) {
+        SkillId = other.SkillId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -6609,6 +6641,10 @@ namespace Proto {
             MaxLifetime = input.ReadFloat();
             break;
           }
+          case 88: {
+            SkillId = input.ReadInt32();
+            break;
+          }
         }
       }
     #endif
@@ -6672,6 +6708,10 @@ namespace Proto {
           }
           case 85: {
             MaxLifetime = input.ReadFloat();
+            break;
+          }
+          case 88: {
+            SkillId = input.ReadInt32();
             break;
           }
         }

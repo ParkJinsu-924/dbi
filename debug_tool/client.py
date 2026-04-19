@@ -186,6 +186,7 @@ class ProjectileState:
     max_lifetime: float = 5.0
     spawned_at: float = 0.0
     traveled: float = 0.0
+    skill_id: int = 0      # 시전 스킬 sid — 렌더러가 시각 차별화에 사용
 
 
 HitscanLine = tuple[float, float, float, float, float]  # (sx, sz, ex, ez, expire_time)
@@ -417,14 +418,16 @@ def _h_projectile_spawn(state: GameState, msg):
         radius=msg.radius if msg.radius > 0 else 0.3,
         max_range=msg.max_range,
         max_lifetime=msg.max_lifetime if msg.max_lifetime > 0 else 5.0,
-        spawned_at=time.time())
+        spawned_at=time.time(),
+        skill_id=msg.skill_id)
 
     # 시전자 발 밑에서 확산 링 + 캐스트 사운드.
     if state.feedback is not None:
         caster_is_me = (state.me.guid != 0 and msg.owner_guid == state.me.guid)
         state.feedback.on_skill_cast(
             wx=msg.start_pos.x, wz=msg.start_pos.y,
-            caster_is_me=caster_is_me)
+            caster_is_me=caster_is_me,
+            skill_id=msg.skill_id)
 
 
 def _h_projectile_destroy(state: GameState, msg):

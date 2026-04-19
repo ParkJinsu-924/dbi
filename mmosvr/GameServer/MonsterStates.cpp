@@ -137,11 +137,21 @@ void ChaseState::OnUpdate(Monster& owner, const float deltaTime)
 	}
 
 	const float dist = owner.DistanceTo(target->GetPosition());
-	// 가장 긴 사거리 스킬이 닿는 순간 Attack 진입 — AttackState 가 실제 시전 가능 여부 최종 판단.
-	const float attackRange = owner.GetMaxAttackRange();
-	if (attackRange > 0.0f && dist <= attackRange)
+	const float engageRange = owner.GetBasicSkillRange();
+	// basic 사거리에 도달하면 정지 후 Attack — 몬스터의 본래 교전 거리.
+	if (engageRange > 0.0f && dist <= engageRange)
 	{
 		owner.GetFSM().ChangeState(MonsterStateId::Attack);
+		return;
+	}
+
+	// dist > engageRange — 추격 중. basic 은 사거리 미달이지만 사거리 더 긴 special
+	// 이 쿨다운 통과 + 사거리 통과면 그 자리에서 시전 (캐스트 한 틱은 이동 생략).
+	const float now = GetTimeManager().GetTotalTime();
+	if (const auto choice = owner.PickCastable(now, dist))
+	{
+		owner.DoAttack(*choice->tmpl, *target);
+		owner.MarkSkillUsed(choice->skillId, now + choice->appliedCooldown);
 		return;
 	}
 
@@ -164,14 +174,16 @@ void AttackState::OnUpdate(Monster& owner, const float /*deltaTime*/)
 	}
 
 	const float dist = owner.DistanceTo(target->GetPosition());
-	const float attackRange = owner.GetMaxAttackRange();
-	if (attackRange <= 0.0f || dist > attackRange)
+	const float engageRange = owner.GetBasicSkillRange();
+	// basic 사거리를 벗어나면 다시 Chase — 추격 책임은 ChaseState 가 진다.
+	if (engageRange <= 0.0f || dist > engageRange)
 	{
 		owner.GetFSM().ChangeState(MonsterStateId::Chase);
 		return;
 	}
 
-	// 로테이션에서 시전 가능한 스킬 하나를 가중 추첨. 없으면(전부 쿨) 다음 틱까지 대기.
+	// 로테이션에서 시전 가능한 스킬 하나를 가중 추첨.
+	// 모든 스킬이 쿨다운/사거리 미달이면 그 자리에서 대기 — Attack 중엔 이동하지 않는다.
 	const float now = GetTimeManager().GetTotalTime();
 	const auto choice = owner.PickCastable(now, dist);
 	if (choice)

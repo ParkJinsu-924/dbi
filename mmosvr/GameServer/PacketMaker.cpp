@@ -180,6 +180,7 @@ Proto::S_ProjectileSpawn PacketMaker::MakeHomingProjectileSpawn(const HomingProj
 	pkt.set_speed(projectile.GetSpeed());
 	pkt.set_target_guid(projectile.GetTargetGuid());
 	pkt.set_max_lifetime(projectile.GetLifetimeLimit());
+	pkt.set_skill_id(projectile.GetSkillId());
 	return pkt;
 }
 
@@ -196,6 +197,7 @@ Proto::S_ProjectileSpawn PacketMaker::MakeSkillshotProjectileSpawn(const Skillsh
 	dir->set_y(projectile.GetDirZ());
 	pkt.set_radius(projectile.GetRadius());
 	pkt.set_max_range(projectile.GetRangeLimit());
+	pkt.set_skill_id(projectile.GetSkillId());
 	return pkt;
 }
 

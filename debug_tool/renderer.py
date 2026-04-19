@@ -1620,16 +1620,35 @@ class Renderer:
 
         # ── Projectiles ──
         if projectiles:
+            from feedback import SPECIAL_SKILL_IDS
             for pid, p in projectiles.items():
                 psx, psy = self.world_to_screen(p.x, p.z, cx, cz)
-                if p.kind == 0:   # Homing
+                is_special = p.skill_id in SPECIAL_SKILL_IDS
+                if is_special:
+                    # 스페셜 스킬 — 폭탄 느낌. 큰 적색 코어 + 회전 펄스 외곽 + 흰 코어.
+                    base_r = max(8, int(8 * p.radius)) if p.radius > 0 else 10
+                    pulse = _pulse(6.0, 0.55, 1.0)
+                    outer_r = int(base_r * (1.4 + pulse * 0.6))
+                    core_color = (255, 80, 50)
+                    glow_color = (255, 180, 60)
+                    pygame.draw.circle(self.screen, glow_color, (psx, psy), outer_r, 2)
+                    pygame.draw.circle(self.screen,
+                                       (int(core_color[0] * pulse), int(core_color[1] * pulse), int(core_color[2] * pulse)),
+                                       (psx, psy), base_r)
+                    pygame.draw.circle(self.screen, (255, 240, 200), (psx, psy), max(2, base_r // 3))
+                    # 진행 방향 트레일
+                    if p.kind != 0:
+                        ex = psx + int(p.dir_x * 22)
+                        ey = psy - int(p.dir_z * 22)
+                        pygame.draw.line(self.screen, glow_color, (psx, psy), (ex, ey), 3)
+                elif p.kind == 0:   # Homing (basic)
                     color = (240, 220, 80)
                     glow = _pulse(8.0, 0.6, 1.0)
                     pygame.draw.circle(self.screen,
                                        (int(color[0] * glow), int(color[1] * glow), int(color[2] * glow)),
                                        (psx, psy), 6)
                     pygame.draw.circle(self.screen, (255, 255, 200), (psx, psy), 2)
-                else:             # Skillshot
+                else:             # Skillshot (basic)
                     color = (200, 100, 240)
                     pygame.draw.circle(self.screen, color, (psx, psy), 5)
                     ex = psx + int(p.dir_x * 14)

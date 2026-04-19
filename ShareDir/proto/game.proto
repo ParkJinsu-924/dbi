@@ -172,6 +172,7 @@ message S_ProjectileSpawn {
     float radius = 8;            // Skillshot 전용
     float max_range = 9;         // Skillshot 전용
     float max_lifetime = 10;     // Homing 전용
+    int32 skill_id = 11;         // 시전 스킬 sid — 클라가 skill_templates.csv 조회로 시각 구분용
 }
 
 // ─── Buff / Effect 상태 동기화 ─────────────────────────────────────

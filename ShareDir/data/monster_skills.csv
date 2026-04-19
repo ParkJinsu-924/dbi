@@ -2,17 +2,20 @@
 # weight      : 가중 추첨 값 (양의 정수). 상대 비율로만 의미 — 100/50 = 50/25 와 동치.
 # minInterval : AI 관점의 최소 재사용 간격(초). 실효 쿨다운 = max(SkillTemplate.cooldown, minInterval).
 #               평타는 0, 스페셜/궁은 길게 줘서 간헐 발동 유도.
+# is_basic    : true 면 이 스킬이 몬스터의 "교전 기준" 스킬. 그 cast_range 가 Chase→Attack 임계값.
+#               tid 당 정확히 1개의 행만 true 여야 한다 (OnValidate 강제).
 # 후보 필터: (1) 거리가 cast_range 이내, (2) now >= 마지막 사용 + 실효 쿨다운.
-tid,skillId,weight,minInterval
-# Goblin — 평타(1001) 만. 스페셜을 추가하려면 한 줄 더.
-1001,1001,100,0.0
+tid,skillId,weight,minInterval,is_basic
+# Goblin — 평타(1001) 70% + 스페셜 폭탄(1101) 30%, 폭탄은 최소 5초 간격으로만 발동
+1001,1001,70,0.0,true
+1001,1101,30,5.0,false
 # Orc — 평타(1002)
-1002,1002,100,0.0
+1002,1002,100,0.0,true
 # Slime — 평타(1003)
-1003,1003,100,0.0
+1003,1003,100,0.0,true
 # Sniper — hitscan 평타(1004)
-1004,1004,100,0.0
+1004,1004,100,0.0,true
 # HomingArcher — homing 평타(1005)
-1005,1005,100,0.0
+1005,1005,100,0.0,true
 # BoltCaster — skillshot 평타(1006)
-1006,1006,100,0.0
+1006,1006,100,0.0,true

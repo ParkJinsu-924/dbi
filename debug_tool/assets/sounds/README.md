@@ -11,7 +11,8 @@ AudioManager 가 자동으로 합성본 대신 파일을 로드합니다.
 | `hit` | `hit.wav` | 다른 유닛이 피격당함 (기본 데미지) |
 | `crit` | `crit.wav` | 30 데미지 이상 |
 | `me_hit` | `me_hit.wav` | 로컬 플레이어가 피격 |
-| `skill_cast` | `skill_cast.wav` | 투사체/스킬 발사 |
+| `skill_cast` | `skill_cast.wav` | 일반 투사체/스킬 발사 |
+| `special_cast` | `special_cast.wav` | 스페셜 스킬 발사 (feedback.SPECIAL_SKILL_IDS) |
 | `spawn` | `spawn.wav` | 몬스터 스폰 |
 
 권장 포맷: 22050Hz, mono, 16-bit PCM `.wav` (짧게, 100~300ms). mixer 는
