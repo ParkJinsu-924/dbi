@@ -44,7 +44,6 @@ public:
 	bool HasAggro() const;
 	void ClearAggro();
 
-	float DistanceTo(const Proto::Vector2& target) const;
 	float DistanceToSpawn() const;
 	void  MoveToward(const Proto::Vector2& target, float deltaTime);
 	void  DoAttack(Player& target);

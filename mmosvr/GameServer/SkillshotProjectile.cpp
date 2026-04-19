@@ -39,7 +39,7 @@ void SkillshotProjectile::CheckHit()
 				if (consumed_) return;
 				if (!unit->IsAlive()) continue;
 
-				if (MathUtil::Distance2DSq(unit->GetPosition(), position_) < r2)
+				if (DistanceToSq(*unit) < r2)
 				{
 					ApplyHit(*unit, position_);
 					return;  // 첫 적중 후 소멸

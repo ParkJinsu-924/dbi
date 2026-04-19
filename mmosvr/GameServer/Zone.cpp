@@ -21,12 +21,12 @@ namespace
 
 void Zone::Add(std::shared_ptr<GameObject> obj)
 {
-	insertObject(std::move(obj));
+	InsertObject(std::move(obj));
 }
 
 void Zone::Remove(long long guid)
 {
-	eraseObject(guid);
+	EraseObject(guid);
 }
 
 std::shared_ptr<GameObject> Zone::Find(const long long guid) const
@@ -37,7 +37,7 @@ std::shared_ptr<GameObject> Zone::Find(const long long guid) const
 	return it->second;
 }
 
-void Zone::insertObject(std::shared_ptr<GameObject> obj)
+void Zone::InsertObject(std::shared_ptr<GameObject> obj)
 {
 	const long long guid = obj->GetGuid();
 	const GameObjectType type = obj->GetType();
@@ -45,7 +45,7 @@ void Zone::insertObject(std::shared_ptr<GameObject> obj)
 	objectsByType_[type][guid] = std::move(obj);
 }
 
-void Zone::eraseObject(const long long guid)
+void Zone::EraseObject(const long long guid)
 {
 	const auto it = objects_.find(guid);
 	if (it == objects_.end()) return;
@@ -65,11 +65,11 @@ void Zone::Update(const float deltaTime)
 	// 2. Auto-cleanup consumed projectiles (Update 중 적중/만료된 것)
 	ForEachOfType(GameObjectType::Projectile, 
 		[&](const long long guid, const std::shared_ptr<GameObject>& obj)
-	{
-		const auto p = std::static_pointer_cast<Projectile>(obj);
-		if (p->IsConsumed())
-			pendingRemove_.push_back(guid);
-	});
+		{
+			const auto p = std::static_pointer_cast<Projectile>(obj);
+			if (p->IsConsumed())
+				pendingRemove_.push_back(guid);
+		});
 
 	// 3. Flush pending Add/Remove (Spawn 호출 결과 + 위 cleanup)
 	FlushPending();
@@ -97,9 +97,9 @@ void Zone::FlushPending()
 		return;
 
 	for (auto& obj : pendingAdd_)
-		insertObject(std::move(obj));
+		InsertObject(std::move(obj));
 	for (const auto guid : pendingRemove_)
-		eraseObject(guid);
+		EraseObject(guid);
 
 	pendingAdd_.clear();
 	pendingRemove_.clear();
@@ -108,28 +108,28 @@ void Zone::FlushPending()
 void Zone::BroadcastChunk(const SendBufferChunkPtr& chunk) const
 {
 	ForEachOfType(GameObjectType::Player, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
-	{
-		auto player = std::static_pointer_cast<Player>(obj);
-		if (auto session = player->GetSession())
 		{
-			if (session->IsConnected())
-				std::static_pointer_cast<Session>(session)->Send(chunk);
-		}
-	});
+			auto player = std::static_pointer_cast<Player>(obj);
+			if (auto session = player->GetSession())
+			{
+				if (session->IsConnected())
+					std::static_pointer_cast<Session>(session)->Send(chunk);
+			}
+		});
 }
 
 void Zone::BroadcastChunkExcept(const SendBufferChunkPtr& chunk, long long excludeGuid) const
 {
 	ForEachOfType(GameObjectType::Player, [&](long long guid, const std::shared_ptr<GameObject>& obj)
-	{
-		if (guid == excludeGuid) return;
-		auto player = std::static_pointer_cast<Player>(obj);
-		if (auto session = player->GetSession())
 		{
-			if (session->IsConnected())
-				std::static_pointer_cast<Session>(session)->Send(chunk);
-		}
-	});
+			if (guid == excludeGuid) return;
+			auto player = std::static_pointer_cast<Player>(obj);
+			if (auto session = player->GetSession())
+			{
+				if (session->IsConnected())
+					std::static_pointer_cast<Session>(session)->Send(chunk);
+			}
+		});
 }
 
 void Zone::SendChunkTo(const SendBufferChunkPtr& chunk, const long long guid) const
@@ -147,30 +147,30 @@ void Zone::SendChunkTo(const SendBufferChunkPtr& chunk, const long long guid) co
 	}
 }
 
-void Zone::BroadcastChunkTo(const SendBufferChunkPtr& chunk, std::span<const long long> guids) const
+void Zone::BroadcastChunkTo(const SendBufferChunkPtr& chunk, const std::span<const long long> guids) const
 {
 	// 대상자 수 N << 전체 Zone 플레이어 M 인 경우 (파티/어그로) 직접 조회가 순회보다 빠름.
 	for (const long long guid : guids)
 		SendChunkTo(chunk, guid);
 }
 
-std::shared_ptr<Player> Zone::FindNearestPlayer(const Proto::Vector2& from, float maxRange) const
+std::shared_ptr<Player> Zone::FindNearestPlayer(const Proto::Vector2& from, const float maxRange) const
 {
 	std::shared_ptr<Player> nearest;
 	float nearestDistSq = maxRange * maxRange;
 
 	ForEachOfType(GameObjectType::Player, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
-	{
-		auto player = std::static_pointer_cast<Player>(obj);
-		if (!player->IsAlive()) return;
-
-		const float distSq = MathUtil::Distance2DSq(obj->GetPosition(), from);
-		if (distSq < nearestDistSq)
 		{
-			nearestDistSq = distSq;
-			nearest = player;
-		}
-	});
+			auto player = std::static_pointer_cast<Player>(obj);
+			if (!player->IsAlive()) return;
+
+			const float distSq = obj->DistanceToSq(from);
+			if (distSq < nearestDistSq)
+			{
+				nearestDistSq = distSq;
+				nearest = player;
+			}
+		});
 
 	return nearest;
 }
@@ -181,17 +181,17 @@ std::shared_ptr<Monster> Zone::FindNearestMonster(const Proto::Vector2& from, fl
 	float nearestDistSq = maxRange * maxRange;
 
 	ForEachOfType(GameObjectType::Monster, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
-	{
-		const auto monster = std::static_pointer_cast<Monster>(obj);
-		if (!monster->IsAlive()) return;
-
-		const float distSq = MathUtil::Distance2DSq(obj->GetPosition(), from);
-		if (distSq < nearestDistSq)
 		{
-			nearestDistSq = distSq;
-			nearest = monster;
-		}
-	});
+			const auto monster = std::static_pointer_cast<Monster>(obj);
+			if (!monster->IsAlive()) return;
+
+			const float distSq = obj->DistanceToSq(from);
+			if (distSq < nearestDistSq)
+			{
+				nearestDistSq = distSq;
+				nearest = monster;
+			}
+		});
 
 	return nearest;
 }
@@ -199,21 +199,21 @@ std::shared_ptr<Monster> Zone::FindNearestMonster(const Proto::Vector2& from, fl
 void Zone::BroadcastMonsterPositions()
 {
 	ForEachOfType(GameObjectType::Monster, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
-	{
-		Broadcast(PacketMaker::MakeMonsterMove(*std::static_pointer_cast<Monster>(obj)));
-	});
+		{
+			Broadcast(PacketMaker::MakeMonsterMove(*std::static_pointer_cast<Monster>(obj)));
+		});
 }
 
 void Zone::BroadcastPlayerPositions()
 {
 	// 이동 중인 플레이어만 방송한다. 정지 플레이어는 C_StopMove 수신 시 이미 최종 위치를 한 번 방송했음.
 	ForEachOfType(GameObjectType::Player, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
-	{
-		auto player = std::static_pointer_cast<Player>(obj);
-		if (!player->IsMoving())
-			return;
-		Broadcast(PacketMaker::MakePlayerMove(*player));
-	});
+		{
+			auto player = std::static_pointer_cast<Player>(obj);
+			if (!player->IsMoving())
+				return;
+			Broadcast(PacketMaker::MakePlayerMove(*player));
+		});
 }
 
 std::shared_ptr<HomingProjectile> Zone::SpawnHomingProjectile(

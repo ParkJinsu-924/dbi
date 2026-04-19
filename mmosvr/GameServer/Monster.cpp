@@ -82,14 +82,9 @@ std::shared_ptr<Player> Monster::GetTarget() const
 	return zone_->FindAs<Player>(targetGuid_);
 }
 
-float Monster::DistanceTo(const Proto::Vector2& target) const
-{
-	return MathUtil::Distance2D(position_, target);
-}
-
 float Monster::DistanceToSpawn() const
 {
-	return DistanceTo(spawnPos_);
+	return DistanceTo(spawnPos_);   // GameObject::DistanceTo 재사용
 }
 
 void Monster::MoveToward(const Proto::Vector2& target, const float deltaTime)

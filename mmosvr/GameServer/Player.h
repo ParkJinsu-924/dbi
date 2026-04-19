@@ -13,7 +13,7 @@ class Player : public Unit
 {
 public:
 	Player(int32 playerId, const std::string& name);
-	~Player() = default;
+	~Player() override = default;
 
 	Player(const Player&) = delete;
 	Player& operator=(const Player&) = delete;
@@ -82,7 +82,7 @@ private:
 template<typename T>
 void Player::Send(const T& pkt)
 {
-	if (auto session = session_.lock())
+	if (const auto session = session_.lock())
 	{
 		session->Send(pkt);
 	}

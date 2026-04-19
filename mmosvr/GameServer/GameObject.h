@@ -2,6 +2,7 @@
 
 #include "common.pb.h"
 #include "Utils/Types.h"
+#include "Utils/MathUtil.h"
 #include "Utils/ObjectGuidGenerator.h"
 #include <string>
 
@@ -45,6 +46,24 @@ public:
 	// Transform
 	const Proto::Vector2& GetPosition() const { return position_; }
 	void SetPosition(const Proto::Vector2& p) { position_ = p; }
+
+	// Distance (XZ 평면). Sq 버전은 sqrt 를 피해 범위 비교/정렬 용도.
+	float DistanceTo(const Proto::Vector2& point) const
+	{
+		return MathUtil::Distance2D(position_, point);
+	}
+	float DistanceTo(const GameObject& other) const
+	{
+		return MathUtil::Distance2D(position_, other.position_);
+	}
+	float DistanceToSq(const Proto::Vector2& point) const
+	{
+		return MathUtil::Distance2DSq(position_, point);
+	}
+	float DistanceToSq(const GameObject& other) const
+	{
+		return MathUtil::Distance2DSq(position_, other.position_);
+	}
 
 	// Zone
 	int32 GetZoneId() const { return zoneId_; }
