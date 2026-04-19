@@ -66,11 +66,6 @@ void Monster::ClearAggro()
 	aggro_.Clear();
 }
 
-bool Monster::TickAggroOOC(const float deltaTime)
-{
-	return aggro_.TickOOC(deltaTime);
-}
-
 // ---------------------------------------------------------------------------
 // Public utilities (상태 클래스에서 호출)
 // ---------------------------------------------------------------------------
@@ -129,12 +124,6 @@ void Monster::DoAttack(Player& target)
 			BroadcastAttack(target.GetGuid(), attackDamage_);
 
 		zone_->Broadcast(PacketMaker::MakeUnitHp(target));
-
-		LOG_INFO("Monster [" + GetName() + "] attacks Player " +
-			std::to_string(target.GetPlayerId()) +
-			" for " + std::to_string(attackDamage_) + " dmg (HP: " +
-			std::to_string(target.GetHp()) + "/" +
-			std::to_string(target.GetMaxHp()) + ")");
 		break;
 	}
 	case AttackType::Homing:
@@ -145,9 +134,7 @@ void Monster::DoAttack(Player& target)
 		const SkillTemplate* sk = skTable ? skTable->Find(skillId_) : nullptr;
 		if (!sk)
 		{
-			LOG_WARN("Monster [" + GetName() + "] has attackType=" +
-				std::to_string(static_cast<int32>(attackType_)) + " but skillId=" +
-				std::to_string(skillId_) + " not found in SkillTable");
+			LOG_WARN("Monster [" + GetName() + "] has attackType=" + std::to_string(static_cast<int32>(attackType_)) + " but skillId=" + std::to_string(skillId_) + " not found in SkillTable");
 			break;
 		}
 
@@ -174,14 +161,10 @@ void Monster::DoAttack(Player& target)
 				GetGuid(), GameObjectType::Monster, GetPosition(),
 				dx, dz, *sk, *zone_, fallback);
 		}
-
-		LOG_INFO("Monster [" + GetName() + "] launches " + sk->name +
-			" -> Player " + std::to_string(target.GetPlayerId()));
 		break;
 	}
 	default:
-		LOG_WARN("Monster [" + GetName() + "] unknown attackType=" +
-			std::to_string(static_cast<int32>(attackType_)));
+		LOG_WARN("Monster [" + GetName() + "] unknown attackType=" + std::to_string(static_cast<int32>(attackType_)));
 		break;
 	}
 }

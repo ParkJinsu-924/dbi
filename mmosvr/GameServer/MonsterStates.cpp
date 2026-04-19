@@ -44,19 +44,7 @@ void MonsterGlobalState::OnUpdate(Monster& owner, float deltaTime)
 	break;
 	case MonsterStateId::Chase:
 	case MonsterStateId::Attack:
-	{
-		// 전투 상태에서만 OOC 타이머 진행.
-		// 5초간 새 aggro 이벤트(피격 등) 가 없으면 AggroTable 이 스스로 Clear 하고 true 반환
-		// → 여기서 Return 으로 전이시켜 전투 종료. ReturnState::OnEnter 가 target/aggro cleanup.
-		// 일단 비활성화
-		// if (owner.TickAggroOOC(deltaTime))
-		// {
-		// 	owner.GetFSM().ChangeState(MonsterStateId::Return);
-		// }
-	}
-	break;
 	case MonsterStateId::Return:
-		break;
 	default:
 		break;
 	}
