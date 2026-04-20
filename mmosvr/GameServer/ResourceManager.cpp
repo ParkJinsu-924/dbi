@@ -6,12 +6,19 @@
 #include "SkillTemplate.h"
 #include "Effect.h"
 #include "SkillEffect.h"
+#include "SkillBehavior.h"
+#include "SkillBehaviorRegistry.h"
 
 #include <stdexcept>
 
 
 void ResourceManager::Init()
 {
+	// Behavior 레지스트리는 SkillTable 로딩보다 먼저 등록되어야 한다.
+	// SkillTable::OnLoaded 가 각 SkillTemplate.behaviorName → Behavior 를 조회하므로.
+	SkillBehaviorRegistry::Instance().Register("default",
+		[] { return std::make_shared<DefaultAttackBehavior>(); });
+
 	Register<MonsterTemplate>("monster_templates.csv");
 	Register<SpawnEntry>("spawn_entries.csv");
 	Register<SkillTemplate>("skill_templates.csv");
