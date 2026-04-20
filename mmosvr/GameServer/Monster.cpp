@@ -5,7 +5,6 @@
 #include "ResourceManager.h"
 #include "SkillTemplate.h"
 #include "MonsterSkillEntry.h"
-#include "SkillRuntime.h"
 #include "PacketMaker.h"
 #include "Utils/MathUtil.h"
 #include "game.pb.h"
@@ -24,8 +23,7 @@ void Monster::InitAI(const Proto::Vector2& spawnPos)
 	// 상태 등록
 	fsm_.AddState<IdleState>(MonsterStateId::Idle);
 	fsm_.AddState<PatrolState>(MonsterStateId::Patrol);
-	fsm_.AddState<ChaseState>(MonsterStateId::Chase);
-	fsm_.AddState<AttackState>(MonsterStateId::Attack);
+	fsm_.AddState<EngageState>(MonsterStateId::Engage);
 	fsm_.AddState<ReturnState>(MonsterStateId::Return);
 
 	// 상태 전환 콜백 (로그 + 브로드캐스트)
@@ -107,13 +105,6 @@ void Monster::MoveToward(const Proto::Vector2& target, const float deltaTime)
 
 	position_.set_x(position_.x() + (dx / dist) * step);
 	position_.set_y(position_.y() + (dz / dist) * step);
-}
-
-void Monster::DoAttack(const SkillTemplate& sk, Player& target)
-{
-	// Monster 평타는 "기본 공격" 성격이라 Silence 는 면역 (LoL 관습). Stun 만 차단.
-	if (!CanAttack()) return;
-	SkillRuntime::Cast(sk, *this, target, GetZone());
 }
 
 float Monster::GetBasicSkillRange() const

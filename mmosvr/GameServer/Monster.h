@@ -47,8 +47,6 @@ public:
 
 	float DistanceToSpawn() const;
 	void  MoveToward(const Proto::Vector2& target, float deltaTime);
-	// 지정한 스킬로 공격 실행. 스킬 선택은 호출자(AttackState) 책임.
-	void  DoAttack(const SkillTemplate& sk, Player& target);
 
 	// --- AI 파라미터 접근 ---
 	float GetDetectRange()    const { return detectRange_; }
