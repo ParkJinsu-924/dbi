@@ -88,7 +88,7 @@ float Monster::DistanceToSpawn() const
 
 void Monster::MoveToward(const Proto::Vector2& target, const float deltaTime)
 {
-	// 이동 불가 CC(Stun/Root) 차단. 공격 가능 여부는 DoAttack 에서 별도 판정.
+	// 이동 불가 CC(Stun/Root) 차단. 공격 가능 여부는 DefaultAttackBehavior 에서 별도 판정.
 	if (!CanMove())
 		return;
 
