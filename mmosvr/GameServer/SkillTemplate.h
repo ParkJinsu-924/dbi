@@ -32,7 +32,8 @@ struct SkillTemplate
 	std::string behaviorName;
 
 	// 로드 후 SkillTable::OnLoaded 에서 주입. Runtime 에서는 항상 non-null.
-	// mutable: CSV 로드 후 SkillTable 이 채워 넣지만, 소비자는 const 뷰로 접근.
+	// mutable: 소비자(Find)가 const 뷰로 접근해도 OnLoaded 가 대입할 수 있어야 해서.
+	//   **Runtime 에서 이 필드를 다시 쓰지 말 것** — OnLoaded 이후로는 read-only 로 간주.
 	mutable std::shared_ptr<ISkillBehavior> behavior;
 
 	KeyType GetKey() const { return sid; }

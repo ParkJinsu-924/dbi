@@ -63,7 +63,7 @@ public:
 	void  SetTemplateId(int32 v) { templateId_ = v; }
 
 	// 이 몬스터의 "기본" 스킬 (monster_skills.csv 의 is_basic=true) 의 cast_range.
-	// Chase→Attack 전환 임계값으로 사용 — 즉 몬스터가 머물고 싶어하는 거리.
+	// Engage 상태에서 접근/대기 전환 임계값으로 사용 — 즉 몬스터가 머물고 싶어하는 거리.
 	// basic 스킬이 없으면(잘못된 데이터) 0 반환.
 	float GetBasicSkillRange() const;
 

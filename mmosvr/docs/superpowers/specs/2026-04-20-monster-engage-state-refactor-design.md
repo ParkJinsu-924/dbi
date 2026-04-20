@@ -79,7 +79,7 @@ private:
    - 쿨다운 통과 + 사거리 통과 + behavior.CanCast(...) 통과 후보 중 가중 추첨
 5. if (choice) {
        phase_ = Casting
-       choice->behavior->Execute(owner, *target, now)
+       choice->tmpl->behavior->Execute(*choice->tmpl, owner, *target, now)
        owner.MarkSkillUsed(choice->skillId, now + choice->appliedCooldown)
        return   // 캐스트 틱에는 이동하지 않는다
    }
@@ -115,7 +115,8 @@ public:
     }
 
     // 시전 실행. 데미지 적용, 패킷 브로드캐스트 등.
-    virtual void Execute(Monster& owner, Player& target, float now) = 0;
+    // skill 파라미터는 SkillRuntime::Cast 위임 시 필요 (구현 시 확정된 시그니처).
+    virtual void Execute(const SkillTemplate& skill, Monster& owner, Player& target, float now) = 0;
 
     // 0 = 즉발. 향후 선딜 스킬이 필요해지면 이 값이 사용된다.
     virtual float GetCastTime() const { return 0.0f; }
@@ -135,7 +136,7 @@ struct SkillTemplate
 class DefaultAttackBehavior : public ISkillBehavior
 {
 public:
-    void Execute(Monster& owner, Player& target, float now) override
+    void Execute(const SkillTemplate& skill, Monster& owner, Player& target, float now) override
     {
         // 기존 Monster::DoAttack 의 내용을 그대로 옮김:
         //  - 데미지 계산, target.TakeDamage

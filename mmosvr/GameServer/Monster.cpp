@@ -17,7 +17,7 @@ void Monster::InitAI(const Proto::Vector2& spawnPos)
 	spawnPos_ = spawnPos;
 	position_ = spawnPos;
 
-	// GlobalState: detect player in Idle/Patrol -> Chase
+	// GlobalState: detect player in Idle/Patrol -> Engage
 	fsm_.SetGlobalState<MonsterGlobalState>();
 
 	// 상태 등록

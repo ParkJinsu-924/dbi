@@ -33,7 +33,7 @@ struct MonsterSkillEntry
 	int32 skillId     = 0;
 	int32 weight      = 1;      // 상대 가중치 (양수)
 	float minInterval = 0.0f;   // AI 관점의 최소 재사용 간격 (초)
-	bool  is_basic    = false;  // true 면 이 스킬이 교전 기준 — cast_range 가 Chase→Attack 임계값.
+	bool  is_basic    = false;  // true 면 이 스킬이 교전 기준 — cast_range 가 Engage 내 접근/대기 임계값.
 	                            //         tid 당 정확히 1개만 true (OnValidate 강제).
 
 	KeyType GetKey() const
