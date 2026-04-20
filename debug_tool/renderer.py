@@ -144,13 +144,12 @@ GRID_STEP_UNITS = config.GRID_STEP_UNITS
 CHAR_SCALE = config.CHAR_SCALE
 
 # ── State names ──────────────────────────────────────────────────────
-_STATE_NAMES = {0: "Idle", 1: "Patrol", 2: "Chase", 3: "ATK", 4: "Return"}
+_STATE_NAMES = {0: "Idle", 1: "Patrol", 2: "Engage", 3: "Return"}
 _STATE_COLORS = {
     0: STATE_IDLE_COLOR,
     1: STATE_IDLE_COLOR,
-    2: STATE_CHASE_COLOR,
-    3: STATE_ATTACK_COLOR,
-    4: STATE_RETURN_COLOR,
+    2: STATE_CHASE_COLOR,    # Engage (was Chase/Attack merged)
+    3: STATE_RETURN_COLOR,
 }
 
 
@@ -385,10 +384,8 @@ class Renderer:
         s = CHAR_SCALE
         state_pulse = 0.0
 
-        if state == 3:  # Attack
+        if state == 2:  # Engage
             state_pulse = math.sin(t * 12) * 2.0
-        elif state == 2:  # Chase
-            state_pulse = math.sin(t * 6) * 1.5
 
         self._draw_shadow(sx, int(sy + 8 * s), int(7 * s), int(3 * s))
 
@@ -444,7 +441,7 @@ class Renderer:
 
         # Legs
         leg_y = body_y + body_h - int(2 * s)
-        walk = math.sin(t * 7) * 1.5 * s if state in (1, 2, 4) else 0
+        walk = math.sin(t * 7) * 1.5 * s if state in (1, 2, 3) else 0
         pygame.draw.rect(self.screen, GOBLIN_BODY,
                          (sx - int(3 * s), int(leg_y + walk * 0.5), int(3 * s), int(5 * s)),
                          border_radius=1)
@@ -452,8 +449,8 @@ class Renderer:
                          (sx + int(0 * s), int(leg_y - walk * 0.5), int(3 * s), int(5 * s)),
                          border_radius=1)
 
-        # Weapon (small dagger) when chasing/attacking
-        if state in (2, 3):
+        # Weapon (small dagger) when engaging
+        if state == 2:
             dagger_x = sx + body_w // 2 + int(1 * s)
             dagger_y = int(body_y + 2 * s + state_pulse)
             pygame.draw.line(self.screen, (180, 180, 190),
@@ -465,10 +462,8 @@ class Renderer:
         t = self._t + anim_id * 2.3
         s = CHAR_SCALE * 1.2  # Orcs are bigger
 
-        if state == 3:
+        if state == 2:  # Engage
             shake = math.sin(t * 15) * 2.0
-        elif state == 2:
-            shake = math.sin(t * 5) * 1.0
         else:
             shake = 0
 
@@ -501,11 +496,11 @@ class Renderer:
                          (body_x + body_w, int(arm_y - arm_swing + shake), arm_w, arm_h),
                          border_radius=int(2 * s))
 
-        # Club weapon when attacking/chasing
-        if state in (2, 3):
+        # Club weapon when engaging
+        if state == 2:
             club_x = body_x + body_w + arm_w
             club_y = int(arm_y - arm_swing + shake)
-            angle = math.sin(t * 8) * 0.3 if state == 3 else 0
+            angle = math.sin(t * 8) * 0.3
             end_x = club_x + int(math.cos(-0.5 + angle) * 8 * s)
             end_y = club_y + int(math.sin(-0.5 + angle) * 8 * s)
             pygame.draw.line(self.screen, (100, 70, 40),
@@ -514,7 +509,7 @@ class Renderer:
 
         # Legs
         leg_y = body_y + body_h - int(2 * s)
-        walk = math.sin(t * 5) * 2.0 * s if state in (1, 2, 4) else 0
+        walk = math.sin(t * 5) * 2.0 * s if state in (1, 2, 3) else 0
         pygame.draw.rect(self.screen, ORC_SKIN,
                          (sx - int(4 * s), int(leg_y + walk * 0.4), int(4 * s), int(6 * s)),
                          border_radius=2)
@@ -567,14 +562,10 @@ class Renderer:
         squash_x = 1.0 + math.sin(t * 3) * 0.1
         squash_y = 1.0 - math.sin(t * 3) * 0.1
 
-        if state == 3:  # Attack - rapid bounce
+        if state == 2:  # Engage - rapid bounce
             bounce = abs(math.sin(t * 10)) * 5.0 * s
             squash_x = 1.0 + math.sin(t * 10) * 0.15
             squash_y = 1.0 - math.sin(t * 10) * 0.15
-        elif state == 2:  # Chase - faster bounce
-            bounce = abs(math.sin(t * 5)) * 4.0 * s
-            squash_x = 1.0 + math.sin(t * 5) * 0.12
-            squash_y = 1.0 - math.sin(t * 5) * 0.12
 
         self._draw_shadow(sx, int(sy + 6 * s), int(8 * squash_x * s), int(3 * s))
 
@@ -612,7 +603,7 @@ class Renderer:
         # Pupils (look toward target direction when chasing)
         pupil_r = int(1.2 * s)
         px_off = 0
-        if state in (2, 3):
+        if state == 2:  # Engage
             px_off = int(0.8 * s)
         pygame.draw.circle(self.screen, SLIME_EYE,
                            (sx - eye_sep + px_off, eye_y), pupil_r)
@@ -621,8 +612,8 @@ class Renderer:
 
         # Mouth
         mouth_y = int(blob_y + blob_h * 0.65)
-        if state == 3:
-            # Open mouth when attacking
+        if state == 2:  # Engage
+            # Open mouth when engaging
             pygame.draw.ellipse(self.screen, (30, 100, 140),
                                 (sx - int(2 * s), mouth_y, int(4 * s), int(3 * s)))
         else:
@@ -638,16 +629,14 @@ class Renderer:
         s = CHAR_SCALE
 
         rattle = 0.0
-        if state == 3:
+        if state == 2:  # Engage
             rattle = math.sin(t * 20) * 1.5
-        elif state == 2:
-            rattle = math.sin(t * 8) * 1.0
 
         self._draw_shadow(sx, int(sy + 9 * s), int(7 * s), int(3 * s))
 
         # Legs (thin bones)
         leg_y = int(sy + 4 * s)
-        walk = math.sin(t * 6) * 2.0 * s if state in (1, 2, 4) else 0
+        walk = math.sin(t * 6) * 2.0 * s if state in (1, 2, 3) else 0
         bone_w = int(2 * s)
         pygame.draw.rect(self.screen, SKELETON_BONE,
                          (sx - int(3 * s), int(leg_y + walk * 0.4), bone_w, int(7 * s)))
@@ -682,11 +671,11 @@ class Renderer:
                          (sx + int(5 * s), arm_y),
                          (sx + int(9 * s), int(arm_y + 6 * s - arm_swing)), 2)
 
-        # Sword in right hand when chasing/attacking
-        if state in (2, 3):
+        # Sword in right hand when engaging
+        if state == 2:
             hand_x = sx + int(9 * s)
             hand_y = int(arm_y + 6 * s - arm_swing)
-            swing = math.sin(t * 10) * 0.4 if state == 3 else 0
+            swing = math.sin(t * 10) * 0.4
             bx = hand_x + int(math.cos(-0.8 + swing) * 7 * s)
             by = hand_y + int(math.sin(-0.8 + swing) * 7 * s)
             pygame.draw.line(self.screen, (200, 200, 210),
@@ -749,7 +738,7 @@ class Renderer:
 
         # Legs
         leg_y = body_y + body_h - int(2 * s)
-        walk = math.sin(t * 5) * 1.0 * s if state in (1, 2, 4) else 0
+        walk = math.sin(t * 5) * 1.0 * s if state in (1, 2, 3) else 0
         pygame.draw.rect(self.screen, SNIPER_CLOAK,
                          (sx - int(4 * s), int(leg_y + walk * 0.3), int(3 * s), int(5 * s)),
                          border_radius=1)
@@ -785,12 +774,10 @@ class Renderer:
 
         aim = -0.3
         recoil = 0.0
-        if state == 3:
+        if state == 2:  # Engage
             recoil = math.sin(t * 12) * 1.5
             aim = -0.3 + math.sin(t * 0.8) * 0.15
             gun_x += int(recoil * 0.5)
-        elif state == 2:
-            aim = -0.3 + math.sin(t * 0.5) * 0.1
 
         gun_len = int(14 * s)
         gun_end_x = gun_x + int(math.cos(aim) * gun_len)
@@ -820,8 +807,8 @@ class Renderer:
                            (int(255 * glint), int(30 * glint), int(30 * glint)),
                            (sf_x, sf_y), int(1.5 * s))
 
-        # Muzzle flash when attacking
-        if state == 3 and math.sin(t * 12) > 0.7:
+        # Muzzle flash when engaging
+        if state == 2 and math.sin(t * 12) > 0.7:
             flash_r = int(3 * s)
             pygame.draw.circle(self.screen, (255, 240, 100),
                                (gun_end_x, gun_end_y), flash_r)
@@ -863,7 +850,7 @@ class Renderer:
 
         # Legs
         leg_y = body_y + body_h - int(2 * s)
-        walk = math.sin(t * 5) * 1.2 * s if state in (1, 2, 4) else 0
+        walk = math.sin(t * 5) * 1.2 * s if state in (1, 2, 3) else 0
         pygame.draw.rect(self.screen, ARCHER_CLOAK,
                          (sx - int(4 * s), int(leg_y + walk * 0.3), int(3 * s), int(5 * s)),
                          border_radius=1)
@@ -926,10 +913,8 @@ class Renderer:
         bow_y = int(sy - 1 * s + breathe)
 
         draw_amt = 0.0
-        if state == 3:
+        if state == 2:  # Engage
             draw_amt = 0.9 + math.sin(t * 3) * 0.1
-        elif state == 2:
-            draw_amt = 0.3
 
         # Recurved bow outline
         upper_top = (bow_x, bow_y - int(9 * s))
@@ -947,7 +932,7 @@ class Renderer:
                           [upper_top, (pull_x, bow_y), lower_bot], 1)
 
         # Glowing magic arrow
-        if state in (2, 3):
+        if state == 2:  # Engage
             glow = _pulse(4.0, 0.6, 1.0)
             arrow_color = _lerp_color(ARCHER_ARROW, ARCHER_ARROW_GLOW, glow)
             tip_x = bow_x + int(6 * s)
@@ -982,7 +967,7 @@ class Renderer:
         self._draw_shadow(sx, int(sy + 10 * s), int(9 * s), int(4 * s))
 
         breathe = math.sin(t * 1.8) * 1.0
-        sway = math.sin(t * 1.2) * 1.0 if state in (2, 3) else 0
+        sway = math.sin(t * 1.2) * 1.0 if state == 2 else 0  # Engage
 
         # Robe (trapezoidal flowy silhouette)
         robe_top_y = int(sy - 4 * s + breathe)
@@ -1039,7 +1024,7 @@ class Renderer:
         staff_bot_x = sx + int(7 * s)
         staff_bot_y = int(sy + 7 * s)
         tilt = (sway * 0.02) + (math.sin(t * 0.7) * 0.05 if state == 2 else 0)
-        if state == 3:
+        if state == 2:  # Engage
             tilt += math.sin(t * 3) * 0.08
         staff_angle = -math.pi / 2 + tilt
         staff_len = int(18 * s)
@@ -1057,11 +1042,11 @@ class Renderer:
 
         # Crystal orb
         orb_r = int(4 * s)
-        active = state in (2, 3)
+        active = state == 2  # Engage
         orb_glow = _pulse(3.0, 0.7, 1.0) if active else 0.3
         orb_color = _lerp_color(CASTER_CRYSTAL, (220, 240, 255), orb_glow)
         # Outer aura
-        glow_r = int(7 * s) if state == 3 else int(6 * s)
+        glow_r = int(7 * s) if state == 2 else int(6 * s)  # Engage: larger aura
         aura = pygame.Surface((glow_r * 2, glow_r * 2), pygame.SRCALPHA)
         alpha = int(100 + 100 * orb_glow) if active else 60
         pygame.draw.circle(aura, (*CASTER_BOLT, alpha),
@@ -1076,7 +1061,7 @@ class Renderer:
 
         # Crackling lightning arcs around orb
         if active:
-            num_arcs = 4 if state == 3 else 2
+            num_arcs = 4  # Engage
             for i in range(num_arcs):
                 angle = (i / num_arcs) * 2 * math.pi + t * 4
                 reach = int((5 + math.sin(t * 9 + i) * 2) * s)
@@ -1093,7 +1078,7 @@ class Renderer:
                     last_x, last_y = bx, by
 
         # Attack flash at orb
-        if state == 3 and math.sin(t * 8) > 0.3:
+        if state == 2 and math.sin(t * 8) > 0.3:  # Engage
             flash_r = int(3 * s)
             pygame.draw.circle(self.screen, (230, 245, 255),
                                (staff_top_x, staff_top_y), flash_r)
@@ -1104,7 +1089,7 @@ class Renderer:
         s = CHAR_SCALE
 
         wobble = math.sin(t * 3) * 1.5
-        if state == 2:
+        if state == 2:  # Engage
             wobble = math.sin(t * 6) * 2.0
 
         self._draw_shadow(sx, int(sy + 8 * s), int(7 * s), int(3 * s))
@@ -1119,7 +1104,7 @@ class Renderer:
                          border_radius=int(2 * s))
 
         # Feet
-        walk = math.sin(t * 7) * 1.5 * s if state in (1, 2, 4) else 0
+        walk = math.sin(t * 7) * 1.5 * s if state in (1, 2, 3) else 0
         foot_w = int(3 * s)
         foot_h = int(3 * s)
         pygame.draw.ellipse(self.screen, MUSHROOM_STEM,
@@ -1150,7 +1135,7 @@ class Renderer:
         eye_r = int(1.8 * s)
         pygame.draw.circle(self.screen, (240, 240, 240), (sx - eye_sep, eye_y), eye_r)
         pygame.draw.circle(self.screen, (240, 240, 240), (sx + eye_sep, eye_y), eye_r)
-        pupil_off = int(0.5 * s) if state in (2, 3) else 0
+        pupil_off = int(0.5 * s) if state == 2 else 0  # Engage
         pygame.draw.circle(self.screen, MUSHROOM_EYE,
                            (sx - eye_sep + pupil_off, eye_y), int(1.0 * s))
         pygame.draw.circle(self.screen, MUSHROOM_EYE,
@@ -1164,8 +1149,8 @@ class Renderer:
         self.screen.blit(blush_surf, (sx - eye_sep - int(2.5 * s), blush_y))
         self.screen.blit(blush_surf, (sx + eye_sep - int(0.5 * s), blush_y))
 
-        # Spore particles when attacking
-        if state == 3:
+        # Spore particles when engaging
+        if state == 2:
             for i in range(6):
                 angle = (i / 6) * 2 * math.pi + t * 2
                 dist = int((5 + math.sin(t * 3 + i) * 3) * s)
@@ -1184,7 +1169,7 @@ class Renderer:
 
         self._draw_shadow(sx, int(sy + 6 * s), int(10 * s), int(3 * s))
 
-        run_cycle = math.sin(t * 7) if state in (1, 2, 4) else math.sin(t * 2) * 0.3
+        run_cycle = math.sin(t * 7) if state in (1, 2, 3) else math.sin(t * 2) * 0.3
         breathe = math.sin(t * 3) * 0.8
 
         # Body (horizontal oval)
@@ -1265,11 +1250,11 @@ class Renderer:
         pygame.draw.circle(self.screen, (20, 20, 10),
                            (head_x + int(2 * s), ey), int(0.7 * s))
 
-        # Snarl when attacking
-        if state in (2, 3):
+        # Snarl when engaging
+        if state == 2:
             mouth_x = head_x - int(5 * s)
             mouth_y = head_y + int(1 * s)
-            mouth_open = int(2 * s) if state == 3 else int(1 * s)
+            mouth_open = int(2 * s)  # Engage
             pygame.draw.ellipse(self.screen, (80, 30, 30),
                                 (mouth_x - int(2 * s), mouth_y,
                                  int(4 * s), mouth_open + int(1 * s)))
@@ -1346,7 +1331,7 @@ class Renderer:
 
         # Legs
         leg_base = body_y + body_h - int(2 * s)
-        walk = math.sin(t * 5) * 1.5 * s if state in (1, 2, 4) else 0
+        walk = math.sin(t * 5) * 1.5 * s if state in (1, 2, 3) else 0
         pygame.draw.rect(self.screen, DRAKE_BODY,
                          (sx - int(3 * s), int(leg_base + walk * 0.4),
                           int(3 * s), int(5 * s)), border_radius=1)
@@ -1387,8 +1372,8 @@ class Renderer:
         pygame.draw.circle(self.screen, (120, 30, 20),
                            (sx + int(1.5 * s), nostril_y), int(0.8 * s))
 
-        # Fire breath when attacking
-        if state == 3:
+        # Fire breath when engaging
+        if state == 2:
             for i in range(5):
                 f_dist = int((3 + i * 2) * s)
                 f_x = sx + int(math.sin(t * 8 + i) * 2 * s)
@@ -1400,15 +1385,6 @@ class Renderer:
                                    (255, max(50, 200 - i * 30), 30, alpha),
                                    (f_r, f_r), f_r)
                 self.screen.blit(fire_surf, (f_x - f_r, f_y - f_r))
-        elif state == 2:
-            for i in range(2):
-                smoke_x = sx + int(math.sin(t * 3 + i * 2) * 2 * s)
-                smoke_y = int(nostril_y + 2 * s + i * 3 * s)
-                smoke_r = int(1.5 * s)
-                smoke_surf = pygame.Surface((smoke_r * 2, smoke_r * 2), pygame.SRCALPHA)
-                pygame.draw.circle(smoke_surf, (100, 100, 100, 80),
-                                   (smoke_r, smoke_r), smoke_r)
-                self.screen.blit(smoke_surf, (smoke_x - smoke_r, smoke_y - smoke_r))
 
     def _draw_generic_monster(self, sx, sy, state, anim_id):
         """Fallback for unknown monster types - a spiky creature."""
@@ -1486,11 +1462,9 @@ class Renderer:
             pygame.draw.circle(self.screen, color, (sx - 4, ind_y), 2)
             pygame.draw.circle(self.screen, color, (sx + 2, ind_y - 2), 2)
             pygame.draw.circle(self.screen, color, (sx + 8, ind_y), 2)
-        elif state == 2:  # Chase - exclamation
-            self._label("!", sx, ind_y, self.font_name, STATE_CHASE_COLOR)
-        elif state == 3:  # Attack - crossed swords
-            self._label("X", sx, ind_y, self.font_name, STATE_ATTACK_COLOR)
-        elif state == 4:  # Return - arrow
+        elif state == 2:  # Engage - crossed swords (were Chase/Attack merged)
+            self._label("X", sx, ind_y, self.font_name, STATE_CHASE_COLOR)
+        elif state == 3:  # Return - arrow
             pygame.draw.polygon(self.screen, STATE_RETURN_COLOR, [
                 (sx - 5, ind_y), (sx + 3, ind_y - 4), (sx + 3, ind_y + 4)
             ])

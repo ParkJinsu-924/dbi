@@ -147,8 +147,8 @@ class MonsterState:
     tx: float = 0.0      # target position (from server)
     ty: float = 0.0
     tz: float = 0.0
-    state: int = 0        # 0=Idle, 1=Patrol, 2=Chase, 3=Attack, 4=Return
-    target_guid: int = 0  # Chase/Attack target player GUID
+    state: int = 0        # 0=Idle, 1=Patrol, 2=Engage, 3=Return (MonsterStateId enum)
+    target_guid: int = 0  # Engage 중일 때 현재 target player GUID
     detect_range: float = 10.0
     hp: int = 100
     max_hp: int = 100
