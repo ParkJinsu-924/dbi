@@ -137,6 +137,10 @@ std::optional<Monster::SkillChoice> Monster::PickCastable(const float now, const
 
 	const auto& entries = monsterSkills->FindByMonster(templateId_);
 
+	// CanCast 는 target 이 필요. 없으면 후보 전체 탈락.
+	const auto target = GetTarget();
+	if (!target) return std::nullopt;
+
 	// 1. 시전 가능한 후보 수집 + 가중치 총합.
 	struct Candidate { const MonsterSkillEntry* entry; const SkillTemplate* tmpl; float cooldown; };
 	std::vector<Candidate> candidates;
@@ -152,6 +156,9 @@ std::optional<Monster::SkillChoice> Monster::PickCastable(const float now, const
 		const auto it = skillNextUsable_.find(entry->skillId);
 		const float ready = (it == skillNextUsable_.end()) ? 0.0f : it->second;
 		if (now < ready) continue;
+
+		// Strategy: 스킬별 추가 조건 (HP threshold 등). Default 는 항상 true.
+		if (tmpl->behavior && !tmpl->behavior->CanCast(*this, *target, now)) continue;
 
 		const float applied = (std::max)(tmpl->cooldown, entry->minInterval);
 		candidates.push_back({ entry, tmpl, applied });
