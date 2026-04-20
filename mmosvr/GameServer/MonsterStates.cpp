@@ -1,9 +1,10 @@
-﻿#include "pch.h"
+#include "pch.h"
 #include "MonsterStates.h"
 #include "Monster.h"
 #include "Zone.h"
 #include "Player.h"
 #include "SkillTemplate.h"
+#include "SkillBehavior.h"
 #include <cmath>
 #include <random>
 #include "PacketMaker.h"
@@ -13,25 +14,25 @@
 // GlobalDetectState — runs every tick before current state
 // ===========================================================================
 
-void MonsterGlobalState::OnUpdate(Monster& owner, float deltaTime)
+void MonsterGlobalState::OnUpdate(Monster& owner, float /*deltaTime*/)
 {
 	switch (owner.GetStateId())
 	{
 	case MonsterStateId::Idle:
 	case MonsterStateId::Patrol:
 	{
-		// 이미 누적된 aggro 가 있으면 top 대상으로 Chase
+		// 이미 누적된 aggro 가 있으면 top 대상으로 Engage 진입.
 		if (owner.HasAggro())
 		{
 			const long long topGuid = owner.GetTopAggroGuid();
 			if (topGuid != 0)
 			{
 				owner.SetTarget(topGuid);
-				owner.GetFSM().ChangeState(MonsterStateId::Chase);
+				owner.GetFSM().ChangeState(MonsterStateId::Engage);
 				break;
 			}
 		}
-		
+
 		{ // 가까운 Player 탐지 시 Aggro 세팅
 			const auto player = owner.GetZone().FindNearestPlayer(
 				owner.GetPosition(), owner.GetDetectRange());
@@ -43,8 +44,7 @@ void MonsterGlobalState::OnUpdate(Monster& owner, float deltaTime)
 		}
 	}
 	break;
-	case MonsterStateId::Chase:
-	case MonsterStateId::Attack:
+	case MonsterStateId::Engage:
 	case MonsterStateId::Return:
 	default:
 		break;
@@ -72,10 +72,11 @@ void IdleState::OnUpdate(Monster& owner, const float deltaTime)
 	}
 }
 
-void IdleState::OnExit(Monster& owner)
+void IdleState::OnExit(Monster& /*owner*/)
 {
 	idleTime_ = 0.0f;
 }
+
 
 // ===========================================================================
 // Patrol — move to a random point within range of spawn, then go Idle
@@ -114,12 +115,17 @@ void PatrolState::OnUpdate(Monster& owner, const float deltaTime)
 
 
 // ===========================================================================
-// Chase
+// Engage — 추격 + 시전 + 대기 통합. Chase/Attack 은 더 이상 없다.
 // ===========================================================================
 
-void ChaseState::OnUpdate(Monster& owner, const float deltaTime)
+void EngageState::OnEnter(Monster& /*owner*/)
 {
-	// 매 틱 top aggro 재계산. 현재 target 과 달라졌으면 즉시 전환.
+	phase_ = Phase::Approach;
+}
+
+void EngageState::OnUpdate(Monster& owner, const float deltaTime)
+{
+	// 1) 매 틱 top aggro 재계산, 현재 target 과 다르면 교체.
 	const long long topGuid = owner.GetTopAggroGuid();
 	if (topGuid != 0)
 	{
@@ -128,68 +134,37 @@ void ChaseState::OnUpdate(Monster& owner, const float deltaTime)
 			owner.SetTarget(topGuid);
 	}
 
+	// 2) 종료 조건: 타겟 소실 / leash 초과 → Return.
 	const auto target = owner.GetTarget();
-
 	if (!target || !target->IsAlive() || owner.DistanceToSpawn() > owner.GetLeashRange())
 	{
 		owner.GetFSM().ChangeState(MonsterStateId::Return);
 		return;
 	}
 
+	// 3) 시전 가능한 스킬이 있으면 그 자리에서 시전 (캐스트 틱은 이동 생략).
 	const float dist = owner.DistanceTo(target->GetPosition());
-	const float engageRange = owner.GetBasicSkillRange();
-	// basic 사거리에 도달하면 정지 후 Attack — 몬스터의 본래 교전 거리.
-	if (engageRange > 0.0f && dist <= engageRange)
-	{
-		owner.GetFSM().ChangeState(MonsterStateId::Attack);
-		return;
-	}
-
-	// dist > engageRange — 추격 중. basic 은 사거리 미달이지만 사거리 더 긴 special
-	// 이 쿨다운 통과 + 사거리 통과면 그 자리에서 시전 (캐스트 한 틱은 이동 생략).
 	const float now = GetTimeManager().GetTotalTime();
+
 	if (const auto choice = owner.PickCastable(now, dist))
 	{
-		owner.DoAttack(*choice->tmpl, *target);
+		phase_ = Phase::Casting;
+		choice->tmpl->behavior->Execute(*choice->tmpl, owner, *target, now);
 		owner.MarkSkillUsed(choice->skillId, now + choice->appliedCooldown);
 		return;
 	}
 
-	owner.MoveToward(target->GetPosition(), deltaTime);
-}
-
-
-// ===========================================================================
-// Attack
-// ===========================================================================
-
-void AttackState::OnUpdate(Monster& owner, const float /*deltaTime*/)
-{
-	auto target = owner.GetTarget();
-
-	if (!target || !target->IsAlive() || owner.DistanceToSpawn() > owner.GetLeashRange())
-	{
-		owner.GetFSM().ChangeState(MonsterStateId::Return);
-		return;
-	}
-
-	const float dist = owner.DistanceTo(target->GetPosition());
+	// 4) 시전 불가. basic 사거리 기준으로 접근 / 대기.
 	const float engageRange = owner.GetBasicSkillRange();
-	// basic 사거리를 벗어나면 다시 Chase — 추격 책임은 ChaseState 가 진다.
 	if (engageRange <= 0.0f || dist > engageRange)
 	{
-		owner.GetFSM().ChangeState(MonsterStateId::Chase);
-		return;
+		phase_ = Phase::Approach;
+		owner.MoveToward(target->GetPosition(), deltaTime);
 	}
-
-	// 로테이션에서 시전 가능한 스킬 하나를 가중 추첨.
-	// 모든 스킬이 쿨다운/사거리 미달이면 그 자리에서 대기 — Attack 중엔 이동하지 않는다.
-	const float now = GetTimeManager().GetTotalTime();
-	const auto choice = owner.PickCastable(now, dist);
-	if (choice)
+	else
 	{
-		owner.DoAttack(*choice->tmpl, *target);
-		owner.MarkSkillUsed(choice->skillId, now + choice->appliedCooldown);
+		phase_ = Phase::Waiting;
+		// 제자리 대기 — 쿨다운 회복을 기다린다.
 	}
 }
 
@@ -204,9 +179,9 @@ void ReturnState::OnEnter(Monster& owner)
 	// Leash 초과로 Return 진입 시 aggro 도 함께 초기화 (신규 전투 시작으로 간주)
 	owner.ClearAggro();
 	owner.Heal(owner.GetMaxHp());
-	
+
 	// TODO: Buff 시스템을 도입한 후, 무적 버프 추가 필요.
-	
+
 	owner.GetZone().Broadcast(PacketMaker::MakeUnitHp(owner));
 }
 
