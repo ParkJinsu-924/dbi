@@ -128,8 +128,8 @@ message S_MonsterList {
 
 message S_MonsterState {
     int64 guid = 1;
-    uint32 state = 2;           // 0=Idle, 1=Chase, 2=Attack, 3=Return
-    int64 target_guid = 3;      // Chase/Attack target player GUID
+    uint32 state = 2;           // 0=Idle, 1=Patrol, 2=Engage, 3=Return (MonsterStateId enum)
+    int64 target_guid = 3;      // Engage 중일 때 현재 target player GUID
 }
 
 // 모든 유닛의 "스킬 적중" 을 단일 패킷으로 표현한다.
