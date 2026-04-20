@@ -4,16 +4,18 @@
 # cost       : 자원 소모 (마나 등). Phase 1 은 0.
 # cast_range : 사거리. Melee/Hitscan 은 공격 리치, Homing/Skillshot 은 서버측 validation.
 # cooldown   : 스킬 재사용 대기 (평타의 attack speed 역할 포함).
-sid,name,targeting,projectile_speed,projectile_radius,projectile_range,projectile_lifetime,cooldown,cost,cast_range
-1001,goblin_auto,Melee,0.0,0.0,0.0,0.0,1.2,0,2.0
-1002,orc_auto,Melee,0.0,0.0,0.0,0.0,2.0,0,2.5
-1003,slime_auto,Melee,0.0,0.0,0.0,0.0,1.0,0,1.5
-1004,sniper_shot,Hitscan,0.0,0.0,0.0,0.0,2.0,0,10.0
-1005,archer_homing,Homing,12.0,0.0,0.0,5.0,1.8,0,8.0
-1006,caster_bolt,Skillshot,18.0,0.6,16.0,0.0,2.5,0,10.0
+# behaviorName : AI 수준 스킬 행동. 빈 값/"default" → DefaultAttackBehavior (현재 유일한 구현).
+#                특수 스킬을 추가할 때 ISkillBehavior 상속 클래스를 만들고 이름을 여기에 적는다.
+sid,name,targeting,projectile_speed,projectile_radius,projectile_range,projectile_lifetime,cooldown,cost,cast_range,behaviorName
+1001,goblin_auto,Melee,0.0,0.0,0.0,0.0,1.2,0,2.0,default
+1002,orc_auto,Melee,0.0,0.0,0.0,0.0,2.0,0,2.5,default
+1003,slime_auto,Melee,0.0,0.0,0.0,0.0,1.0,0,1.5,default
+1004,sniper_shot,Hitscan,0.0,0.0,0.0,0.0,2.0,0,10.0,default
+1005,archer_homing,Homing,12.0,0.0,0.0,5.0,1.8,0,8.0,default
+1006,caster_bolt,Skillshot,18.0,0.6,16.0,0.0,2.5,0,10.0,default
 # Goblin 스페셜 스킬: 큰 폭탄을 던진다. 느리지만 큰 피탄 반경 + 슬로우 부여 (skill_effects 참조)
-1101,goblin_bomb,Skillshot,8.0,1.5,8.0,0.0,4.0,0,8.0
-2001,auto_attack,Homing,12.0,0.0,0.0,5.0,0.0,0,30.0
-2002,bolt,Skillshot,18.0,0.6,16.0,0.0,0.0,0,20.0
-2003,strike,Homing,14.0,0.0,0.0,3.0,0.0,0,25.0
-2004,nuke,Skillshot,22.0,1.2,24.0,0.0,0.0,0,30.0
+1101,goblin_bomb,Skillshot,8.0,1.5,8.0,0.0,4.0,0,8.0,default
+2001,auto_attack,Homing,12.0,0.0,0.0,5.0,0.0,0,30.0,default
+2002,bolt,Skillshot,18.0,0.6,16.0,0.0,0.0,0,20.0,default
+2003,strike,Homing,14.0,0.0,0.0,3.0,0.0,0,25.0,default
+2004,nuke,Skillshot,22.0,1.2,24.0,0.0,0.0,0,30.0,default
