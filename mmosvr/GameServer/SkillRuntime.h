@@ -1,6 +1,6 @@
 #pragma once
 
-// 스킬 실행 진입점. Player(GamePacketHandler) / Monster.DoAttack 양쪽이 공통 경유.
+// 스킬 실행 진입점. Player(GamePacketHandler) / Monster(DefaultAttackBehavior) 양쪽이 공통 경유.
 // Phase 1: Melee / Hitscan / Homing / Skillshot 네 가지 kind 를 Cast() 하나로 디스패치.
 //          모든 SkillEffect (Damage/Heal/StatMod/CCState) 가 OnCast/OnHit 트리거 시점에
 //          ApplyEffects() 를 통해 target/self 에 부착된다.

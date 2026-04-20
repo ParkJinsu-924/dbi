@@ -11,7 +11,7 @@
 // "몬스터 tid 는 skillId 를 weight 가중으로, 최소 minInterval 간격으로 쓴다."
 //
 // SkillEffect 와 동형 패턴. 한 몬스터가 여러 스킬(평타/특수기/궁)을 가질 수 있고,
-// AttackState 가 거리/쿨다운으로 후보를 필터링한 뒤 weight 로 가중 추첨.
+// EngageState 가 거리/쿨다운으로 후보를 필터링한 뒤 weight 로 가중 추첨.
 //
 // 실효 쿨다운 = max(SkillTemplate.cooldown, minInterval).
 //   - SkillTemplate.cooldown : 스킬 자체의 재사용 대기 (연출/밸런스)

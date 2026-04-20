@@ -116,7 +116,7 @@ public:
 	std::shared_ptr<Monster> FindNearestMonster(const Proto::Vector2& from, float maxRange) const;
 
 	// Projectile factories. Spawn 은 pending 큐로 들어가고 다음 Flush 시점에 objects_ 등록 →
-	// Zone::Update 의 read 락 안에서 호출해도 안전하다 (Monster.DoAttack, Skill 핸들러 등).
+	// Zone::Update 의 read 락 안에서 호출해도 안전하다 (Monster skill behavior, Skill 핸들러 등).
 	// S_ProjectileSpawn 패킷은 즉시 브로드캐스트.
 	std::shared_ptr<HomingProjectile> SpawnHomingProjectile(
 		long long ownerGuid, GameObjectType ownerType, long long targetGuid,
