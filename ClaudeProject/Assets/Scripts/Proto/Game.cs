@@ -5218,7 +5218,7 @@ namespace Proto {
     public const int StateFieldNumber = 2;
     private uint state_;
     /// <summary>
-    /// 0=Idle, 1=Chase, 2=Attack, 3=Return
+    /// 0=Idle, 1=Patrol, 2=Engage, 3=Return (MonsterStateId enum)
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
@@ -5233,7 +5233,7 @@ namespace Proto {
     public const int TargetGuidFieldNumber = 3;
     private long targetGuid_;
     /// <summary>
-    /// Chase/Attack target player GUID
+    /// Engage 중일 때 현재 target player GUID
     /// </summary>
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
