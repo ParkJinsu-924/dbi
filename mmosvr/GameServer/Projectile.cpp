@@ -24,8 +24,8 @@ void Projectile::Update(const float dt)
 		return;
 	}
 
-	Step(dt);
-	if (consumed_)
+	Step(dt); // Move Projectile
+	if (consumed_) // Projectile Move 로 인해서 소멸된 Projectile
 		return;
 	CheckHit();
 }
