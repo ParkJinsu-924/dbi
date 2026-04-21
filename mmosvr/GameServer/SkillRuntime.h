@@ -77,23 +77,30 @@ namespace SkillRuntime
 		}
 	}
 
+	// --- 공격 명중 처리 공통 (Melee/Hitscan/Projectile 모두) ---
+	// OnHit effect 적용 + S_SkillHit 방송. S_UnitHp 및 aggro 누적은 Unit::TakeDamage 가
+	// 내부적으로 맡으므로 여기서는 다루지 않는다. S_SkillHit.damage 는 스킬 정의값
+	// (ComputeOnHitDamage) 을 쓰는 것으로 일관 — Invulnerable 적중도 표시 자체는 나간다.
+	inline void ResolveHit(Unit* caster, Unit& target, int32 skillId,
+	                       const Proto::Vector2& casterPos,
+	                       const Proto::Vector2& hitPos,
+	                       Zone& zone)
+	{
+		ApplyEffects(skillId, EffectTrigger::OnHit, caster, &target);
+
+		const int32 displayDmg = ComputeOnHitDamage(skillId);
+		zone.Broadcast(PacketMaker::MakeSkillHit(
+			caster ? caster->GetGuid() : 0, target.GetGuid(), skillId, displayDmg,
+			casterPos, hitPos));
+	}
+
 	// --- Instant 공격 (Melee / Hitscan) ---
-	// OnCast + OnHit 효과 적용 + S_SkillHit + S_UnitHp. HP 0 이 되어도 S_UnitHp 는 보내 동기화.
+	// OnCast + OnHit 적용 + S_SkillHit. S_UnitHp 는 Unit::TakeDamage 내부에서 처리.
 	inline void CastInstant(const SkillTemplate& skill,
 	                        Unit& caster, Unit& target, Zone& zone)
 	{
-		const int32 dmg = ComputeOnHitDamage(skill.sid);
-		const int32 hpBefore = target.GetHp();
-
 		ApplyEffects(skill.sid, EffectTrigger::OnCast, &caster, &target);
-		ApplyEffects(skill.sid, EffectTrigger::OnHit,  &caster, &target);
-
-		zone.Broadcast(PacketMaker::MakeSkillHit(
-			caster.GetGuid(), target.GetGuid(), skill.sid, dmg,
-			caster.GetPosition(), target.GetPosition()));
-
-		if (target.GetHp() != hpBefore)
-			zone.Broadcast(PacketMaker::MakeUnitHp(target));
+		ResolveHit(&caster, target, skill.sid, caster.GetPosition(), target.GetPosition(), zone);
 	}
 
 	// --- Homing 발사 ---

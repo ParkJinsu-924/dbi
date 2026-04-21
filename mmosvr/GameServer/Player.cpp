@@ -8,6 +8,7 @@ Player::Player(int32 playerId, const std::string& name, Zone& zone)
 {
 	position_.set_x(0.0f);
 	position_.set_y(0.0f);
+	moveSpeed_ = 5.0f;   // debug_tool config.MOVE_SPEED 와 동일값.
 }
 
 void Player::BindSession(std::shared_ptr<GameSession> session)
@@ -40,6 +41,6 @@ void Player::Update(const float deltaTime)
 	if (!isMoving_)
 		return;
 
-	if (MoveToward(destination_, moveSpeed_, deltaTime))
+	if (MoveToward(destination_, deltaTime))
 		isMoving_ = false;
 }

@@ -17,7 +17,11 @@ public:
 
 	void Tick(float deltaTime) override;
 
-	// FSM 직접 접근 (상태 등록, OnStateChanged 콜백 등 초기 설정용).
+	// 상태 등록 + GlobalState + 전환 브로드캐스트 콜백 + Idle 로 Start.
+	// Monster::InitAI 에서 spawn 세팅 후 1회 호출.
+	void Init();
+
+	// FSM 직접 접근 (외부에서 추가 상태 등록/교체 등 특수 설정용).
 	MonsterFSM&       GetFSM()       { return fsm_; }
 	const MonsterFSM& GetFSM() const { return fsm_; }
 

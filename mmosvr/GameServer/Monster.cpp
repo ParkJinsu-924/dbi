@@ -8,7 +8,6 @@
 #include "ResourceManager.h"
 #include "SkillTemplate.h"
 #include "MonsterSkillEntry.h"
-#include "PacketMaker.h"
 #include "game.pb.h"
 #include <cmath>
 #include <random>
@@ -19,25 +18,8 @@ void Monster::InitAI(const Proto::Vector2& spawnPos)
 	spawnPos_ = spawnPos;
 	position_ = spawnPos;
 
-	auto& fsm = Get<FSMAgent>().GetFSM();
-
-	// GlobalState: detect player in Idle/Patrol -> Engage
-	fsm.SetGlobalState<MonsterGlobalState>();
-
-	// 상태 등록
-	fsm.AddState<IdleState>(MonsterStateId::Idle);
-	fsm.AddState<PatrolState>(MonsterStateId::Patrol);
-	fsm.AddState<EngageState>(MonsterStateId::Engage);
-	fsm.AddState<ReturnState>(MonsterStateId::Return);
-
-	// 상태 전환 콜백 (로그 + 브로드캐스트)
-	fsm.SetOnStateChanged([this](MonsterStateId prev, MonsterStateId next)
-		{
-			BroadcastState(prev, next);
-		});
-
-	// 시작 (Idle 상태로 시작)
-	fsm.Start(*this, MonsterStateId::Idle);
+	// FSM 상태 등록 / 시작은 FSMAgent 가 전담.
+	Get<FSMAgent>().Init();
 }
 
 void Monster::Update(const float deltaTime)
@@ -52,9 +34,10 @@ void Monster::Update(const float deltaTime)
 
 std::shared_ptr<Player> Monster::GetTarget() const
 {
-	if (targetGuid_ == 0)
+	const long long guid = GetTargetGuid();
+	if (guid == 0)
 		return nullptr;
-	return GetZone().FindAs<Player>(targetGuid_);
+	return GetZone().FindAs<Player>(guid);
 }
 
 float Monster::DistanceToSpawn() const
@@ -124,13 +107,4 @@ std::optional<Monster::SkillChoice> Monster::PickCastable(const float now, const
 	}
 	// 부동소수 없이 정수로 돌리므로 unreachable. 컴파일러 경고 방지용 fallback.
 	return SkillChoice{ candidates.back().tmpl, candidates.back().entry->skillId, candidates.back().cooldown };
-}
-
-// ---------------------------------------------------------------------------
-// Broadcasting
-// ---------------------------------------------------------------------------
-
-void Monster::BroadcastState(MonsterStateId /*prev*/, MonsterStateId next)
-{
-	GetZone().Broadcast(PacketMaker::MakeMonsterState(*this, next));
 }

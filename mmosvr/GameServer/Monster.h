@@ -17,6 +17,7 @@ public:
 	Monster(std::string name, Zone& zone)
 		: Npc(GameObjectType::Monster, zone, std::move(name))
 	{
+		moveSpeed_ = 3.0f;
 		AddAgent<FSMAgent>();
 		AddAgent<AggroAgent>();
 	}
@@ -35,21 +36,19 @@ public:
 	// --- 상태에서 사용하는 public 유틸리티 ---
 	const Proto::Vector2& GetSpawnPos() const { return spawnPos_; }
 
-	void SetTarget(long long guid) { targetGuid_ = guid; }
-	void ClearTarget()             { targetGuid_ = 0; }
-	long long GetTargetGuid() const { return targetGuid_; }
+	// Target 의 유일 진실 원천 = AggroAgent.GetTop().
+	// 강제 타겟팅(Taunt 등) 이 필요하면 AggroAgent.Add(guid, huge_value) 로 구현.
+	long long GetTargetGuid() const { return Get<AggroAgent>().GetTop(); }
 	std::shared_ptr<Player> GetTarget() const;
 
 	float DistanceToSpawn() const;
 
-	// --- AI 파라미터 접근 ---
+	// --- AI 파라미터 접근 (MoveSpeed 는 Unit 에 있음) ---
 	float GetDetectRange()    const { return detectRange_; }
 	float GetLeashRange()     const { return leashRange_; }
-	float GetMoveSpeed()      const { return moveSpeed_; }
 
 	void SetDetectRange(float v)    { detectRange_ = v; }
 	void SetLeashRange(float v)     { leashRange_ = v; }
-	void SetMoveSpeed(float v)      { moveSpeed_ = v; }
 
 	// --- Skill rotation ---
 	// templateId = MonsterTemplate.tid. monster_skills.csv 조회 키.
@@ -72,15 +71,11 @@ public:
 	std::optional<SkillChoice> PickCastable(float now, float distance) const;
 
 private:
-	void BroadcastState(MonsterStateId prev, MonsterStateId next);
-
 	Proto::Vector2 spawnPos_;
-	long long targetGuid_ = 0;
 
 	// --- AI 파라미터 ---
 	// 공격 스킬은 monster_skills.csv (tid 기준) 에서 로드. 사거리/쿨다운/데미지는 SkillTemplate 참조.
 	int32 templateId_  = 0;
 	float detectRange_ = 10.0f;
 	float leashRange_  = 15.0f;
-	float moveSpeed_   = 3.0f;
 };

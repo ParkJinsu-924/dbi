@@ -96,6 +96,7 @@
         <ClCompile Include="Agent\FSMAgent.cpp"/>
         <ClCompile Include="Agent\AggroAgent.cpp"/>
         <ClCompile Include="GameObject.cpp"/>
+        <ClCompile Include="Unit.cpp"/>
         <ClCompile Include="Monster.cpp"/>
         <ClCompile Include="MonsterStates.cpp"/>
         <ClCompile Include="Zone.cpp"/>

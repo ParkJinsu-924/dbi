@@ -2,9 +2,6 @@
 #include "Projectile.h"
 #include "Zone.h"
 #include "Unit.h"
-#include "Player.h"
-#include "Monster.h"
-#include "Agent/AggroAgent.h"
 #include "PacketMaker.h"
 #include "SkillRuntime.h"
 
@@ -32,9 +29,7 @@ void Projectile::Update(const float dt)
 
 void Projectile::ApplyHit(Unit& target, const Proto::Vector2& hitPos)
 {
-	const int32 hpBefore = target.GetHp();
-
-	// caster Unit 조회 (OnHit Self-scope Effect 와 Aggro 용). 사라졌으면 nullptr.
+	// caster Unit 조회 (OnHit Self-scope Effect 및 aggro 속성용). 사라졌으면 nullptr.
 	auto ownerObj = GetZone().Find(ownerGuid_);
 	Unit* casterUnit = nullptr;
 	if (ownerObj &&
@@ -44,31 +39,11 @@ void Projectile::ApplyHit(Unit& target, const Proto::Vector2& hitPos)
 		casterUnit = static_cast<Unit*>(ownerObj.get());
 	}
 
-	// OnHit 효과 전체 적용 (Damage / Slow / Stun / Heal 등).
-	// Unit::TakeDamage 가 Invulnerable 체크를 포함하므로 여기서 별도 분기 불필요.
-	SkillRuntime::ApplyEffects(skillId_, EffectTrigger::OnHit, casterUnit, &target);
-
-	const int32 actualDmg = hpBefore - target.GetHp();   // 0 if invulnerable or no Damage effect
-
-	GetZone().Broadcast(PacketMaker::MakeSkillHit(
-		ownerGuid_, target.GetGuid(), skillId_, actualDmg,
-		GetPosition(), hitPos));
-
-	if (actualDmg != 0)
-		GetZone().Broadcast(PacketMaker::MakeUnitHp(target));
-
-	// --- Aggro accumulation ---
-	// 플레이어 → 몬스터 피격 시 실제 적용 데미지를 aggro 로 누적.
-	if (ownerType_ == GameObjectType::Player &&
-		target.GetType() == GameObjectType::Monster &&
-		actualDmg > 0)
-	{
-		auto& monster = static_cast<Monster&>(target);
-		monster.Get<AggroAgent>().Add(ownerGuid_, static_cast<float>(actualDmg));
-	}
+	// OnHit 효과 적용 + S_SkillHit 방송. S_UnitHp / aggro 누적은
+	// Unit::TakeDamage 가 BuffAgent 경로로 자동 처리.
+	SkillRuntime::ResolveHit(casterUnit, target, skillId_, GetPosition(), hitPos, GetZone());
 
 	consumed_ = true;
-
 	GetZone().Broadcast(PacketMaker::MakeProjectileDestroy(GetGuid(), Proto::S_ProjectileDestroy_Reason_HIT));
 }
 

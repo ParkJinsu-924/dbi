@@ -10,7 +10,6 @@
 #include "SkillBehavior.h"
 #include <cmath>
 #include <random>
-#include "PacketMaker.h"
 
 
 // ===========================================================================
@@ -24,27 +23,18 @@ void MonsterGlobalState::OnUpdate(Monster& owner, float /*deltaTime*/)
 	case MonsterStateId::Idle:
 	case MonsterStateId::Patrol:
 	{
-		// 이미 누적된 aggro 가 있으면 top 대상으로 Engage 진입.
+		// Aggro 엔트리가 있으면 그 top 을 타겟으로 Engage 진입 (타겟 조회는 GetTarget 이 담당).
 		if (owner.Get<AggroAgent>().HasAny())
 		{
-			const long long topGuid = owner.Get<AggroAgent>().GetTop();
-			if (topGuid != 0)
-			{
-				owner.SetTarget(topGuid);
-				owner.Get<FSMAgent>().ChangeState(MonsterStateId::Engage);
-				break;
-			}
+			owner.Get<FSMAgent>().ChangeState(MonsterStateId::Engage);
+			break;
 		}
 
-		{ // 가까운 Player 탐지 시 Aggro 세팅
-			const auto player = owner.GetZone().FindNearestPlayer(
-				owner.GetPosition(), owner.GetDetectRange());
-
-			if (player)
-			{
-				owner.Get<AggroAgent>().Add(player->GetGuid(), 0); // Aggro 최소치 세팅
-			}
-		}
+		// 가까운 Player 탐지 시 Aggro 최소치 세팅 (값 0 — 실제 교전 전 감지 표식)
+		const auto player = owner.GetZone().FindNearestPlayer(
+			owner.GetPosition(), owner.GetDetectRange());
+		if (player)
+			owner.Get<AggroAgent>().Add(player->GetGuid(), 0);
 	}
 	break;
 	case MonsterStateId::Engage:
@@ -59,9 +49,10 @@ void MonsterGlobalState::OnUpdate(Monster& owner, float /*deltaTime*/)
 // Idle
 // ===========================================================================
 
-void IdleState::OnEnter(Monster& owner)
+void IdleState::OnEnter(Monster& /*owner*/)
 {
-	owner.ClearTarget();
+	// target 은 AggroAgent 가 유일 소스 — 별도 초기화 불필요.
+	// aggro 가 남아있으면 다음 틱에 GlobalState 가 다시 Engage 로 전환한다.
 	idleTime_ = 0.0f;
 }
 
@@ -113,7 +104,7 @@ void PatrolState::OnUpdate(Monster& owner, const float deltaTime)
 		return;
 	}
 
-	owner.MoveToward(target, owner.GetMoveSpeed(), deltaTime);
+	owner.MoveToward(target, deltaTime);
 }
 
 
@@ -128,16 +119,8 @@ void EngageState::OnEnter(Monster& /*owner*/)
 
 void EngageState::OnUpdate(Monster& owner, const float deltaTime)
 {
-	// 1) 매 틱 top aggro 재계산, 현재 target 과 다르면 교체.
-	const long long topGuid = owner.Get<AggroAgent>().GetTop();
-	if (topGuid != 0)
-	{
-		const auto cur = owner.GetTarget();
-		if (cur == nullptr || cur->GetGuid() != topGuid)
-			owner.SetTarget(topGuid);
-	}
-
-	// 2) 종료 조건: 타겟 소실 / leash 초과 → Return.
+	// 1) 종료 조건: 타겟 소실 / leash 초과 → Return.
+	//    GetTarget() 은 매 호출 시점에 AggroAgent.GetTop() 결과를 반영 (단일 소스).
 	const auto target = owner.GetTarget();
 	if (!target || !target->IsAlive() || owner.DistanceToSpawn() > owner.GetLeashRange())
 	{
@@ -145,7 +128,7 @@ void EngageState::OnUpdate(Monster& owner, const float deltaTime)
 		return;
 	}
 
-	// 3) 시전 가능한 스킬이 있으면 그 자리에서 시전 (캐스트 틱은 이동 생략).
+	// 2) 시전 가능한 스킬이 있으면 그 자리에서 시전 (캐스트 틱은 이동 생략).
 	const float dist = owner.DistanceTo(target->GetPosition());
 	const float now = GetTimeManager().GetTotalTime();
 
@@ -157,12 +140,12 @@ void EngageState::OnUpdate(Monster& owner, const float deltaTime)
 		return;
 	}
 
-	// 4) 시전 불가. basic 사거리 기준으로 접근 / 대기.
+	// 3) 시전 불가. basic 사거리 기준으로 접근 / 대기.
 	const float engageRange = owner.GetBasicSkillRange();
 	if (engageRange <= 0.0f || dist > engageRange)
 	{
 		phase_ = Phase::Approach;
-		owner.MoveToward(target->GetPosition(), owner.GetMoveSpeed(), deltaTime);
+		owner.MoveToward(target->GetPosition(), deltaTime);
 	}
 	else
 	{
@@ -178,14 +161,13 @@ void EngageState::OnUpdate(Monster& owner, const float deltaTime)
 
 void ReturnState::OnEnter(Monster& owner)
 {
-	owner.ClearTarget();
-	// Leash 초과로 Return 진입 시 aggro 도 함께 초기화 (신규 전투 시작으로 간주)
+	// Aggro.Clear() 가 곧 "target 없음" — 단일 진실 원천.
+	// Leash 초과로 Return 진입 시 신규 전투로 간주하고 초기화.
 	owner.Get<AggroAgent>().Clear();
+	// Heal 내부에서 HP 변화가 있으면 S_UnitHp 자동 방송.
 	owner.Heal(owner.GetMaxHp());
 
 	// TODO: Buff 시스템을 도입한 후, 무적 버프 추가 필요.
-
-	owner.GetZone().Broadcast(PacketMaker::MakeUnitHp(owner));
 }
 
 void ReturnState::OnUpdate(Monster& owner, const float deltaTime)
@@ -197,5 +179,5 @@ void ReturnState::OnUpdate(Monster& owner, const float deltaTime)
 		return;
 	}
 
-	owner.MoveToward(owner.GetSpawnPos(), owner.GetMoveSpeed(), deltaTime);
+	owner.MoveToward(owner.GetSpawnPos(), deltaTime);
 }
