@@ -140,6 +140,7 @@
         <ClInclude Include="SkillRuntime.h"/>
         <ClInclude Include="SkillBehavior.h"/>
         <ClInclude Include="SkillBehaviorRegistry.h"/>
+        <ClInclude Include="Agent\IAgent.h"/>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\ServerCore\ServerCore.vcxproj">

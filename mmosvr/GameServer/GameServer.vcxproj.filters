@@ -19,6 +19,9 @@
     <Filter Include="Combat">
       <UniqueIdentifier>{B1000000-0000-0000-0000-000000000006}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Agent">
+      <UniqueIdentifier>{B1000000-0000-0000-0000-000000000007}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
@@ -158,6 +161,9 @@
     </ClInclude>
     <ClInclude Include="SkillRuntime.h">
       <Filter>Combat</Filter>
+    </ClInclude>
+    <ClInclude Include="Agent\IAgent.h">
+      <Filter>Agent</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
