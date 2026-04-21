@@ -34,6 +34,7 @@ import config
 import log_setup
 import skill_data
 import effect_data
+import monster_data
 from feedback import FeedbackSystem
 from network import PacketClient
 from renderer import Renderer
@@ -45,6 +46,8 @@ log_hit = logging.getLogger("hit")
 # 시작 시 1회 CSV 로드. 이후 조회만 한다 (테스트에서는 임시 table로 교체 가능).
 SKILL_TABLE: skill_data.SkillTable = skill_data.load_from_csv()
 EFFECT_TABLE: effect_data.EffectTable = effect_data.load_from_csv()
+# 서버는 MonsterInfo.tid 만 내려주고 name 은 소유하지 않는다 — 여기서 tid→name 조회.
+MONSTER_TABLE: monster_data.MonsterTable = monster_data.load_from_csv()
 
 
 @dataclass
@@ -324,7 +327,7 @@ def _h_monster_list(state: GameState, msg):
     for m in msg.monsters:
         px, pz = m.position.x, m.position.y
         state.monsters[m.guid] = MonsterState(
-            guid=m.guid, name=m.name,
+            guid=m.guid, name=MONSTER_TABLE.name(m.tid),
             x=px, z=pz, tx=px, tz=pz,
             detect_range=m.detect_range if m.detect_range > 0 else 10.0,
             hp=m.hp if m.max_hp > 0 else 100,
@@ -335,7 +338,7 @@ def _h_monster_spawn(state: GameState, msg):
     m = msg.monster
     px, pz = m.position.x, m.position.y
     state.monsters[m.guid] = MonsterState(
-        guid=m.guid, name=m.name,
+        guid=m.guid, name=MONSTER_TABLE.name(m.tid),
         x=px, z=pz, tx=px, tz=pz,
         detect_range=m.detect_range if m.detect_range > 0 else 10.0,
         hp=m.hp if m.max_hp > 0 else 100,

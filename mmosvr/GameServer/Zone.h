@@ -106,12 +106,29 @@ public:
 		BroadcastChunkTo(PacketSession::MakeSendBuffer(msg), guids);
 	}
 
-	// Find the nearest alive Player within maxRange of the given position.
-	// Returns nullptr if none found.
-	std::shared_ptr<Player> FindNearestPlayer(const Proto::Vector2& from, float maxRange) const;
+	// GameObjectTraits<T>::kType bucket 에서 from 기준 maxRange 이내 가장 가까운 살아있는 객체 반환.
+	// T 는 IsAlive() 를 가진 Unit 계열 (Player/Monster/Npc 등). 없으면 nullptr.
+	template<typename T>
+	std::shared_ptr<T> FindNearest(const Proto::Vector2& from, const float maxRange) const
+	{
+		std::shared_ptr<T> nearest;
+		float nearestDistSq = maxRange * maxRange;
 
-	// Find the nearest alive Monster within maxRange. Returns nullptr if none found.
-	std::shared_ptr<Monster> FindNearestMonster(const Proto::Vector2& from, float maxRange) const;
+		ForEachOfType(GameObjectTraits<T>::kType, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
+			{
+				auto t = std::static_pointer_cast<T>(obj);
+				if (!t->IsAlive()) return;
+
+				const float distSq = obj->DistanceToSq(from);
+				if (distSq < nearestDistSq)
+				{
+					nearestDistSq = distSq;
+					nearest = t;
+				}
+			});
+
+		return nearest;
+	}
 
 	// Projectile factories. Spawn 은 pending 큐로 들어가고 다음 Flush 시점에 objects_ 등록 →
 	// Zone::Update 의 read 락 안에서 호출해도 안전하다 (Monster skill behavior, Skill 핸들러 등).

@@ -35,4 +35,5 @@ private:
 	float radius_;
 	float rangeLimit_;     // 구 maxRange_ — max 매크로 충돌 회피
 	float traveled_ = 0.0f;
+	Proto::Vector2 prevPosition_;  // Step 에서 이동 직전 위치. CheckHit 이 sweep 판정용으로 읽음.
 };

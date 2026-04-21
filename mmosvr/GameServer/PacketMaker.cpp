@@ -218,7 +218,7 @@ Proto::MonsterInfo PacketMaker::MakeMonsterInfo(const Monster& monster)
 {
 	Proto::MonsterInfo info;
 	info.set_guid(monster.GetGuid());
-	info.set_name(monster.GetName());
+	info.set_tid(monster.GetTemplateId());
 	*info.mutable_position() = monster.GetPosition();
 	info.set_detect_range(monster.GetDetectRange());
 	info.set_hp(monster.GetHp());

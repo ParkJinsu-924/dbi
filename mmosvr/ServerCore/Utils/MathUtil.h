@@ -70,4 +70,29 @@ namespace MathUtil
 			return std::nullopt;
 		return Dir2D{ x / len, y / len };
 	}
+
+	// 선분 [a, b] 위의 점 중 p 에 가장 가까운 점까지의 제곱 거리.
+	// 고속 투사체 sweep 충돌 판정 (tunneling 방지) 에 사용.
+	// a == b (zero-length segment) 이면 단순 p↔a 제곱 거리.
+	inline float PointToSegmentDistSq2D(const Proto::Vector2& p,
+	                                    const Proto::Vector2& a, const Proto::Vector2& b)
+	{
+		const float sx = b.x() - a.x();
+		const float sy = b.y() - a.y();
+		const float segLenSq = sx * sx + sy * sy;
+		if (segLenSq < kVectorLengthEpsilon * kVectorLengthEpsilon)
+			return Distance2DSq(p, a);
+
+		const float tx = p.x() - a.x();
+		const float ty = p.y() - a.y();
+		float t = (tx * sx + ty * sy) / segLenSq;
+		if (t < 0.0f) t = 0.0f;
+		else if (t > 1.0f) t = 1.0f;
+
+		const float cx = a.x() + t * sx;
+		const float cy = a.y() + t * sy;
+		const float dx = p.x() - cx;
+		const float dy = p.y() - cy;
+		return dx * dx + dy * dy;
+	}
 }

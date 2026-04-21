@@ -226,7 +226,7 @@ Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> sess
 			}
 			else
 			{
-				target = playerZone.FindNearestMonster(player->GetPosition(), 30.0f);
+				target = playerZone.FindNearest<Monster>(player->GetPosition(), 30.0f);
 			}
 
 			if (!target || !target->IsAlive())

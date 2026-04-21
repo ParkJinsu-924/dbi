@@ -18,7 +18,7 @@ public:
 
 protected:
 	void Step(float dt) override;
-	void CheckHit() override {} // Step 안에서 적중 처리
+	void CheckHit() override;
 
 private:
 	long long targetGuid_;

@@ -100,9 +100,10 @@ message S_Error {
 // --- Monster ---
 
 // 공통 Monster DTO — S_MonsterSpawn / S_MonsterList 에서 재사용.
+// name 은 서버가 소유하지 않는다. 클라는 tid 로 monster_templates.csv 조회해 이름/스프라이트 결정.
 message MonsterInfo {
     int64 guid = 1;
-    string name = 2;
+    int32 tid = 2;
     Vector2 position = 3;
     float detect_range = 4;
     int32 hp = 5;

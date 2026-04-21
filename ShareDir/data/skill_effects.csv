@@ -25,3 +25,5 @@ sid,eid,trigger,delay,target
 2003,4003,OnCast,0.0,Self
 # nuke(2004) 가 맞힌 적에게 1.5초 기절 추가
 2004,4002,OnHit,0.0,Enemy
+# tunnel_test(2005): 터널링 회귀 테스트용. OnHit 최소 데미지만.
+2005,3005,OnHit,0.0,Enemy

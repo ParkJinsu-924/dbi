@@ -45,35 +45,35 @@ namespace Proto {
             "X1JlcXVlc3RVc2VTa2lsbBINCgVyYW5nZRgBIAEoBSI0ChBTX01vdmVDb3Jy",
             "ZWN0aW9uEiAKCHBvc2l0aW9uGAEgASgLMg4uUHJvdG8uVmVjdG9yMiJTCgdT",
             "X0Vycm9yEhgKEHNvdXJjZV9wYWNrZXRfaWQYASABKA0SHgoEY29kZRgCIAEo",
-            "DjIQLlByb3RvLkVycm9yQ29kZRIOCgZkZXRhaWwYAyABKAkifQoLTW9uc3Rl",
-            "ckluZm8SDAoEZ3VpZBgBIAEoAxIMCgRuYW1lGAIgASgJEiAKCHBvc2l0aW9u",
-            "GAMgASgLMg4uUHJvdG8uVmVjdG9yMhIUCgxkZXRlY3RfcmFuZ2UYBCABKAIS",
-            "CgoCaHAYBSABKAUSDgoGbWF4X2hwGAYgASgFIjUKDlNfTW9uc3RlclNwYXdu",
-            "EiMKB21vbnN0ZXIYASABKAsyEi5Qcm90by5Nb25zdGVySW5mbyI/Cg1TX01v",
-            "bnN0ZXJNb3ZlEgwKBGd1aWQYASABKAMSIAoIcG9zaXRpb24YAiABKAsyDi5Q",
-            "cm90by5WZWN0b3IyIiAKEFNfTW9uc3RlckRlc3Bhd24SDAoEZ3VpZBgBIAEo",
-            "AyI1Cg1TX01vbnN0ZXJMaXN0EiQKCG1vbnN0ZXJzGAEgAygLMhIuUHJvdG8u",
-            "TW9uc3RlckluZm8iQgoOU19Nb25zdGVyU3RhdGUSDAoEZ3VpZBgBIAEoAxIN",
-            "CgVzdGF0ZRgCIAEoDRITCgt0YXJnZXRfZ3VpZBgDIAEoAyKdAQoKU19Ta2ls",
-            "bEhpdBITCgtjYXN0ZXJfZ3VpZBgBIAEoAxITCgt0YXJnZXRfZ3VpZBgCIAEo",
-            "AxIQCghza2lsbF9pZBgDIAEoBRIOCgZkYW1hZ2UYBCABKAUSIgoKY2FzdGVy",
-            "X3BvcxgFIAEoCzIOLlByb3RvLlZlY3RvcjISHwoHaGl0X3BvcxgGIAEoCzIO",
-            "LlByb3RvLlZlY3RvcjIiNAoIU19Vbml0SHASCgoCaHAYASABKAUSDgoGbWF4",
-            "X2hwGAIgASgFEgwKBGd1aWQYAyABKAMiiQIKEVNfUHJvamVjdGlsZVNwYXdu",
-            "EgwKBGd1aWQYASABKAMSEgoKb3duZXJfZ3VpZBgCIAEoAxIjCgRraW5kGAMg",
-            "ASgOMhUuUHJvdG8uUHJvamVjdGlsZUtpbmQSIQoJc3RhcnRfcG9zGAQgASgL",
-            "Mg4uUHJvdG8uVmVjdG9yMhINCgVzcGVlZBgFIAEoAhITCgt0YXJnZXRfZ3Vp",
-            "ZBgGIAEoAxIbCgNkaXIYByABKAsyDi5Qcm90by5WZWN0b3IyEg4KBnJhZGl1",
-            "cxgIIAEoAhIRCgltYXhfcmFuZ2UYCSABKAISFAoMbWF4X2xpZmV0aW1lGAog",
-            "ASgCEhAKCHNraWxsX2lkGAsgASgFIlgKDVNfQnVmZkFwcGxpZWQSEwoLdGFy",
-            "Z2V0X2d1aWQYASABKAMSCwoDZWlkGAIgASgFEhMKC2Nhc3Rlcl9ndWlkGAMg",
-            "ASgDEhAKCGR1cmF0aW9uGAQgASgCIjEKDVNfQnVmZlJlbW92ZWQSEwoLdGFy",
-            "Z2V0X2d1aWQYASABKAMSCwoDZWlkGAIgASgFIpIBChNTX1Byb2plY3RpbGVE",
-            "ZXN0cm95EhcKD3Byb2plY3RpbGVfZ3VpZBgBIAEoAxIxCgZyZWFzb24YAiAB",
-            "KA4yIS5Qcm90by5TX1Byb2plY3RpbGVEZXN0cm95LlJlYXNvbiIvCgZSZWFz",
-            "b24SCwoHRVhQSVJFRBAAEg8KC1RBUkdFVF9MT1NUEAESBwoDSElUEAIqQQoO",
-            "UHJvamVjdGlsZUtpbmQSFQoRUFJPSkVDVElMRV9IT01JTkcQABIYChRQUk9K",
-            "RUNUSUxFX1NLSUxMU0hPVBABYgZwcm90bzM="));
+            "DjIQLlByb3RvLkVycm9yQ29kZRIOCgZkZXRhaWwYAyABKAkifAoLTW9uc3Rl",
+            "ckluZm8SDAoEZ3VpZBgBIAEoAxILCgN0aWQYAiABKAUSIAoIcG9zaXRpb24Y",
+            "AyABKAsyDi5Qcm90by5WZWN0b3IyEhQKDGRldGVjdF9yYW5nZRgEIAEoAhIK",
+            "CgJocBgFIAEoBRIOCgZtYXhfaHAYBiABKAUiNQoOU19Nb25zdGVyU3Bhd24S",
+            "IwoHbW9uc3RlchgBIAEoCzISLlByb3RvLk1vbnN0ZXJJbmZvIj8KDVNfTW9u",
+            "c3Rlck1vdmUSDAoEZ3VpZBgBIAEoAxIgCghwb3NpdGlvbhgCIAEoCzIOLlBy",
+            "b3RvLlZlY3RvcjIiIAoQU19Nb25zdGVyRGVzcGF3bhIMCgRndWlkGAEgASgD",
+            "IjUKDVNfTW9uc3Rlckxpc3QSJAoIbW9uc3RlcnMYASADKAsyEi5Qcm90by5N",
+            "b25zdGVySW5mbyJCCg5TX01vbnN0ZXJTdGF0ZRIMCgRndWlkGAEgASgDEg0K",
+            "BXN0YXRlGAIgASgNEhMKC3RhcmdldF9ndWlkGAMgASgDIp0BCgpTX1NraWxs",
+            "SGl0EhMKC2Nhc3Rlcl9ndWlkGAEgASgDEhMKC3RhcmdldF9ndWlkGAIgASgD",
+            "EhAKCHNraWxsX2lkGAMgASgFEg4KBmRhbWFnZRgEIAEoBRIiCgpjYXN0ZXJf",
+            "cG9zGAUgASgLMg4uUHJvdG8uVmVjdG9yMhIfCgdoaXRfcG9zGAYgASgLMg4u",
+            "UHJvdG8uVmVjdG9yMiI0CghTX1VuaXRIcBIKCgJocBgBIAEoBRIOCgZtYXhf",
+            "aHAYAiABKAUSDAoEZ3VpZBgDIAEoAyKJAgoRU19Qcm9qZWN0aWxlU3Bhd24S",
+            "DAoEZ3VpZBgBIAEoAxISCgpvd25lcl9ndWlkGAIgASgDEiMKBGtpbmQYAyAB",
+            "KA4yFS5Qcm90by5Qcm9qZWN0aWxlS2luZBIhCglzdGFydF9wb3MYBCABKAsy",
+            "Di5Qcm90by5WZWN0b3IyEg0KBXNwZWVkGAUgASgCEhMKC3RhcmdldF9ndWlk",
+            "GAYgASgDEhsKA2RpchgHIAEoCzIOLlByb3RvLlZlY3RvcjISDgoGcmFkaXVz",
+            "GAggASgCEhEKCW1heF9yYW5nZRgJIAEoAhIUCgxtYXhfbGlmZXRpbWUYCiAB",
+            "KAISEAoIc2tpbGxfaWQYCyABKAUiWAoNU19CdWZmQXBwbGllZBITCgt0YXJn",
+            "ZXRfZ3VpZBgBIAEoAxILCgNlaWQYAiABKAUSEwoLY2FzdGVyX2d1aWQYAyAB",
+            "KAMSEAoIZHVyYXRpb24YBCABKAIiMQoNU19CdWZmUmVtb3ZlZBITCgt0YXJn",
+            "ZXRfZ3VpZBgBIAEoAxILCgNlaWQYAiABKAUikgEKE1NfUHJvamVjdGlsZURl",
+            "c3Ryb3kSFwoPcHJvamVjdGlsZV9ndWlkGAEgASgDEjEKBnJlYXNvbhgCIAEo",
+            "DjIhLlByb3RvLlNfUHJvamVjdGlsZURlc3Ryb3kuUmVhc29uIi8KBlJlYXNv",
+            "bhILCgdFWFBJUkVEEAASDwoLVEFSR0VUX0xPU1QQARIHCgNISVQQAipBCg5Q",
+            "cm9qZWN0aWxlS2luZBIVChFQUk9KRUNUSUxFX0hPTUlORxAAEhgKFFBST0pF",
+            "Q1RJTEVfU0tJTExTSE9UEAFiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Proto.CommonReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Proto.ProjectileKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -93,7 +93,7 @@ namespace Proto {
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_RequestUseSkill), global::Proto.S_RequestUseSkill.Parser, new[]{ "Range" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MoveCorrection), global::Proto.S_MoveCorrection.Parser, new[]{ "Position" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_Error), global::Proto.S_Error.Parser, new[]{ "SourcePacketId", "Code", "Detail" }, null, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.MonsterInfo), global::Proto.MonsterInfo.Parser, new[]{ "Guid", "Name", "Position", "DetectRange", "Hp", "MaxHp" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.MonsterInfo), global::Proto.MonsterInfo.Parser, new[]{ "Guid", "Tid", "Position", "DetectRange", "Hp", "MaxHp" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterSpawn), global::Proto.S_MonsterSpawn.Parser, new[]{ "Monster" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterMove), global::Proto.S_MonsterMove.Parser, new[]{ "Guid", "Position" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterDespawn), global::Proto.S_MonsterDespawn.Parser, new[]{ "Guid" }, null, null, null, null),
@@ -3926,6 +3926,7 @@ namespace Proto {
 
   /// <summary>
   /// 공통 Monster DTO — S_MonsterSpawn / S_MonsterList 에서 재사용.
+  /// name 은 서버가 소유하지 않는다. 클라는 tid 로 monster_templates.csv 조회해 이름/스프라이트 결정.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class MonsterInfo : pb::IMessage<MonsterInfo>
@@ -3963,7 +3964,7 @@ namespace Proto {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public MonsterInfo(MonsterInfo other) : this() {
       guid_ = other.guid_;
-      name_ = other.name_;
+      tid_ = other.tid_;
       position_ = other.position_ != null ? other.position_.Clone() : null;
       detectRange_ = other.detectRange_;
       hp_ = other.hp_;
@@ -3989,15 +3990,15 @@ namespace Proto {
       }
     }
 
-    /// <summary>Field number for the "name" field.</summary>
-    public const int NameFieldNumber = 2;
-    private string name_ = "";
+    /// <summary>Field number for the "tid" field.</summary>
+    public const int TidFieldNumber = 2;
+    private int tid_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
-    public string Name {
-      get { return name_; }
+    public int Tid {
+      get { return tid_; }
       set {
-        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+        tid_ = value;
       }
     }
 
@@ -4065,7 +4066,7 @@ namespace Proto {
         return true;
       }
       if (Guid != other.Guid) return false;
-      if (Name != other.Name) return false;
+      if (Tid != other.Tid) return false;
       if (!object.Equals(Position, other.Position)) return false;
       if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(DetectRange, other.DetectRange)) return false;
       if (Hp != other.Hp) return false;
@@ -4078,7 +4079,7 @@ namespace Proto {
     public override int GetHashCode() {
       int hash = 1;
       if (Guid != 0L) hash ^= Guid.GetHashCode();
-      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (Tid != 0) hash ^= Tid.GetHashCode();
       if (position_ != null) hash ^= Position.GetHashCode();
       if (DetectRange != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(DetectRange);
       if (Hp != 0) hash ^= Hp.GetHashCode();
@@ -4105,9 +4106,9 @@ namespace Proto {
         output.WriteRawTag(8);
         output.WriteInt64(Guid);
       }
-      if (Name.Length != 0) {
-        output.WriteRawTag(18);
-        output.WriteString(Name);
+      if (Tid != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(Tid);
       }
       if (position_ != null) {
         output.WriteRawTag(26);
@@ -4139,9 +4140,9 @@ namespace Proto {
         output.WriteRawTag(8);
         output.WriteInt64(Guid);
       }
-      if (Name.Length != 0) {
-        output.WriteRawTag(18);
-        output.WriteString(Name);
+      if (Tid != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(Tid);
       }
       if (position_ != null) {
         output.WriteRawTag(26);
@@ -4172,8 +4173,8 @@ namespace Proto {
       if (Guid != 0L) {
         size += 1 + pb::CodedOutputStream.ComputeInt64Size(Guid);
       }
-      if (Name.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      if (Tid != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Tid);
       }
       if (position_ != null) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Position);
@@ -4202,8 +4203,8 @@ namespace Proto {
       if (other.Guid != 0L) {
         Guid = other.Guid;
       }
-      if (other.Name.Length != 0) {
-        Name = other.Name;
+      if (other.Tid != 0) {
+        Tid = other.Tid;
       }
       if (other.position_ != null) {
         if (position_ == null) {
@@ -4243,8 +4244,8 @@ namespace Proto {
             Guid = input.ReadInt64();
             break;
           }
-          case 18: {
-            Name = input.ReadString();
+          case 16: {
+            Tid = input.ReadInt32();
             break;
           }
           case 26: {
@@ -4289,8 +4290,8 @@ namespace Proto {
             Guid = input.ReadInt64();
             break;
           }
-          case 18: {
-            Name = input.ReadString();
+          case 16: {
+            Tid = input.ReadInt32();
             break;
           }
           case 26: {

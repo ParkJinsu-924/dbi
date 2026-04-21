@@ -15,8 +15,8 @@ struct MonsterTemplate;
 class Monster : public Npc
 {
 public:
-	Monster(std::string name, Zone& zone)
-		: Npc(GameObjectType::Monster, zone, std::move(name))
+	explicit Monster(Zone& zone)
+		: Npc(GameObjectType::Monster, zone)
 	{
 		moveSpeed_ = 3.0f;
 		AddAgent<FSMAgent>();

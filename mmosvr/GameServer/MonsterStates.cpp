@@ -31,7 +31,7 @@ void MonsterGlobalState::OnUpdate(Monster& owner, float /*deltaTime*/)
 		}
 
 		// 가까운 Player 탐지 시 Aggro 최소치 세팅 (값 0 — 실제 교전 전 감지 표식)
-		const auto player = owner.GetZone().FindNearestPlayer(
+		const auto player = owner.GetZone().FindNearest<Player>(
 			owner.GetPosition(), owner.GetDetectRange());
 		if (player)
 			owner.Get<AggroAgent>().Add(player->GetGuid(), 0);

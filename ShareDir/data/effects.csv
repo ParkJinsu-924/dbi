@@ -20,6 +20,7 @@ eid,type,magnitude,duration,scaling_ad,scaling_ap,stat,is_percent,cc_flag
 3002,Damage,4,0.0,0.0,0.0,None,false,None
 3003,Damage,3,0.0,0.0,0.0,None,false,None
 3004,Damage,5,0.0,0.0,0.0,None,false,None
+3005,Damage,2,0.0,0.0,0.0,None,false,None
 # --- Phase 1 Buff/Debuff 예시 ---
 4001,StatMod,-0.3,3.0,0.0,0.0,MoveSpeed,true,Slow
 4002,CCState,0,1.5,0.0,0.0,None,false,Stun

@@ -161,48 +161,6 @@ void Zone::BroadcastChunkTo(const SendBufferChunkPtr& chunk, const std::span<con
 		SendChunkTo(chunk, guid);
 }
 
-std::shared_ptr<Player> Zone::FindNearestPlayer(const Proto::Vector2& from, const float maxRange) const
-{
-	std::shared_ptr<Player> nearest;
-	float nearestDistSq = maxRange * maxRange;
-
-	ForEachOfType(GameObjectType::Player, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
-		{
-			auto player = std::static_pointer_cast<Player>(obj);
-			if (!player->IsAlive()) return;
-
-			const float distSq = obj->DistanceToSq(from);
-			if (distSq < nearestDistSq)
-			{
-				nearestDistSq = distSq;
-				nearest = player;
-			}
-		});
-
-	return nearest;
-}
-
-std::shared_ptr<Monster> Zone::FindNearestMonster(const Proto::Vector2& from, float maxRange) const
-{
-	std::shared_ptr<Monster> nearest;
-	float nearestDistSq = maxRange * maxRange;
-
-	ForEachOfType(GameObjectType::Monster, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
-		{
-			const auto monster = std::static_pointer_cast<Monster>(obj);
-			if (!monster->IsAlive()) return;
-
-			const float distSq = obj->DistanceToSq(from);
-			if (distSq < nearestDistSq)
-			{
-				nearestDistSq = distSq;
-				nearest = monster;
-			}
-		});
-
-	return nearest;
-}
-
 void Zone::CollectDeadObjects()
 {
 	// consumed projectile (Update 중 적중/만료된 것) → pendingRemove_ 큐에 적재.

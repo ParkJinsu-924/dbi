@@ -37,7 +37,7 @@ std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, int32 templateId,
 	if (!zone)
 		return nullptr;
 
-	auto monster = std::make_shared<Monster>(tmpl->name, *zone);
+	auto monster = std::make_shared<Monster>(*zone);
 	monster->ApplyTemplate(templateId, *tmpl);
 	FinalizeSpawn(monster, spawnPos);
 

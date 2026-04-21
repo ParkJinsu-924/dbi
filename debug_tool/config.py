@@ -27,7 +27,7 @@ TARGET_FPS = 60             # used to derive dt_frame for interpolation
 SKILL_BINDINGS = {
     "q": 2002,   # bolt        — Skillshot 기본 (cursor 방향)
     "w": 2003,   # strike      — Homing 기본을 point_click 으로 덮어씀
-    "e": 2001,   # auto_attack — Homing 기본 (auto_homing)
+    "e": 2005,   # tunnel_test — 초고속 Skillshot (터널링 회귀 테스트용)
     "r": 2004,   # nuke        — Skillshot 기본을 ground_target 으로 덮어씀
 }
 
