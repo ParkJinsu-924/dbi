@@ -141,6 +141,7 @@
         <ClInclude Include="SkillBehavior.h"/>
         <ClInclude Include="SkillBehaviorRegistry.h"/>
         <ClInclude Include="Agent\IAgent.h"/>
+        <ClInclude Include="Agent\AgentRegistry.h"/>
         <ClInclude Include="Agent\BuffAgent.h"/>
         <ClInclude Include="Agent\SkillCooldownAgent.h"/>
         <ClInclude Include="Agent\FSMAgent.h"/>

@@ -159,6 +159,9 @@
     <ClInclude Include="Agent\IAgent.h">
       <Filter>Agent</Filter>
     </ClInclude>
+    <ClInclude Include="Agent\AgentRegistry.h">
+      <Filter>Agent</Filter>
+    </ClInclude>
     <ClInclude Include="Agent\BuffAgent.h">
       <Filter>Agent</Filter>
     </ClInclude>
