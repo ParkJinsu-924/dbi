@@ -23,21 +23,6 @@ namespace
 }
 
 
-std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, const std::string& name,
-                                               const Proto::Vector2& spawnPos)
-{
-	auto* zone = GetZoneManager().GetZone(zoneId);
-	if (!zone)
-		return nullptr;
-
-	auto monster = std::make_shared<Monster>(name, *zone);
-	FinalizeSpawn(monster, spawnPos);
-
-	LOG_INFO("Monster spawned: guid=" + std::to_string(monster->GetGuid())
-		+ " name=" + name + " zone=" + std::to_string(zoneId));
-	return monster;
-}
-
 std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, int32 templateId,
 	const Proto::Vector2& spawnPos)
 {

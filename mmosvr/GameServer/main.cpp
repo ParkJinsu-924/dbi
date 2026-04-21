@@ -103,33 +103,18 @@ private:
 	void SpawnMonstersFromData()
 	{
 		const auto& spawns = GetResourceManager().Get<SpawnEntry>()->GetAll();
-		if (!spawns.empty())
+		if (spawns.empty())
 		{
-			for (const auto& e : spawns | std::views::values)
-			{
-				Proto::Vector2 pos;
-				pos.set_x(e.x); pos.set_y(e.y);
-				GetMonsterManager().Spawn(e.zoneId, e.templateId, pos);
-			}
+			LOG_ERROR("No spawn data found — aborting startup");
+			throw std::runtime_error("SpawnEntry table is empty");
 		}
-		else
+
+		for (const auto& e : spawns | std::views::values)
 		{
-			LOG_WARN("No spawn data found, using hardcoded test monsters");
-			SpawnTestMonsters();
+			Proto::Vector2 pos;
+			pos.set_x(e.x); pos.set_y(e.y);
+			GetMonsterManager().Spawn(e.zoneId, e.templateId, pos);
 		}
-	}
-
-	void SpawnTestMonsters()
-	{
-		auto makeVec = [](float x, float z) {
-			Proto::Vector2 v;
-			v.set_x(x); v.set_y(z);
-			return v;
-		};
-
-		GetMonsterManager().Spawn(1, "Goblin",  makeVec(5.0f, 0.0f));
-		GetMonsterManager().Spawn(1, "Orc",     makeVec(-5.0f, 3.0f));
-		GetMonsterManager().Spawn(1, "Slime",   makeVec(0.0f, -6.0f));
 	}
 
 	// ------ Server-to-Server ------
