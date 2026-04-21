@@ -40,9 +40,6 @@
     <ClCompile Include="MonsterStates.cpp">
       <Filter>AI</Filter>
     </ClCompile>
-    <ClCompile Include="AggroTable.cpp">
-      <Filter>AI</Filter>
-    </ClCompile>
     <ClCompile Include="Zone.cpp">
       <Filter>World</Filter>
     </ClCompile>
@@ -103,9 +100,6 @@
       <Filter>AI</Filter>
     </ClInclude>
     <ClInclude Include="MonsterStates.h">
-      <Filter>AI</Filter>
-    </ClInclude>
-    <ClInclude Include="AggroTable.h">
       <Filter>AI</Filter>
     </ClInclude>
     <ClInclude Include="Zone.h">
