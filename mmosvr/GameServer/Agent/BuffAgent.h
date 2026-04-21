@@ -10,9 +10,9 @@ struct Effect;
 
 
 // ===========================================================================
-// BuffAgent — Unit 공통. Buff/Debuff 엔트리 관리 + CC 플래그 집계 + 스탯 modifier.
-// Tick 마다 duration 감소, 만료 엔트리 제거 + S_BuffRemoved 방송.
-// ApplyEffect: 즉발(Damage/Heal) 은 owner 에 바로, 지속(StatMod/CCState) 은 Add.
+// BuffAgent — Unit 공통. 지속성 효과(Buff/Debuff/CC) 저장소.
+// 책임: StatMod/CCState 엔트리 보관, Tick 마다 duration 감소/만료 처리, CC 플래그 집계.
+// 즉발(Damage/Heal) 효과의 분배는 SkillRuntime::ApplyEffectToUnit 이 담당 — 여기서는 저장만.
 // ===========================================================================
 class BuffAgent : public IAgent
 {
@@ -36,11 +36,6 @@ public:
 
 	// Dispel. true = 실제 제거됨.
 	bool Remove(int32 eid);
-
-	// SkillRuntime 에서 OnCast/OnHit trigger 당 호출.
-	// 즉발(Damage/Heal) 은 owner_ 에 바로 반영, 지속(StatMod/CCState) 은 Add.
-	// caster=nullptr 이면 aggro 자동 누적이 생략된다 (환경 피해 등 Unit 소스가 없는 경로).
-	void ApplyEffect(const Effect& e, const Unit* caster);
 
 	// 조회 / 집계 ----------------------------------------------------------
 

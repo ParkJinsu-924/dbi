@@ -88,29 +88,6 @@ void BuffAgent::GetStatModifier(const StatType stat, float& outFlat, float& outP
 	}
 }
 
-void BuffAgent::ApplyEffect(const Effect& e, const Unit* caster)
-{
-	// caster 가 있으면 TakeDamage 에 전달해 aggro 자동 누적. 없으면 환경 피해 경로.
-	switch (e.type)
-	{
-	case EffectType::Damage:
-		owner_.TakeDamage(static_cast<int32>(e.magnitude), caster);
-		break;
-
-	case EffectType::Heal:
-		owner_.Heal(static_cast<int32>(e.magnitude));
-		break;
-
-	case EffectType::StatMod:
-	case EffectType::CCState:
-		Add(e, caster ? caster->GetGuid() : 0);
-		break;
-
-	default:
-		break;
-	}
-}
-
 float BuffAgent::EffectiveMoveSpeed(const float baseSpeed) const
 {
 	float flat = 0.0f, pct = 0.0f;

@@ -22,6 +22,31 @@
 
 namespace SkillRuntime
 {
+	// Effect 디스패치: 즉발(Damage/Heal) 은 victim 에 바로 반영, 지속(StatMod/CCState) 은 BuffAgent::Add 로 저장.
+	// BuffAgent 는 지속성 효과의 "저장소" 책임만 지도록 분리 — 본 함수가 효과 타입별 분배를 담당한다.
+	// caster=nullptr 이면 TakeDamage 내 aggro 자동 누적이 생략된다 (환경 피해 등 Unit 소스 없는 경로).
+	inline void ApplyEffectToUnit(Unit& victim, const Effect& e, Unit* caster)
+	{
+		switch (e.type)
+		{
+		case EffectType::Damage:
+			victim.TakeDamage(static_cast<int32>(e.magnitude), caster);
+			break;
+
+		case EffectType::Heal:
+			victim.Heal(static_cast<int32>(e.magnitude));
+			break;
+
+		case EffectType::StatMod:
+		case EffectType::CCState:
+			victim.Get<BuffAgent>().Add(e, caster ? caster->GetGuid() : 0);
+			break;
+
+		default:
+			break;
+		}
+	}
+
 	// 주어진 스킬의 OnHit Damage effect magnitude 합.
 	// S_SkillHit.damage 표시값 및 Projectile.damage_ 스냅샷에 사용.
 	inline int32 ComputeOnHitDamage(int32 sid)
@@ -72,7 +97,7 @@ namespace SkillRuntime
 			}
 			if (!victim) continue;
 
-			victim->Get<BuffAgent>().ApplyEffect(*e, caster);
+			ApplyEffectToUnit(*victim, *e, caster);
 		}
 	}
 

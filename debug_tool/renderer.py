@@ -1475,7 +1475,7 @@ class Renderer:
 
     def draw_frame(self, my_player, other_players: dict, monsters: dict, status_lines: list,
                    hitscan_lines: list = None, projectiles: dict = None,
-                   click_markers: list = None, feedback=None):
+                   click_markers: list = None, feedback=None, targeting: dict = None):
         self.screen.fill(BG_COLOR)
 
         if my_player is None:
@@ -1525,6 +1525,17 @@ class Renderer:
                     self.screen.blit(circle_surface,
                                      (msx - radius_px, msy - radius_px))
 
+        # ── Skill targeting: cast-range 지시선 (Homing press-and-hold 중) ──
+        if targeting and targeting.get("active") and targeting.get("tpl") is not None:
+            cast_range = targeting["tpl"].cast_range
+            radius_px = int(cast_range * PIXELS_PER_UNIT)
+            if radius_px > 0:
+                my_sx, my_sy = self.world_to_screen(cx, cz, cx, cz)
+                ring_surf = pygame.Surface((radius_px * 2 + 4, radius_px * 2 + 4), pygame.SRCALPHA)
+                pygame.draw.circle(ring_surf, (235, 235, 235, 180),
+                                   (radius_px + 2, radius_px + 2), radius_px, width=2)
+                self.screen.blit(ring_surf, (my_sx - radius_px - 2, my_sy - radius_px - 2))
+
         now_wall = time.time()
 
         # ── Other players ──
@@ -1550,8 +1561,18 @@ class Renderer:
                     pygame.draw.line(self.screen, (220, 40, 40), (msx, msy), (my_sx, my_sy), 1)
 
         # ── Monsters ──
+        hovered_guid = targeting.get("hovered_guid") if targeting else None
+        hovered_in_range = targeting.get("hovered_in_range", False) if targeting else False
         for gid, m in monsters.items():
             sx, sy = self.world_to_screen(m.x, m.z, cx, cz)
+            # Homing 타겟팅 중 커서가 올라간 대상에 ring 강조.
+            #   사거리 안 → 적색(release 시 즉시 시전)
+            #   사거리 밖 → 황색(release 시 접근 후 자동 시전)
+            if hovered_guid and getattr(m, 'guid', 0) == hovered_guid:
+                ring_color = (255, 60, 60, 220) if hovered_in_range else (255, 200, 50, 220)
+                ring_surf = pygame.Surface((44, 44), pygame.SRCALPHA)
+                pygame.draw.circle(ring_surf, ring_color, (22, 22), 20, width=3)
+                self.screen.blit(ring_surf, (sx - 22, sy - 22))
             self._draw_monster(sx, sy, m)
             self._draw_cc_effects(sx, sy, getattr(m, 'active_ccs', None), now_wall)
 

@@ -7,7 +7,6 @@
 #include "HomingProjectile.h"
 #include "SkillshotProjectile.h"
 #include "PacketMaker.h"
-#include "Utils/MathUtil.h"
 #include "Network/Session.h"
 #include "game.pb.h"
 

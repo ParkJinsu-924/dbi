@@ -523,17 +523,19 @@ PACKET_HANDLERS = {
 # ═══════════════════════════════════════════════════════════════════
 
 def _resolve_input_mode(tpl: skill_data.SkillTemplate) -> str:
-    """CSV targeting + config override(sid 기준) 로 클라 입력 수집 방식 결정."""
+    """CSV targeting + config override(sid 기준) 로 클라 입력 수집 방식 결정.
+    Homing 은 press-release 타겟팅 플로우(_process_input 에서 처리)로 송신하므로
+    _cast_skill 경로에 도달하지 않는다. 여기서는 Skillshot/ground-target 만 다룬다."""
     override = config.SKILL_INPUT_MODE_OVERRIDES.get(tpl.sid)
     if override:
         return override
-    # Homing 기본은 서버 자동 타깃, Skillshot 기본은 커서 방향
-    return "auto_homing" if tpl.targeting == "Homing" else "skillshot_dir"
+    return "skillshot_dir"   # Homing 은 호출자가 사전 분기하므로 도달 안 함
 
 
 def _cast_skill(state: GameState, client: PacketClient, skill_id: int,
                 cursor_world: tuple[float, float]) -> bool:
-    """QWER 키 입력 시 호출. 성공 송신 시 True, 방향 계산 불가/미지원 시 False."""
+    """Skillshot / ground-target 즉발 경로. Homing 은 타겟팅 플로우가 별도 송신.
+    성공 시 True. 방향/좌표 계산 불가면 False."""
     tpl = SKILL_TABLE.get(skill_id)
     if tpl is None:
         log_game.warning("unknown skill sid in cast: %d", skill_id)
@@ -554,15 +556,6 @@ def _cast_skill(state: GameState, client: PacketClient, skill_id: int,
         req.dir.x, req.dir.y = dx / d, dz / d
         req.target_guid = 0
 
-    elif mode == "point_click":
-        target = _nearest_monster_to_point(state, cursor_wx, cursor_wz, max_range=3.0)
-        req.target_guid = target.guid if target else 0
-        req.dir.x = req.dir.y = 0.0
-
-    elif mode == "auto_homing":
-        req.target_guid = 0
-        req.dir.x = req.dir.y = 0.0
-
     elif mode == "ground_target":
         dx = cursor_wx - state.me.x
         dz = cursor_wz - state.me.z
@@ -582,6 +575,183 @@ def _cast_skill(state: GameState, client: PacketClient, skill_id: int,
     # 스킬이 실제로 발동될 때만 로컬 이동 중단 (쿨다운 검사는 호출부가 담당)
     state.me.is_moving = False
     return True
+
+
+# ═══════════════════════════════════════════════════════════════════
+#  Homing 타겟팅 플로우 (LoL Quick Cast with Indicator 스타일)
+#  W 누름 → 사거리 원 표시 + hover 갱신 / W 뗌 → target_guid 로 송신
+#  우클릭 → 취소. 쿨다운/throttle 은 송신 시점(release)에 검증.
+# ═══════════════════════════════════════════════════════════════════
+
+def _pick_target_near_cursor(state: GameState, cursor_wx: float, cursor_wz: float,
+                             hover_tol: float = 1.0) -> MonsterState | None:
+    """커서 hover_tol 이내 가장 가까운 살아있는 Monster. 사거리 무관.
+    범위 안/밖 판정은 호출자(targeting 렌더, finalize 분기) 가 별도로 수행."""
+    best = None
+    best_dsq = hover_tol * hover_tol
+    for m in state.monsters.values():
+        if getattr(m, 'hp', 0) <= 0:
+            continue
+        dx = m.x - cursor_wx
+        dz = m.z - cursor_wz
+        dsq = dx * dx + dz * dz
+        if dsq < best_dsq:
+            best = m
+            best_dsq = dsq
+    return best
+
+
+def _dist_sq(ax: float, az: float, bx: float, bz: float) -> float:
+    dx = ax - bx
+    dz = az - bz
+    return dx * dx + dz * dz
+
+
+def _enter_targeting(io: dict, skill_id: int, tpl: skill_data.SkillTemplate) -> None:
+    io["targeting"].update({
+        "active": True,
+        "skill_id": skill_id,
+        "tpl": tpl,
+        "hovered_guid": None,
+        "hovered_in_range": False,
+    })
+
+
+def _cancel_targeting(io: dict) -> None:
+    io["targeting"].update({
+        "active": False,
+        "skill_id": None,
+        "tpl": None,
+        "hovered_guid": None,
+        "hovered_in_range": False,
+    })
+
+
+def _send_use_skill(client: PacketClient, skill_id: int, target_guid: int) -> None:
+    req = game_pb2.C_UseSkill()
+    req.skill_id = skill_id
+    req.target_guid = target_guid
+    req.dir.x = req.dir.y = 0.0
+    client.send(req)
+
+
+def _enter_pending_cast(io: dict, skill_id: int, target_guid: int) -> None:
+    """W 뗐는데 타겟이 사거리 밖 → 접근 후 자동 시전하는 상태로 진입."""
+    io["pending_cast"] = {
+        "skill_id": skill_id,
+        "target_guid": target_guid,
+        "last_sent_target_pos": None,   # 마지막으로 C_MoveCommand 날린 target 위치
+        "last_sent_time": 0.0,
+    }
+
+
+def _cancel_pending_cast(io: dict) -> None:
+    io["pending_cast"] = {
+        "skill_id": None,
+        "target_guid": None,
+        "last_sent_target_pos": None,
+        "last_sent_time": 0.0,
+    }
+
+
+def _tick_pending_cast(state: GameState, client: PacketClient, io: dict,
+                       now: float) -> None:
+    """매 프레임 호출. 타겟 추적 → 사거리 진입 시 자동 시전, 사망/소멸 시 취소."""
+    pc = io["pending_cast"]
+    target_guid = pc["target_guid"]
+    if target_guid is None:
+        return
+    skill_id = pc["skill_id"]
+    tpl = SKILL_TABLE.get(skill_id)
+    if tpl is None:
+        _cancel_pending_cast(io)
+        return
+
+    target = state.monsters.get(target_guid)
+    if target is None or getattr(target, 'hp', 0) <= 0:
+        # 타겟 소멸/사망 → 취소 + 이동 중단.
+        _cancel_pending_cast(io)
+        state.me.is_moving = False
+        return
+
+    me = state.me
+    dsq = _dist_sq(me.x, me.z, target.x, target.z)
+    cast_range_sq = tpl.cast_range * tpl.cast_range
+
+    if dsq <= cast_range_sq:
+        # 도달 — 쿨다운/throttle 검사 후 시전.
+        if now - io["last_skill_send"] < config.SKILL_THROTTLE:
+            return
+        if now < io["skill_next_usable"].get(skill_id, 0.0):
+            return  # 쿨다운 중 — 대기 (취소하지 않음. 곧 풀리면 자동 발사)
+        _send_use_skill(client, skill_id, target_guid)
+        state.me.is_moving = False
+        io["skill_next_usable"][skill_id] = now + tpl.cooldown
+        io["last_skill_send"] = now
+        _cancel_pending_cast(io)
+        return
+
+    # 사거리 밖 — 타겟 방향으로 cast_range 안쪽까지만 접근점 계산.
+    d = math.sqrt(dsq)
+    step = max(0.0, d - (tpl.cast_range - 0.5))  # 사거리 내부 0.5 여유 남김
+    dest_x = me.x + (target.x - me.x) / d * step
+    dest_z = me.z + (target.z - me.z) / d * step
+
+    # 재송신 조건: 최초 1회 / 타겟이 1유닛 이상 이동 / 0.5초 경과.
+    last_pos = pc["last_sent_target_pos"]
+    moved = (last_pos is None) or (abs(target.x - last_pos[0]) > 1.0) \
+                               or (abs(target.z - last_pos[1]) > 1.0)
+    elapsed = (now - pc["last_sent_time"]) > 0.5
+    if moved or elapsed:
+        cmd = game_pb2.C_MoveCommand()
+        cmd.target_pos.x, cmd.target_pos.y = dest_x, dest_z
+        client.send(cmd)
+        state.me.set_destination(dest_x, dest_z)
+        pc["last_sent_target_pos"] = (target.x, target.z)
+        pc["last_sent_time"] = now
+
+
+def _finalize_targeting(state: GameState, client: PacketClient, io: dict,
+                        now: float) -> None:
+    """W release 시점 호출. hover 있으면:
+       - 사거리 내 → 즉시 C_UseSkill
+       - 사거리 밖 → pending_cast 진입 (접근 후 자동 시전)
+       hover 없으면 조용히 취소."""
+    t = io["targeting"]
+    hovered_guid = t["hovered_guid"]
+    tpl = t["tpl"]
+    skill_id = t["skill_id"]
+
+    if hovered_guid is None or tpl is None:
+        _cancel_targeting(io)
+        return
+
+    target = state.monsters.get(hovered_guid)
+    if target is None or getattr(target, 'hp', 0) <= 0:
+        _cancel_targeting(io)
+        return
+
+    dsq = _dist_sq(state.me.x, state.me.z, target.x, target.z)
+    if dsq > tpl.cast_range * tpl.cast_range:
+        # 사거리 밖 → 접근 + 자동 시전 모드로 진입.
+        _cancel_targeting(io)
+        _enter_pending_cast(io, skill_id, hovered_guid)
+        _tick_pending_cast(state, client, io, now)  # 즉시 첫 approach move 발사
+        return
+
+    # 사거리 내 → 기존 즉시 송신 경로.
+    if now - io["last_skill_send"] < config.SKILL_THROTTLE:
+        _cancel_targeting(io)
+        return
+    if now < io["skill_next_usable"].get(skill_id, 0.0):
+        _cancel_targeting(io)
+        return
+
+    _send_use_skill(client, skill_id, hovered_guid)
+    state.me.is_moving = False
+    io["skill_next_usable"][skill_id] = now + tpl.cooldown
+    io["last_skill_send"] = now
+    _cancel_targeting(io)
 
 
 # ═══════════════════════════════════════════════════════════════════
@@ -649,27 +819,60 @@ def _process_input(pygame, events: list, keys, state: GameState,
     cursor_wx, cursor_wz = _screen_to_world(mouse_x, mouse_y, state.me,
                                             renderer.width, renderer.height)
 
-    # 이벤트 루프: 우클릭(이동), QWER 키다운(스킬)
+    # Homing 타겟팅 활성 시 매 프레임 hover 대상 + 범위 내 플래그 갱신
+    if io["targeting"]["active"]:
+        tpl = io["targeting"]["tpl"]
+        if tpl is not None:
+            hovered = _pick_target_near_cursor(state, cursor_wx, cursor_wz)
+            io["targeting"]["hovered_guid"] = hovered.guid if hovered else None
+            if hovered:
+                dsq = _dist_sq(state.me.x, state.me.z, hovered.x, hovered.z)
+                io["targeting"]["hovered_in_range"] = dsq <= tpl.cast_range * tpl.cast_range
+            else:
+                io["targeting"]["hovered_in_range"] = False
+
+    # pending_cast 활성 시 매 프레임 타겟 추적 / 도달 시 자동 시전
+    _tick_pending_cast(state, client, io, now)
+
+    # 이벤트 루프
     for event in events:
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
-            # 우클릭: 월드 좌표로 이동 명령
+            # 우클릭: targeting 중이면 취소만 (이동 명령 안 나감).
+            # pending_cast 중이면 취소 + 클릭한 위치로 일반 이동.
+            if io["targeting"]["active"]:
+                _cancel_targeting(io)
+                continue
+            if io["pending_cast"]["target_guid"] is not None:
+                _cancel_pending_cast(io)
+                # 아래 일반 이동으로 이어짐 (명시적 덮어쓰기).
             cmd = game_pb2.C_MoveCommand()
             cmd.target_pos.x, cmd.target_pos.y = cursor_wx, cursor_wz
             client.send(cmd)
             state.me.set_destination(cursor_wx, cursor_wz)   # 로컬 즉시 예측
             state.click_markers.append((cursor_wx, cursor_wz, now + config.CLICK_MARKER_LIFETIME))
+
+        elif event.type == pygame.KEYUP:
+            # 타겟팅 중이던 키 release → 시전 확정 or pending_cast 진입 or 무음 취소
+            if io["targeting"]["active"]:
+                for key_name, _char in _KEY_TO_SKILL_CHAR:
+                    if event.key == getattr(pygame, f"K_{key_name}"):
+                        if config.SKILL_BINDINGS.get(key_name) == io["targeting"]["skill_id"]:
+                            _finalize_targeting(state, client, io, now)
+                        break
+
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_s:
-                # S: 정지 명령 + 로컬 즉시 정지
+                # S: 정지 — 타겟팅/pending 모두 취소 겸함.
+                if io["targeting"]["active"]:
+                    _cancel_targeting(io)
+                if io["pending_cast"]["target_guid"] is not None:
+                    _cancel_pending_cast(io)
                 client.send(game_pb2.C_StopMove())
                 state.me.is_moving = False
             else:
                 # QWER: 스킬
                 for key_name, _char in _KEY_TO_SKILL_CHAR:
                     if event.key == getattr(pygame, f"K_{key_name}"):
-                        # 1) 글로벌 키 throttle (키 연타 방지)
-                        if now - io["last_skill_send"] < config.SKILL_THROTTLE:
-                            break
                         skill_id = config.SKILL_BINDINGS.get(key_name)
                         if skill_id is None:
                             break
@@ -678,13 +881,26 @@ def _process_input(pygame, events: list, keys, state: GameState,
                             log_game.warning("binding '%s' -> sid=%d not in SKILL_TABLE",
                                              key_name, skill_id)
                             break
-                        # 2) 로컬 쿨다운 체크 — 쿨다운 중이면 아예 무시 (이동 유지).
-                        #    통과한 경우에만 서버로 요청 + 로컬 is_moving 해제.
+                        # 쿨다운 중이면 타겟팅 진입/즉발 모두 금지 (이동 예측 유지).
                         if now < io["skill_next_usable"].get(skill_id, 0.0):
                             break
-                        if _cast_skill(state, client, skill_id, (cursor_wx, cursor_wz)):
-                            io["skill_next_usable"][skill_id] = now + tpl.cooldown
-                            io["last_skill_send"] = now
+
+                        # 새 키 입력 시 기존 세션은 모두 무효 처리.
+                        if io["targeting"]["active"]:
+                            _cancel_targeting(io)
+                        if io["pending_cast"]["target_guid"] is not None:
+                            _cancel_pending_cast(io)
+
+                        if tpl.targeting == "Homing":
+                            # press-release 플로우 진입. 송신은 KEYUP 에서.
+                            _enter_targeting(io, skill_id, tpl)
+                        else:
+                            # Skillshot / ground-target: 기존 즉발 경로.
+                            if now - io["last_skill_send"] < config.SKILL_THROTTLE:
+                                break
+                            if _cast_skill(state, client, skill_id, (cursor_wx, cursor_wz)):
+                                io["skill_next_usable"][skill_id] = now + tpl.cooldown
+                                io["last_skill_send"] = now
                         break
 
 
@@ -742,6 +958,21 @@ def run_game(token: str, game_host: str, game_port: int, username: str) -> None:
         # skill_id -> next_usable_time (time.time() 기준). 서버 쿨다운과 동일 규칙으로
         # 로컬에서 선제 차단하여, 쿨다운 중 키 입력이 이동 예측을 끊지 않게 한다.
         "skill_next_usable": {},
+        # Homing 스킬 press-release 타겟팅 상태. active=True 동안 사거리 원 + hover ring 렌더.
+        "targeting": {
+            "active": False,
+            "skill_id": None,
+            "tpl": None,
+            "hovered_guid": None,
+            "hovered_in_range": False,  # 렌더링: 범위 안(적색) vs 밖(황색) ring 구분
+        },
+        # "타겟이 사거리 밖이라 일단 걸어가서 도달하면 자동 시전" 상태. target_guid!=None 동안 활성.
+        "pending_cast": {
+            "skill_id": None,
+            "target_guid": None,
+            "last_sent_target_pos": None,
+            "last_sent_time": 0.0,
+        },
     }
 
     import pygame
@@ -802,15 +1033,28 @@ def run_game(token: str, game_host: str, game_port: int, username: str) -> None:
             f"pos=({state.me.x:.1f}, {state.me.z:.1f})  HP={state.me.hp}/{state.me.max_hp}  [{moving_tag}]",
             f"others={len(state.others)}  monsters={len(state.monsters)}  "
             f"proj={len(state.projectiles)}  {'in-game' if state.in_game else 'entering...'}",
-            "RClick=move  S=stop  Q/W/E/R=skills  ESC=quit",
+            "RClick=move  S=stop  Q/W/E/R=skills (W=hold→aim→release)  ESC=quit",
         ]
+        if io["targeting"]["active"]:
+            tname = io["targeting"]["tpl"].name if io["targeting"]["tpl"] else "?"
+            if io["targeting"]["hovered_guid"]:
+                hover = "in range (release → cast)" if io["targeting"]["hovered_in_range"] \
+                    else "out of range (release → approach & cast)"
+            else:
+                hover = "no target"
+            status.append(f"[TARGETING {tname}]  {hover}  — RClick to cancel")
+        elif io["pending_cast"]["target_guid"] is not None:
+            tpl_pc = SKILL_TABLE.get(io["pending_cast"]["skill_id"])
+            pname = tpl_pc.name if tpl_pc else "?"
+            status.append(f"[APPROACHING to cast {pname}]  — RClick/S to cancel")
         if keys[pygame.K_ESCAPE]:
             running = False
         renderer.draw_frame(
             state.me if state.in_game else None,
             state.others, state.monsters, status,
             hitscan_lines=state.hitscan_lines, projectiles=state.projectiles,
-            click_markers=state.click_markers, feedback=state.feedback)
+            click_markers=state.click_markers, feedback=state.feedback,
+            targeting=io["targeting"] if state.in_game else None)
 
     renderer.close()
     client.close()

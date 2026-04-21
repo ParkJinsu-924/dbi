@@ -136,6 +136,7 @@
         <ClInclude Include="SkillshotProjectile.h"/>
         <ClInclude Include="SkillTemplate.h"/>
         <ClInclude Include="AttackTypes.h"/>
+        <ClInclude Include="GameConstants.h"/>
         <ClInclude Include="Effect.h"/>
         <ClInclude Include="SkillEffect.h"/>
         <ClInclude Include="MonsterSkillEntry.h"/>

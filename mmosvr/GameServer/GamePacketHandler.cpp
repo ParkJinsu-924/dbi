@@ -13,6 +13,7 @@
 #include "SkillTemplate.h"
 #include "SkillRuntime.h"
 #include "PacketMaker.h"
+#include "GameConstants.h"
 #include "Utils/MathUtil.h"
 #include <cmath>
 
@@ -219,20 +220,23 @@ Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> sess
 	{
 		case SkillKind::Homing:
 		{
-			std::shared_ptr<Monster> target;
-			if (pkt.target_guid() != 0)
-			{
-				target = playerZone.FindAs<Monster>(pkt.target_guid());
-			}
-			else
-			{
-				target = playerZone.FindNearest<Monster>(player->GetPosition(), 30.0f);
-			}
+			// Homing 은 클라가 대상을 명시 지정. target_guid 생략은 프로토콜 오류.
+			if (pkt.target_guid() == 0)
+				return Proto::ErrorCode::INVALID_REQUEST;
 
+			auto target = playerZone.FindAs<Monster>(pkt.target_guid());
 			if (!target || !target->IsAlive())
-				return Proto::ErrorCode::OK;  // 적 없음 — 조용히 무시
+				return Proto::ErrorCode::OK;  // 타겟 이미 소멸 — 조용히 무시
 
-			SkillRuntime::CastHoming(*player, target->GetGuid(), *sk, playerZone);
+			// 서버측 사거리 검증. 클라-서버 위치 예측 race 로 경계부 시전이 miss 되는 것을
+			// 방지하기 위해 CAST_RANGE_TOLERANCE 만큼 관용 margin 을 더한다.
+			{
+				const float effectiveRange = sk->cast_range + GameConfig::CAST_RANGE_TOLERANCE;
+				if (player->DistanceToSq(*target) > effectiveRange * effectiveRange)
+					return Proto::ErrorCode::OK;
+			}
+
+			SkillRuntime::Cast(*sk, *player, *target, playerZone);
 		}
 		break;
 		case SkillKind::Skillshot:
