@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "GamePacketHandler.h"
+#include "Agent/BuffAgent.h"
 #include "Packet/PacketUtils.h"
 #include "Packet/PacketHandler.h"
 #include "Server/SessionManager.h"
@@ -110,7 +111,7 @@ Proto::ErrorCode GamePacketHandler::C_PlayerMove(std::shared_ptr<GameSession> se
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
 
 	// 이동 CC 차단. 클라에는 별도 응답 없음 — 서버 위치 기준 재동기화는 클라 쪽 책임.
-	if (!player->CanMove())
+	if (!player->Get<BuffAgent>().CanMove())
 		return Proto::ErrorCode::OK;
 
 	Proto::Vector2 validatedPos = pkt.position();
@@ -143,7 +144,7 @@ Proto::ErrorCode GamePacketHandler::C_MoveCommand(std::shared_ptr<GameSession> s
 	if (!player)
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
 
-	if (!player->CanMove())
+	if (!player->Get<BuffAgent>().CanMove())
 		return Proto::ErrorCode::OK;
 
 	Proto::Vector2 target = pkt.target_pos();
@@ -196,7 +197,7 @@ Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> sess
 
 	Zone& playerZone = player->GetZone();
 	// 스킬 시전 CC 차단 — 조용히 무시 (쿨다운도 소비하지 않음)
-	if (!player->CanCastSkill())
+	if (!player->Get<BuffAgent>().CanCastSkill())
 		return Proto::ErrorCode::OK;
 
 	const auto* skTable = GetResourceManager().Get<SkillTemplate>();

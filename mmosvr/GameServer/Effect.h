@@ -9,7 +9,7 @@
 //
 // Phase 1 : Damage / Heal / StatMod / CCState 지원.
 //           duration > 0 && (StatMod || CCState) 이면 Buff 로 간주되어
-//           BuffContainer 에 부착되고 Tick 에 의해 만료 제거된다.
+//           BuffAgent 에 부착되고 Tick 에 의해 만료 제거된다.
 // Phase 2+: Dash/Summon + 스택 정책 + 이벤트 훅.
 // ─────────────────────────────────────────────────────────────────────
 

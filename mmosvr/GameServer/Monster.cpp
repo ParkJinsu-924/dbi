@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Monster.h"
+#include "Agent/BuffAgent.h"
 #include "Zone.h"
 #include "Player.h"
 #include "ResourceManager.h"
@@ -38,10 +39,9 @@ void Monster::InitAI(const Proto::Vector2& spawnPos)
 
 void Monster::Update(const float deltaTime)
 {
-	TickBuffs(deltaTime);
-	// 총체적 행동 불가 상태(현재는 Stun) 에서는 FSM 자체를 스킵.
-	// (TickBuffs 는 먼저 수행돼 stun duration 이 시간이 지나며 풀린다)
-	if (!CanAct())
+	Unit::Update(deltaTime);
+
+	if (!Get<BuffAgent>().CanAct())
 		return;
 	fsm_.Update(deltaTime);
 }
@@ -88,8 +88,7 @@ float Monster::DistanceToSpawn() const
 
 void Monster::MoveToward(const Proto::Vector2& target, const float deltaTime)
 {
-	// 이동 불가 CC(Stun/Root) 차단. 공격 가능 여부는 DefaultAttackBehavior 에서 별도 판정.
-	if (!CanMove())
+	if (!Get<BuffAgent>().CanMove())
 		return;
 
 	const float dx = target.x() - position_.x();
@@ -99,7 +98,7 @@ void Monster::MoveToward(const Proto::Vector2& target, const float deltaTime)
 	if (dist < 0.001f)
 		return;
 
-	float step = GetEffectiveMoveSpeed(moveSpeed_) * deltaTime;
+	float step = Get<BuffAgent>().EffectiveMoveSpeed(moveSpeed_) * deltaTime;
 	if (step > dist)
 		step = dist;
 

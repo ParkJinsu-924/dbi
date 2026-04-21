@@ -91,7 +91,7 @@
         <ClCompile Include="GameSession.cpp"/>
         <ClCompile Include="GamePacketHandler.cpp"/>
         <ClCompile Include="PacketMaker.cpp"/>
-        <ClCompile Include="BuffContainer.cpp"/>
+        <ClCompile Include="Agent\BuffAgent.cpp"/>
         <ClCompile Include="GameObject.cpp"/>
         <ClCompile Include="Monster.cpp"/>
         <ClCompile Include="MonsterStates.cpp"/>
@@ -117,7 +117,6 @@
         <ClInclude Include="GameSession.h"/>
         <ClInclude Include="GamePacketHandler.h"/>
         <ClInclude Include="PacketMaker.h"/>
-        <ClInclude Include="BuffContainer.h"/>
         <ClInclude Include="GameObject.h"/>
         <ClInclude Include="Monster.h"/>
         <ClInclude Include="FSM.h"/>
@@ -141,6 +140,7 @@
         <ClInclude Include="SkillBehavior.h"/>
         <ClInclude Include="SkillBehaviorRegistry.h"/>
         <ClInclude Include="Agent\IAgent.h"/>
+        <ClInclude Include="Agent\BuffAgent.h"/>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\ServerCore\ServerCore.vcxproj">

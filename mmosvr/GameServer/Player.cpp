@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Player.h"
+#include "Agent/BuffAgent.h"
 #include "Utils/MathUtil.h"
 
 
@@ -47,10 +48,9 @@ bool Player::TryConsumeCooldown(const int32 skillId, const float cooldownSec)
 
 void Player::Update(const float deltaTime)
 {
-	TickBuffs(deltaTime);
+	Unit::Update(deltaTime);
 
-	// 이동 CC 차단. 스킬/공격 CC 는 각 핸들러가 책임.
-	if (!isMoving_ || !CanMove())
+	if (!isMoving_ || !Get<BuffAgent>().CanMove())
 		return;
 
 	const float dx = destination_.x() - position_.x();
@@ -63,10 +63,9 @@ void Player::Update(const float deltaTime)
 		return;
 	}
 
-	const float step = GetEffectiveMoveSpeed(moveSpeed_) * deltaTime;
+	const float step = Get<BuffAgent>().EffectiveMoveSpeed(moveSpeed_) * deltaTime;
 	if (step >= dist)
 	{
-		// 도착: destination 에 snap 하고 이동 종료
 		position_.set_x(destination_.x());
 		position_.set_y(destination_.y());
 		isMoving_ = false;

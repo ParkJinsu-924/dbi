@@ -36,7 +36,7 @@ enum class StatType : int32
 
 // CC (Crowd Control) 플래그. Buff/Debuff 가 부여하는 행동 제약.
 // 하나의 Effect 는 하나의 CCFlag 만 가진다 (여러 CC 가 필요하면 스킬에 Effect 를 여러 줄 연결).
-// BuffContainer::GetCCFlags() 가 부착된 모든 Buff 의 플래그를 OR 해서 Unit 의 최종 상태를 결정.
+// BuffAgent::GetCCFlags() 가 부착된 모든 Buff 의 플래그를 OR 해서 Unit 의 최종 상태를 결정.
 enum class CCFlag : uint32
 {
 	None         = 0,

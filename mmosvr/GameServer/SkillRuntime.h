@@ -14,6 +14,7 @@
 #include "SkillEffect.h"
 #include "Zone.h"
 #include "Unit.h"
+#include "Agent/BuffAgent.h"
 #include "PacketMaker.h"
 
 #include <cmath>
@@ -72,7 +73,7 @@ namespace SkillRuntime
 			if (!victim) continue;
 
 			Unit& casterRef = caster ? *caster : *victim;
-			victim->ApplyEffect(*e, casterRef);
+			victim->Get<BuffAgent>().ApplyEffect(*e, casterRef);
 		}
 	}
 

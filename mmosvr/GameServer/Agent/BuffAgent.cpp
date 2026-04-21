@@ -1,41 +1,39 @@
 #include "pch.h"
-#include "BuffContainer.h"
+#include "Agent/BuffAgent.h"
 #include "Effect.h"
 #include "Unit.h"
 #include "Zone.h"
 #include "PacketMaker.h"
 
 
-bool BuffContainer::Add(const Effect& e, const long long casterGuid)
+bool BuffAgent::Add(const Effect& e, const long long casterGuid)
 {
 	if (e.duration <= 0.0f)
 		return false;
 
-	// 같은 eid 가 이미 부착돼 있으면 refresh (Phase 1 정책).
 	for (auto& entry : entries_)
 	{
 		if (entry.effect->eid == e.eid)
 		{
 			entry.remainingDuration = e.duration;
 			entry.casterGuid        = casterGuid;
-			owner_->GetZone().Broadcast(PacketMaker::MakeBuffApplied(owner_->GetGuid(), e, casterGuid));
+			owner_.GetZone().Broadcast(PacketMaker::MakeBuffApplied(owner_.GetGuid(), e, casterGuid));
 			return true;
 		}
 	}
 
 	entries_.push_back({ &e, casterGuid, e.duration });
-	owner_->GetZone().Broadcast(PacketMaker::MakeBuffApplied(owner_->GetGuid(), e, casterGuid));
+	owner_.GetZone().Broadcast(PacketMaker::MakeBuffApplied(owner_.GetGuid(), e, casterGuid));
 	return true;
 }
 
-void BuffContainer::Tick(const float dt)
+void BuffAgent::Tick(const float dt)
 {
 	if (entries_.empty())
 		return;
 
-	Zone& zone = owner_->GetZone();
+	Zone& zone = owner_.GetZone();
 
-	// 만료된 엔트리 제거 (swap-and-pop 대신 erase-remove 로 순서 유지 — 로그 가독성).
 	for (auto it = entries_.begin(); it != entries_.end();)
 	{
 		it->remainingDuration -= dt;
@@ -43,7 +41,7 @@ void BuffContainer::Tick(const float dt)
 		{
 			const int32 expiredEid = it->effect->eid;
 			it = entries_.erase(it);
-			zone.Broadcast(PacketMaker::MakeBuffRemoved(owner_->GetGuid(), expiredEid));
+			zone.Broadcast(PacketMaker::MakeBuffRemoved(owner_.GetGuid(), expiredEid));
 		}
 		else
 		{
@@ -52,21 +50,21 @@ void BuffContainer::Tick(const float dt)
 	}
 }
 
-bool BuffContainer::Remove(const int32 eid)
+bool BuffAgent::Remove(const int32 eid)
 {
 	for (auto it = entries_.begin(); it != entries_.end(); ++it)
 	{
 		if (it->effect->eid == eid)
 		{
 			entries_.erase(it);
-			owner_->GetZone().Broadcast(PacketMaker::MakeBuffRemoved(owner_->GetGuid(), eid));
+			owner_.GetZone().Broadcast(PacketMaker::MakeBuffRemoved(owner_.GetGuid(), eid));
 			return true;
 		}
 	}
 	return false;
 }
 
-uint32 BuffContainer::GetCCFlags() const
+uint32 BuffAgent::GetCCFlags() const
 {
 	uint32 flags = 0;
 	for (const auto& e : entries_)
@@ -74,7 +72,7 @@ uint32 BuffContainer::GetCCFlags() const
 	return flags;
 }
 
-void BuffContainer::GetStatModifier(const StatType stat, float& outFlat, float& outPercent) const
+void BuffAgent::GetStatModifier(const StatType stat, float& outFlat, float& outPercent) const
 {
 	outFlat = 0.0f;
 	outPercent = 0.0f;
@@ -90,16 +88,16 @@ void BuffContainer::GetStatModifier(const StatType stat, float& outFlat, float& 
 	}
 }
 
-void BuffContainer::ApplyEffect(const Effect& e, const long long casterGuid)
+void BuffAgent::ApplyEffect(const Effect& e, const long long casterGuid)
 {
 	switch (e.type)
 	{
 	case EffectType::Damage:
-		owner_->TakeDamage(static_cast<int32>(e.magnitude));
+		owner_.TakeDamage(static_cast<int32>(e.magnitude));
 		break;
 
 	case EffectType::Heal:
-		owner_->Heal(static_cast<int32>(e.magnitude));
+		owner_.Heal(static_cast<int32>(e.magnitude));
 		break;
 
 	case EffectType::StatMod:
@@ -108,12 +106,16 @@ void BuffContainer::ApplyEffect(const Effect& e, const long long casterGuid)
 		break;
 
 	default:
-		// Dash/Summon 등은 Phase 2+.
 		break;
 	}
 }
 
-float BuffContainer::EffectiveMoveSpeed(const float baseSpeed) const
+void BuffAgent::ApplyEffect(const Effect& e, const Unit& caster)
+{
+	ApplyEffect(e, caster.GetGuid());
+}
+
+float BuffAgent::EffectiveMoveSpeed(const float baseSpeed) const
 {
 	float flat = 0.0f, pct = 0.0f;
 	GetStatModifier(StatType::MoveSpeed, flat, pct);
