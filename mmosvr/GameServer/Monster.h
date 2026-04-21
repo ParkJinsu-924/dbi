@@ -4,6 +4,7 @@
 #include "MonsterStates.h"
 #include "AttackTypes.h"
 #include "AggroTable.h"
+#include "Agent/FSMAgent.h"
 #include <optional>
 
 class Player;
@@ -16,6 +17,7 @@ public:
 	Monster(std::string name, Zone& zone)
 		: Npc(GameObjectType::Monster, zone, std::move(name))
 	{
+		AddAgent<FSMAgent>();
 	}
 
 	void Update(float deltaTime) override;
@@ -25,9 +27,9 @@ public:
 	void InitAI(const Proto::Vector2& spawnPos);
 
 	// --- FSM 접근 ---
-	MonsterFSM&       GetFSM()       { return fsm_; }
-	const MonsterFSM& GetFSM() const { return fsm_; }
-	MonsterStateId    GetStateId() const { return fsm_.GetCurrentStateId(); }
+	MonsterFSM&       GetFSM()       { return Get<FSMAgent>().GetFSM(); }
+	const MonsterFSM& GetFSM() const { return Get<FSMAgent>().GetFSM(); }
+	MonsterStateId    GetStateId() const { return Get<FSMAgent>().GetCurrentStateId(); }
 
 	// --- 상태에서 사용하는 public 유틸리티 ---
 	const Proto::Vector2& GetSpawnPos() const { return spawnPos_; }
@@ -79,8 +81,6 @@ public:
 private:
 	void BroadcastState(MonsterStateId prev, MonsterStateId next);
 
-	// --- FSM ---
-	MonsterFSM fsm_;
 	Proto::Vector2 spawnPos_;
 	long long targetGuid_ = 0;
 

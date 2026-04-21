@@ -2,6 +2,7 @@
 #include "Monster.h"
 #include "Agent/BuffAgent.h"
 #include "Agent/SkillCooldownAgent.h"
+#include "Agent/FSMAgent.h"
 #include "Zone.h"
 #include "Player.h"
 #include "ResourceManager.h"
@@ -19,32 +20,31 @@ void Monster::InitAI(const Proto::Vector2& spawnPos)
 	spawnPos_ = spawnPos;
 	position_ = spawnPos;
 
+	auto& fsm = Get<FSMAgent>().GetFSM();
+
 	// GlobalState: detect player in Idle/Patrol -> Engage
-	fsm_.SetGlobalState<MonsterGlobalState>();
+	fsm.SetGlobalState<MonsterGlobalState>();
 
 	// 상태 등록
-	fsm_.AddState<IdleState>(MonsterStateId::Idle);
-	fsm_.AddState<PatrolState>(MonsterStateId::Patrol);
-	fsm_.AddState<EngageState>(MonsterStateId::Engage);
-	fsm_.AddState<ReturnState>(MonsterStateId::Return);
+	fsm.AddState<IdleState>(MonsterStateId::Idle);
+	fsm.AddState<PatrolState>(MonsterStateId::Patrol);
+	fsm.AddState<EngageState>(MonsterStateId::Engage);
+	fsm.AddState<ReturnState>(MonsterStateId::Return);
 
 	// 상태 전환 콜백 (로그 + 브로드캐스트)
-	fsm_.SetOnStateChanged([this](MonsterStateId prev, MonsterStateId next)
+	fsm.SetOnStateChanged([this](MonsterStateId prev, MonsterStateId next)
 		{
 			BroadcastState(prev, next);
 		});
 
 	// 시작 (Idle 상태로 시작)
-	fsm_.Start(*this, MonsterStateId::Idle);
+	fsm.Start(*this, MonsterStateId::Idle);
 }
 
 void Monster::Update(const float deltaTime)
 {
 	Unit::Update(deltaTime);
-
-	if (!Get<BuffAgent>().CanAct())
-		return;
-	fsm_.Update(deltaTime);
+	// FSM 은 FSMAgent.Tick 에서 이미 실행됨 (CanAct 체크 포함).
 }
 
 // ---------------------------------------------------------------------------

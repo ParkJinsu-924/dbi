@@ -171,12 +171,18 @@
     <ClInclude Include="Agent\SkillCooldownAgent.h">
       <Filter>Agent</Filter>
     </ClInclude>
+    <ClInclude Include="Agent\FSMAgent.h">
+      <Filter>Agent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Agent\BuffAgent.cpp">
       <Filter>Agent</Filter>
     </ClCompile>
     <ClCompile Include="Agent\SkillCooldownAgent.cpp">
+      <Filter>Agent</Filter>
+    </ClCompile>
+    <ClCompile Include="Agent\FSMAgent.cpp">
       <Filter>Agent</Filter>
     </ClCompile>
   </ItemGroup>

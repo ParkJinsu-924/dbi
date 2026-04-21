@@ -2,6 +2,7 @@
 #include "MonsterStates.h"
 #include "Monster.h"
 #include "Agent/SkillCooldownAgent.h"
+#include "Agent/FSMAgent.h"
 #include "Zone.h"
 #include "Player.h"
 #include "SkillTemplate.h"
@@ -17,7 +18,7 @@
 
 void MonsterGlobalState::OnUpdate(Monster& owner, float /*deltaTime*/)
 {
-	switch (owner.GetStateId())
+	switch (owner.Get<FSMAgent>().GetCurrentStateId())
 	{
 	case MonsterStateId::Idle:
 	case MonsterStateId::Patrol:
@@ -29,7 +30,7 @@ void MonsterGlobalState::OnUpdate(Monster& owner, float /*deltaTime*/)
 			if (topGuid != 0)
 			{
 				owner.SetTarget(topGuid);
-				owner.GetFSM().ChangeState(MonsterStateId::Engage);
+				owner.Get<FSMAgent>().ChangeState(MonsterStateId::Engage);
 				break;
 			}
 		}
@@ -68,7 +69,7 @@ void IdleState::OnUpdate(Monster& owner, const float deltaTime)
 	idleTime_ += deltaTime;
 	if (idleTime_ >= 4.0f)
 	{
-		owner.GetFSM().ChangeState(MonsterStateId::Patrol);
+		owner.Get<FSMAgent>().ChangeState(MonsterStateId::Patrol);
 		return;
 	}
 }
@@ -107,7 +108,7 @@ void PatrolState::OnUpdate(Monster& owner, const float deltaTime)
 
 	if (owner.DistanceTo(target) <= 0.3f)
 	{
-		owner.GetFSM().ChangeState(MonsterStateId::Idle);
+		owner.Get<FSMAgent>().ChangeState(MonsterStateId::Idle);
 		return;
 	}
 
@@ -139,7 +140,7 @@ void EngageState::OnUpdate(Monster& owner, const float deltaTime)
 	const auto target = owner.GetTarget();
 	if (!target || !target->IsAlive() || owner.DistanceToSpawn() > owner.GetLeashRange())
 	{
-		owner.GetFSM().ChangeState(MonsterStateId::Return);
+		owner.Get<FSMAgent>().ChangeState(MonsterStateId::Return);
 		return;
 	}
 
@@ -191,7 +192,7 @@ void ReturnState::OnUpdate(Monster& owner, const float deltaTime)
 	float dist = owner.DistanceTo(owner.GetSpawnPos());
 	if (dist <= 1.0f)
 	{
-		owner.GetFSM().ChangeState(MonsterStateId::Idle);
+		owner.Get<FSMAgent>().ChangeState(MonsterStateId::Idle);
 		return;
 	}
 
