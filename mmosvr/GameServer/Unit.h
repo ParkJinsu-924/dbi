@@ -5,6 +5,7 @@
 #include "Agent/AgentRegistry.h"
 #include "Agent/BuffAgent.h"
 #include "Agent/SkillCooldownAgent.h"
+#include "Utils/MathUtil.h"
 
 #include <cassert>
 #include <memory>
@@ -69,7 +70,7 @@ public:
 		return *static_cast<const T*>(agents_[idx].get());
 	}
 
-	void Update(float deltaTime) override
+	void Update(const float deltaTime) override
 	{
 		for (auto* a : tickOrder_)
 			a->Tick(deltaTime);
@@ -90,6 +91,30 @@ public:
 		hp_ = (std::max)(0, hp_ - amount);
 	}
 	void Heal(int32 amount) { hp_ = (std::min)(maxHp_, hp_ + amount); }
+
+	// target 으로 한 틱 이동. baseSpeed 는 호출자가 자기 멤버 (moveSpeed_) 를 넘긴다.
+	// true  = 이 틱에 target 에 도달(snap 됨) 또는 이미 target 위.
+	// false = 아직 이동 중 또는 CanMove() 가 false 라 이동 불가.
+	bool MoveToward(const Proto::Vector2& target, float baseSpeed, float deltaTime)
+	{
+		if (!Get<BuffAgent>().CanMove()) return false;
+
+		const float dx = target.x() - position_.x();
+		const float dz = target.y() - position_.y();
+		const float dist = MathUtil::Length2D(dx, dz);
+		if (dist < 0.001f) return true;
+
+		const float step = Get<BuffAgent>().EffectiveMoveSpeed(baseSpeed) * deltaTime;
+		if (step >= dist)
+		{
+			position_.set_x(target.x());
+			position_.set_y(target.y());
+			return true;
+		}
+		position_.set_x(position_.x() + (dx / dist) * step);
+		position_.set_y(position_.y() + (dz / dist) * step);
+		return false;
+	}
 
 protected:
 	int32 hp_ = 100;

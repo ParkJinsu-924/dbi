@@ -9,7 +9,6 @@
 #include "SkillTemplate.h"
 #include "MonsterSkillEntry.h"
 #include "PacketMaker.h"
-#include "Utils/MathUtil.h"
 #include "game.pb.h"
 #include <cmath>
 #include <random>
@@ -61,26 +60,6 @@ std::shared_ptr<Player> Monster::GetTarget() const
 float Monster::DistanceToSpawn() const
 {
 	return DistanceTo(spawnPos_);   // GameObject::DistanceTo 재사용
-}
-
-void Monster::MoveToward(const Proto::Vector2& target, const float deltaTime)
-{
-	if (!Get<BuffAgent>().CanMove())
-		return;
-
-	const float dx = target.x() - position_.x();
-	const float dz = target.y() - position_.y();
-	const float dist = MathUtil::Length2D(dx, dz);
-
-	if (dist < 0.001f)
-		return;
-
-	float step = Get<BuffAgent>().EffectiveMoveSpeed(moveSpeed_) * deltaTime;
-	if (step > dist)
-		step = dist;
-
-	position_.set_x(position_.x() + (dx / dist) * step);
-	position_.set_y(position_.y() + (dz / dist) * step);
 }
 
 float Monster::GetBasicSkillRange() const

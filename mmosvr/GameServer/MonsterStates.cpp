@@ -113,7 +113,7 @@ void PatrolState::OnUpdate(Monster& owner, const float deltaTime)
 		return;
 	}
 
-	owner.MoveToward(target, deltaTime);
+	owner.MoveToward(target, owner.GetMoveSpeed(), deltaTime);
 }
 
 
@@ -162,7 +162,7 @@ void EngageState::OnUpdate(Monster& owner, const float deltaTime)
 	if (engageRange <= 0.0f || dist > engageRange)
 	{
 		phase_ = Phase::Approach;
-		owner.MoveToward(target->GetPosition(), deltaTime);
+		owner.MoveToward(target->GetPosition(), owner.GetMoveSpeed(), deltaTime);
 	}
 	else
 	{
@@ -197,5 +197,5 @@ void ReturnState::OnUpdate(Monster& owner, const float deltaTime)
 		return;
 	}
 
-	owner.MoveToward(owner.GetSpawnPos(), deltaTime);
+	owner.MoveToward(owner.GetSpawnPos(), owner.GetMoveSpeed(), deltaTime);
 }

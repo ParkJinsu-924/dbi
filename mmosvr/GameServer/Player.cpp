@@ -1,7 +1,5 @@
 ﻿#include "pch.h"
 #include "Player.h"
-#include "Agent/BuffAgent.h"
-#include "Utils/MathUtil.h"
 
 
 Player::Player(int32 playerId, const std::string& name, Zone& zone)
@@ -39,30 +37,9 @@ void Player::Update(const float deltaTime)
 {
 	Unit::Update(deltaTime);
 
-	if (!isMoving_ || !Get<BuffAgent>().CanMove())
+	if (!isMoving_)
 		return;
 
-	const float dx = destination_.x() - position_.x();
-	const float dz = destination_.y() - position_.y();
-	const float dist = MathUtil::Length2D(dx, dz);
-
-	if (dist < 0.001f)
-	{
+	if (MoveToward(destination_, moveSpeed_, deltaTime))
 		isMoving_ = false;
-		return;
-	}
-
-	const float step = Get<BuffAgent>().EffectiveMoveSpeed(moveSpeed_) * deltaTime;
-	if (step >= dist)
-	{
-		position_.set_x(destination_.x());
-		position_.set_y(destination_.y());
-		isMoving_ = false;
-		return;
-	}
-
-	const float nx = dx / dist;
-	const float nz = dz / dist;
-	position_.set_x(position_.x() + nx * step);
-	position_.set_y(position_.y() + nz * step);
 }

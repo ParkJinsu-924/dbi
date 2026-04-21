@@ -41,7 +41,6 @@ public:
 	std::shared_ptr<Player> GetTarget() const;
 
 	float DistanceToSpawn() const;
-	void  MoveToward(const Proto::Vector2& target, float deltaTime);
 
 	// --- AI 파라미터 접근 ---
 	float GetDetectRange()    const { return detectRange_; }
