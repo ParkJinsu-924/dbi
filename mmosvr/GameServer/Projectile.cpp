@@ -4,6 +4,7 @@
 #include "Unit.h"
 #include "Player.h"
 #include "Monster.h"
+#include "Agent/AggroAgent.h"
 #include "PacketMaker.h"
 #include "SkillRuntime.h"
 
@@ -63,7 +64,7 @@ void Projectile::ApplyHit(Unit& target, const Proto::Vector2& hitPos)
 		actualDmg > 0)
 	{
 		auto& monster = static_cast<Monster&>(target);
-		monster.AddAggro(ownerGuid_, static_cast<float>(actualDmg));
+		monster.Get<AggroAgent>().Add(ownerGuid_, static_cast<float>(actualDmg));
 	}
 
 	consumed_ = true;

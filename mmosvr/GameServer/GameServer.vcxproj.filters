@@ -174,6 +174,9 @@
     <ClInclude Include="Agent\FSMAgent.h">
       <Filter>Agent</Filter>
     </ClInclude>
+    <ClInclude Include="Agent\AggroAgent.h">
+      <Filter>Agent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Agent\BuffAgent.cpp">
@@ -183,6 +186,9 @@
       <Filter>Agent</Filter>
     </ClCompile>
     <ClCompile Include="Agent\FSMAgent.cpp">
+      <Filter>Agent</Filter>
+    </ClCompile>
+    <ClCompile Include="Agent\AggroAgent.cpp">
       <Filter>Agent</Filter>
     </ClCompile>
   </ItemGroup>

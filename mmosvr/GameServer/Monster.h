@@ -3,8 +3,8 @@
 #include "Npc.h"
 #include "MonsterStates.h"
 #include "AttackTypes.h"
-#include "AggroTable.h"
 #include "Agent/FSMAgent.h"
+#include "Agent/AggroAgent.h"
 #include <optional>
 
 class Player;
@@ -18,6 +18,7 @@ public:
 		: Npc(GameObjectType::Monster, zone, std::move(name))
 	{
 		AddAgent<FSMAgent>();
+		AddAgent<AggroAgent>();
 	}
 
 	void Update(float deltaTime) override;
@@ -38,13 +39,6 @@ public:
 	void ClearTarget()             { targetGuid_ = 0; }
 	long long GetTargetGuid() const { return targetGuid_; }
 	std::shared_ptr<Player> GetTarget() const;
-
-	// --- Aggro ---
-	// 실제 저장/집계는 AggroTable 이 담당. Monster 는 얇은 위임만 한다.
-	void AddAggro(long long playerGuid, float amount);
-	long long GetTopAggroGuid() const;                  // 없으면 0
-	bool HasAggro() const;
-	void ClearAggro();
 
 	float DistanceToSpawn() const;
 	void  MoveToward(const Proto::Vector2& target, float deltaTime);
@@ -90,7 +84,4 @@ private:
 	float detectRange_ = 10.0f;
 	float leashRange_  = 15.0f;
 	float moveSpeed_   = 3.0f;
-
-	// --- Aggro ---
-	AggroTable aggro_;
 };

@@ -3,6 +3,7 @@
 #include "Monster.h"
 #include "Agent/SkillCooldownAgent.h"
 #include "Agent/FSMAgent.h"
+#include "Agent/AggroAgent.h"
 #include "Zone.h"
 #include "Player.h"
 #include "SkillTemplate.h"
@@ -24,9 +25,9 @@ void MonsterGlobalState::OnUpdate(Monster& owner, float /*deltaTime*/)
 	case MonsterStateId::Patrol:
 	{
 		// 이미 누적된 aggro 가 있으면 top 대상으로 Engage 진입.
-		if (owner.HasAggro())
+		if (owner.Get<AggroAgent>().HasAny())
 		{
-			const long long topGuid = owner.GetTopAggroGuid();
+			const long long topGuid = owner.Get<AggroAgent>().GetTop();
 			if (topGuid != 0)
 			{
 				owner.SetTarget(topGuid);
@@ -41,7 +42,7 @@ void MonsterGlobalState::OnUpdate(Monster& owner, float /*deltaTime*/)
 
 			if (player)
 			{
-				owner.AddAggro(player->GetGuid(), 0); // Aggro 최소치 세팅
+				owner.Get<AggroAgent>().Add(player->GetGuid(), 0); // Aggro 최소치 세팅
 			}
 		}
 	}
@@ -128,7 +129,7 @@ void EngageState::OnEnter(Monster& /*owner*/)
 void EngageState::OnUpdate(Monster& owner, const float deltaTime)
 {
 	// 1) 매 틱 top aggro 재계산, 현재 target 과 다르면 교체.
-	const long long topGuid = owner.GetTopAggroGuid();
+	const long long topGuid = owner.Get<AggroAgent>().GetTop();
 	if (topGuid != 0)
 	{
 		const auto cur = owner.GetTarget();
@@ -179,7 +180,7 @@ void ReturnState::OnEnter(Monster& owner)
 {
 	owner.ClearTarget();
 	// Leash 초과로 Return 진입 시 aggro 도 함께 초기화 (신규 전투 시작으로 간주)
-	owner.ClearAggro();
+	owner.Get<AggroAgent>().Clear();
 	owner.Heal(owner.GetMaxHp());
 
 	// TODO: Buff 시스템을 도입한 후, 무적 버프 추가 필요.
