@@ -39,10 +39,8 @@ public:
 
 	// SkillRuntime 에서 OnCast/OnHit trigger 당 호출.
 	// 즉발(Damage/Heal) 은 owner_ 에 바로 반영, 지속(StatMod/CCState) 은 Add.
-	void ApplyEffect(const Effect& e, long long casterGuid);
-
-	// 호출자 편의 overload (caster 의 GUID 추출).
-	void ApplyEffect(const Effect& e, const Unit& caster);
+	// caster=nullptr 이면 aggro 자동 누적이 생략된다 (환경 피해 등 Unit 소스가 없는 경로).
+	void ApplyEffect(const Effect& e, const Unit* caster);
 
 	// 조회 / 집계 ----------------------------------------------------------
 

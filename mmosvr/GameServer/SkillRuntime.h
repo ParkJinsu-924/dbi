@@ -72,8 +72,7 @@ namespace SkillRuntime
 			}
 			if (!victim) continue;
 
-			Unit& casterRef = caster ? *caster : *victim;
-			victim->Get<BuffAgent>().ApplyEffect(*e, casterRef);
+			victim->Get<BuffAgent>().ApplyEffect(*e, caster);
 		}
 	}
 

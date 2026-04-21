@@ -10,10 +10,8 @@
 
 
 Unit::Unit(GameObjectType type, Zone& zone, std::string name)
-	: GameObject(type, zone, std::move(name))
+	: Unit(type, zone, GetObjectGuidGenerator().Generate(), std::move(name))
 {
-	AddAgent<BuffAgent>();
-	AddAgent<SkillCooldownAgent>();
 }
 
 Unit::Unit(GameObjectType type, Zone& zone, long long guid, std::string name)

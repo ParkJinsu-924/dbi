@@ -88,13 +88,13 @@ void BuffAgent::GetStatModifier(const StatType stat, float& outFlat, float& outP
 	}
 }
 
-void BuffAgent::ApplyEffect(const Effect& e, const long long casterGuid)
+void BuffAgent::ApplyEffect(const Effect& e, const Unit* caster)
 {
-	// attacker Unit 정보가 없는 경로 — Damage 시 aggro 자동 누적 불가.
+	// caster 가 있으면 TakeDamage 에 전달해 aggro 자동 누적. 없으면 환경 피해 경로.
 	switch (e.type)
 	{
 	case EffectType::Damage:
-		owner_.TakeDamage(static_cast<int32>(e.magnitude), nullptr);
+		owner_.TakeDamage(static_cast<int32>(e.magnitude), caster);
 		break;
 
 	case EffectType::Heal:
@@ -103,30 +103,7 @@ void BuffAgent::ApplyEffect(const Effect& e, const long long casterGuid)
 
 	case EffectType::StatMod:
 	case EffectType::CCState:
-		Add(e, casterGuid);
-		break;
-
-	default:
-		break;
-	}
-}
-
-void BuffAgent::ApplyEffect(const Effect& e, const Unit& caster)
-{
-	// attacker 를 TakeDamage 로 전달해 aggro 누적 자동화.
-	switch (e.type)
-	{
-	case EffectType::Damage:
-		owner_.TakeDamage(static_cast<int32>(e.magnitude), &caster);
-		break;
-
-	case EffectType::Heal:
-		owner_.Heal(static_cast<int32>(e.magnitude));
-		break;
-
-	case EffectType::StatMod:
-	case EffectType::CCState:
-		Add(e, caster.GetGuid());
+		Add(e, caster ? caster->GetGuid() : 0);
 		break;
 
 	default:

@@ -16,6 +16,16 @@ namespace
 {
 	constexpr float MONSTER_BROADCAST_INTERVAL = 0.1f;  // 10 Hz
 	constexpr float PLAYER_BROADCAST_INTERVAL  = 0.1f;  // 10 Hz. 클릭 이동 중인 플레이어의 위치만 방송.
+
+	// Player 세션이 살아있으면 chunk 송신. 끊겼거나 bind 안됐으면 조용히 skip.
+	void SendIfConnected(const Player& player, const SendBufferChunkPtr& chunk)
+	{
+		if (const auto session = player.GetSession())
+		{
+			if (session->IsConnected())
+				std::static_pointer_cast<Session>(session)->Send(chunk);
+		}
+	}
 }
 
 
@@ -121,12 +131,7 @@ void Zone::BroadcastChunk(const SendBufferChunkPtr& chunk) const
 {
 	ForEachOfType(GameObjectType::Player, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
 		{
-			auto player = std::static_pointer_cast<Player>(obj);
-			if (auto session = player->GetSession())
-			{
-				if (session->IsConnected())
-					std::static_pointer_cast<Session>(session)->Send(chunk);
-			}
+			SendIfConnected(*std::static_pointer_cast<Player>(obj), chunk);
 		});
 }
 
@@ -135,12 +140,7 @@ void Zone::BroadcastChunkExcept(const SendBufferChunkPtr& chunk, long long exclu
 	ForEachOfType(GameObjectType::Player, [&](long long guid, const std::shared_ptr<GameObject>& obj)
 		{
 			if (guid == excludeGuid) return;
-			auto player = std::static_pointer_cast<Player>(obj);
-			if (auto session = player->GetSession())
-			{
-				if (session->IsConnected())
-					std::static_pointer_cast<Session>(session)->Send(chunk);
-			}
+			SendIfConnected(*std::static_pointer_cast<Player>(obj), chunk);
 		});
 }
 
@@ -151,12 +151,7 @@ void Zone::SendChunkTo(const SendBufferChunkPtr& chunk, const long long guid) co
 	if (it == objects_.end()) return;
 	if (it->second->GetType() != GameObjectType::Player) return;
 
-	const auto player = std::static_pointer_cast<Player>(it->second);
-	if (const auto session = player->GetSession())
-	{
-		if (session->IsConnected())
-			std::static_pointer_cast<Session>(session)->Send(chunk);
-	}
+	SendIfConnected(*std::static_pointer_cast<Player>(it->second), chunk);
 }
 
 void Zone::BroadcastChunkTo(const SendBufferChunkPtr& chunk, const std::span<const long long> guids) const
