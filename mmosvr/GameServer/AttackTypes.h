@@ -1,7 +1,22 @@
 #pragma once
 
 #include "Utils/Types.h"
+#include "GameObject.h"
 #include "game.pb.h"
+
+
+// Projectile 적대 판정 / 광역 스캔 대상 결정에 공통 사용.
+// Monster ↔ Player 만 적대. 그 외 타입은 매치하는 적이 없도록 Npc 를 반환해
+// GetObjectsByType / IsHostile 이 항상 빈 결과 / false 로 귀결.
+inline GameObjectType HostileTypeOf(GameObjectType owner)
+{
+	switch (owner)
+	{
+	case GameObjectType::Player:  return GameObjectType::Monster;
+	case GameObjectType::Monster: return GameObjectType::Player;
+	default:                      return GameObjectType::Npc;
+	}
+}
 
 
 // SkillTemplate.targeting — 스킬 수행 방식.

@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "Unit.h"
+#include "Agent/MovementAgent.h"
 #include <memory>
 #include <string>
 
@@ -32,15 +33,12 @@ public:
 	void SetYaw(float yaw) { yaw_ = yaw; }
 
 	// --- Movement (LoL-style click-to-move) ---
-	// C_MoveCommand 수신 시 destination 설정, Zone 틱마다 직선으로 접근.
-	// 스킬 사용 시 ClearDestination 으로 즉시 멈춘다.
-	// MoveSpeed 는 Unit 에 있음.
-	void SetDestination(const Proto::Vector2& dest) { destination_ = dest; isMoving_ = true; }
-	void ClearDestination() { isMoving_ = false; }
-	bool IsMoving() const { return isMoving_; }
-	const Proto::Vector2& GetDestination() const { return destination_; }
-
-	void Update(float deltaTime) override;
+	// 실제 상태는 MovementAgent 가 관리. 아래 메서드는 wrapper.
+	// C_MoveCommand 수신 시 SetDestination, C_StopMove / C_UseSkill 시 ClearDestination.
+	void SetDestination(const Proto::Vector2& dest) { Get<MovementAgent>().SetDestination(dest); }
+	void ClearDestination()                          { Get<MovementAgent>().Clear(); }
+	bool IsMoving() const                            { return Get<MovementAgent>().IsMoving(); }
+	const Proto::Vector2& GetDestination() const     { return Get<MovementAgent>().GetDestination(); }
 
 	// --- Game State (hp/maxHp/IsAlive are in Unit) ---
 	int32 GetLevel() const { return level_; }
@@ -56,10 +54,6 @@ private:
 
 	float yaw_ = 0.0f;
 	int32 level_ = 1;
-
-	// Movement
-	Proto::Vector2 destination_;
-	bool isMoving_ = false;
 };
 
 // Send<T> requires full GameSession definition for PacketSession::Send<T>

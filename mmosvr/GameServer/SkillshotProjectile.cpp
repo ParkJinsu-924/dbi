@@ -1,9 +1,8 @@
 ﻿#include "pch.h"
 #include "SkillshotProjectile.h"
+#include "AttackTypes.h"
 #include "Zone.h"
 #include "Unit.h"
-#include "Player.h"
-#include "Monster.h"
 #include "Utils/MathUtil.h"
 
 
@@ -31,24 +30,15 @@ void SkillshotProjectile::CheckHit()
 	const float r = radius_ + TARGET_HIT_RADIUS;
 	const float r2 = r * r;
 
-	// owner type 에 따라 적대 진영 컨테이너만 직접 조회.
-	auto checkUnits = [&](auto&& candidates)
+	// HostileTypeOf 로 결정된 적대 진영 bucket 만 순회.
+	// 첫 적중 시 ApplyHit 이 consumed_=true 로 세팅 → 이후 반복은 즉시 리턴.
+	GetZone().ForEachOfType(HostileTypeOf(ownerType_),
+		[&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
 		{
-			for (const auto& unit : candidates)
-			{
-				if (consumed_) return;
-				if (!unit->IsAlive()) continue;
-
-				if (DistanceToSq(*unit) < r2)
-				{
-					ApplyHit(*unit, position_);
-					return;  // 첫 적중 후 소멸
-				}
-			}
-		};
-
-	if (ownerType_ == GameObjectType::Monster)
-		checkUnits(GetZone().GetObjectsByType<Player>());
-	else if (ownerType_ == GameObjectType::Player)
-		checkUnits(GetZone().GetObjectsByType<Monster>());
+			if (consumed_) return;
+			const auto unit = std::static_pointer_cast<Unit>(obj);
+			if (!unit->IsAlive()) return;
+			if (DistanceToSq(*unit) < r2)
+				ApplyHit(*unit, position_);
+		});
 }

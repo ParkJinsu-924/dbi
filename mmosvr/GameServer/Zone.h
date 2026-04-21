@@ -19,6 +19,16 @@ class Projectile;
 class HomingProjectile;
 class SkillshotProjectile;
 
+
+// T -> GameObjectType 컴파일 타임 매핑. 새 파생 타입 추가 시 여기에 특수화 한 줄만 추가.
+// GetObjectsByType<T> / FindAs<T> / 기타 T 기반 조회가 런타임 분기 없이 해당 bucket 만 본다.
+template <typename T> struct GameObjectTraits;
+template <> struct GameObjectTraits<Player>     { static constexpr GameObjectType kType = GameObjectType::Player; };
+template <> struct GameObjectTraits<Monster>    { static constexpr GameObjectType kType = GameObjectType::Monster; };
+template <> struct GameObjectTraits<Npc>        { static constexpr GameObjectType kType = GameObjectType::Npc; };
+template <> struct GameObjectTraits<Projectile> { static constexpr GameObjectType kType = GameObjectType::Projectile; };
+
+
 class Zone
 {
 public:
@@ -37,23 +47,11 @@ public:
 		return std::dynamic_pointer_cast<T>(Find(guid));
 	}
 
-	// Compile-time T -> GameObjectType mapping (IIFE + if constexpr).
-	// Walks only the matching bucket of objectsByType_, so no dynamic_pointer_cast.
-	// To support a new type, add one more if-constexpr branch below.
+	// GameObjectTraits<T>::kType bucket 만 순회. 새 타입은 상단 traits 특수화 1줄로 추가.
 	template<typename T>
 	std::vector<std::shared_ptr<T>> GetObjectsByType() const
 	{
-		constexpr GameObjectType type = []() {
-			if      constexpr (std::is_same_v<T, Player>)     return GameObjectType::Player;
-			else if constexpr (std::is_same_v<T, Monster>)    return GameObjectType::Monster;
-			else if constexpr (std::is_same_v<T, Npc>)        return GameObjectType::Npc;
-			else if constexpr (std::is_same_v<T, Projectile>) return GameObjectType::Projectile;
-			else
-			{
-				static_assert(sizeof(T) == 0, "Zone::GetObjectsByType: unsupported type");
-				return GameObjectType::Player; // unreachable, for return-type deduction
-			}
-		}();
+		constexpr GameObjectType type = GameObjectTraits<T>::kType;
 
 		std::vector<std::shared_ptr<T>> result;
 		const auto it = objectsByType_.find(type);

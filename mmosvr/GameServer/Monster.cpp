@@ -8,6 +8,7 @@
 #include "ResourceManager.h"
 #include "SkillTemplate.h"
 #include "MonsterSkillEntry.h"
+#include "MonsterTemplate.h"
 #include "game.pb.h"
 #include <cmath>
 #include <random>
@@ -20,6 +21,16 @@ void Monster::InitAI(const Proto::Vector2& spawnPos)
 
 	// FSM 상태 등록 / 시작은 FSMAgent 가 전담.
 	Get<FSMAgent>().Init();
+}
+
+void Monster::ApplyTemplate(const int32 templateId, const MonsterTemplate& tmpl)
+{
+	templateId_  = templateId;
+	hp_          = tmpl.hp;
+	maxHp_       = tmpl.maxHp;
+	detectRange_ = tmpl.detectRange;
+	leashRange_  = tmpl.leashRange;
+	moveSpeed_   = tmpl.moveSpeed;
 }
 
 void Monster::Update(const float deltaTime)

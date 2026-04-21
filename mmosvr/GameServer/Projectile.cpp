@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Projectile.h"
+#include "AttackTypes.h"
 #include "Zone.h"
 #include "Unit.h"
 #include "PacketMaker.h"
@@ -60,11 +61,5 @@ bool Projectile::IsHostile(const GameObject& other) const
 {
 	if (other.GetGuid() == ownerGuid_)
 		return false;
-
-	const auto tt = other.GetType();
-	if (ownerType_ == GameObjectType::Monster && tt == GameObjectType::Player)
-		return true;
-	if (ownerType_ == GameObjectType::Player && tt == GameObjectType::Monster)
-		return true;
-	return false;
+	return other.GetType() == HostileTypeOf(ownerType_);
 }

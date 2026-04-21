@@ -9,6 +9,20 @@
 #include "PacketMaker.h"
 
 
+namespace
+{
+	// zone 등록 + FSM 시작 + Spawn 패킷 방송의 공통 후반부.
+	// 템플릿 기반 Spawn 은 ApplyTemplate 이후에 이 단계를 거쳐야 클라가 스탯을 받는다.
+	void FinalizeSpawn(const std::shared_ptr<Monster>& monster, const Proto::Vector2& spawnPos)
+	{
+		Zone& zone = monster->GetZone();
+		zone.Add(monster);
+		monster->InitAI(spawnPos);
+		zone.Broadcast(PacketMaker::MakeMonsterSpawn(*monster));
+	}
+}
+
+
 std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, const std::string& name,
                                                const Proto::Vector2& spawnPos)
 {
@@ -16,11 +30,8 @@ std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, const std::string& 
 	if (!zone)
 		return nullptr;
 
-	auto monster = std::make_shared<Monster>(name, *zone);   // zone_ ref ctor 에서 바인딩
-	zone->Add(monster);                                      // object map 등록
-	monster->InitAI(spawnPos);                               // FSM 시작 시 GetZone().Broadcast 사용
-
-	zone->Broadcast(PacketMaker::MakeMonsterSpawn(*monster));
+	auto monster = std::make_shared<Monster>(name, *zone);
+	FinalizeSpawn(monster, spawnPos);
 
 	LOG_INFO("Monster spawned: guid=" + std::to_string(monster->GetGuid())
 		+ " name=" + name + " zone=" + std::to_string(zoneId));
@@ -42,16 +53,8 @@ std::shared_ptr<Monster> MonsterManager::Spawn(int32 zoneId, int32 templateId,
 		return nullptr;
 
 	auto monster = std::make_shared<Monster>(tmpl->name, *zone);
-	monster->SetTemplateId(templateId);                             // monster_skills.csv 조회 키
-	monster->SetHp(tmpl->hp);
-	monster->SetMaxHp(tmpl->maxHp);
-	monster->SetDetectRange(tmpl->detectRange);
-	monster->SetLeashRange(tmpl->leashRange);
-	monster->SetMoveSpeed(tmpl->moveSpeed);
-	zone->Add(monster);                                             // object map 등록
-	monster->InitAI(spawnPos);                                      // FSM 시작 시 GetZone().Broadcast 사용
-
-	zone->Broadcast(PacketMaker::MakeMonsterSpawn(*monster));
+	monster->ApplyTemplate(templateId, *tmpl);
+	FinalizeSpawn(monster, spawnPos);
 
 	LOG_INFO(std::format("Monster spawned: guid={} template={} name={} zone={}",
 		monster->GetGuid(), templateId, tmpl->name, zoneId));

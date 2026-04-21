@@ -9,6 +9,7 @@
 
 class Player;
 struct SkillTemplate;
+struct MonsterTemplate;
 
 
 class Monster : public Npc
@@ -27,6 +28,10 @@ public:
 	// --- AI 초기화 ---
 	// 호출 전에 Zone::Add 로 존에 배치되어 있어야 한다 (GetZone() 사용).
 	void InitAI(const Proto::Vector2& spawnPos);
+
+	// MonsterTemplate 의 스탯/파라미터를 일괄 적용. templateId 는 별도 인자로 받아
+	// monster_skills.csv 조인 키로 사용한다.
+	void ApplyTemplate(int32 templateId, const MonsterTemplate& tmpl);
 
 	// --- FSM 접근 ---
 	MonsterFSM&       GetFSM()       { return Get<FSMAgent>().GetFSM(); }

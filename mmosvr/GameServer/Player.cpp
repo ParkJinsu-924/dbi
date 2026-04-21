@@ -9,6 +9,8 @@ Player::Player(int32 playerId, const std::string& name, Zone& zone)
 	position_.set_x(0.0f);
 	position_.set_y(0.0f);
 	moveSpeed_ = 5.0f;   // debug_tool config.MOVE_SPEED 와 동일값.
+
+	AddAgent<MovementAgent>();   // Tick 시 destination 으로 한 틱 접근.
 }
 
 void Player::BindSession(std::shared_ptr<GameSession> session)
@@ -32,15 +34,4 @@ bool Player::IsOnline() const
 {
 	auto s = session_.lock();
 	return s && s->IsConnected();
-}
-
-void Player::Update(const float deltaTime)
-{
-	Unit::Update(deltaTime);
-
-	if (!isMoving_)
-		return;
-
-	if (MoveToward(destination_, deltaTime))
-		isMoving_ = false;
 }
