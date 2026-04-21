@@ -3,6 +3,7 @@
 #include "GameObject.h"
 #include "Agent/IAgent.h"
 #include "Agent/BuffAgent.h"
+#include "Agent/SkillCooldownAgent.h"
 
 #include <cassert>
 #include <memory>
@@ -24,12 +25,14 @@ public:
 		: GameObject(type, zone, std::move(name))
 	{
 		AddAgent<BuffAgent>();
+		AddAgent<SkillCooldownAgent>();
 	}
 
 	Unit(GameObjectType type, Zone& zone, long long guid, std::string name)
 		: GameObject(type, zone, guid, std::move(name))
 	{
 		AddAgent<BuffAgent>();
+		AddAgent<SkillCooldownAgent>();
 	}
 
 	// --- Agent API --------------------------------------------------------

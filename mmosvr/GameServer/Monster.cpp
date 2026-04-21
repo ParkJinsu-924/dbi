@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "Monster.h"
 #include "Agent/BuffAgent.h"
+#include "Agent/SkillCooldownAgent.h"
 #include "Zone.h"
 #include "Player.h"
 #include "ResourceManager.h"
@@ -143,9 +144,8 @@ std::optional<Monster::SkillChoice> Monster::PickCastable(const float now, const
 		if (!tmpl) continue;
 		if (distance > tmpl->cast_range) continue;
 
-		const auto it = skillNextUsable_.find(entry->skillId);
-		const float ready = (it == skillNextUsable_.end()) ? 0.0f : it->second;
-		if (now < ready) continue;
+		if (!Get<SkillCooldownAgent>().IsReady(entry->skillId, now))
+			continue;
 
 		// Strategy: 스킬별 추가 조건 (HP threshold 등). Default 는 항상 true.
 		if (tmpl->behavior && !tmpl->behavior->CanCast(*this, *target, now)) continue;

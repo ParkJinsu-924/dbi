@@ -1,6 +1,7 @@
 ﻿#include "pch.h"
 #include "GamePacketHandler.h"
 #include "Agent/BuffAgent.h"
+#include "Agent/SkillCooldownAgent.h"
 #include "Packet/PacketUtils.h"
 #include "Packet/PacketHandler.h"
 #include "Server/SessionManager.h"
@@ -208,7 +209,7 @@ Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> sess
 		return Proto::ErrorCode::INVALID_REQUEST;
 	}
 
-	if (!player->TryConsumeCooldown(sk->sid, sk->cooldown))
+	if (!player->Get<SkillCooldownAgent>().TryConsume(sk->sid, sk->cooldown))
 		return Proto::ErrorCode::OK;  // 쿨다운 중 — 조용히 무시
 
 	// LoL 스타일: 스킬 사용 시 진행 중이던 이동을 자동 중단한다

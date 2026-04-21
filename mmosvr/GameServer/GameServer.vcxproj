@@ -92,6 +92,7 @@
         <ClCompile Include="GamePacketHandler.cpp"/>
         <ClCompile Include="PacketMaker.cpp"/>
         <ClCompile Include="Agent\BuffAgent.cpp"/>
+        <ClCompile Include="Agent\SkillCooldownAgent.cpp"/>
         <ClCompile Include="GameObject.cpp"/>
         <ClCompile Include="Monster.cpp"/>
         <ClCompile Include="MonsterStates.cpp"/>
@@ -141,6 +142,7 @@
         <ClInclude Include="SkillBehaviorRegistry.h"/>
         <ClInclude Include="Agent\IAgent.h"/>
         <ClInclude Include="Agent\BuffAgent.h"/>
+        <ClInclude Include="Agent\SkillCooldownAgent.h"/>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\ServerCore\ServerCore.vcxproj">

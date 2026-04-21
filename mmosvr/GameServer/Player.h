@@ -3,7 +3,6 @@
 #include "Unit.h"
 #include <memory>
 #include <string>
-#include <unordered_map>
 
 class GameSession;
 
@@ -48,11 +47,6 @@ public:
 	int32 GetLevel() const { return level_; }
 	void SetLevel(int32 level) { level_ = level; }
 
-	// --- Skill Cooldown ---
-	// 마지막 사용 시각 + cooldown 이 현재 시각 이하면 사용 가능 → 시간 갱신 후 true.
-	// 그 외엔 false (사용 거절).
-	bool TryConsumeCooldown(int32 skillId, float cooldownSec);
-
 	// --- Network Helper ---
 	template<typename T>
 	void Send(const T& pkt);
@@ -68,8 +62,6 @@ private:
 	Proto::Vector2 destination_;
 	bool isMoving_ = false;
 	float moveSpeed_ = 5.0f;   // 월드 유닛/초. debug_tool config.MOVE_SPEED 와 동일값.
-
-	std::unordered_map<int32, float> skillCooldowns_;  // sid -> next-usable time (TimeManager.totalTime)
 };
 
 // Send<T> requires full GameSession definition for PacketSession::Send<T>

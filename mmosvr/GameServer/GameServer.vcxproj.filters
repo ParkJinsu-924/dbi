@@ -168,9 +168,15 @@
     <ClInclude Include="Agent\BuffAgent.h">
       <Filter>Agent</Filter>
     </ClInclude>
+    <ClInclude Include="Agent\SkillCooldownAgent.h">
+      <Filter>Agent</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Agent\BuffAgent.cpp">
+      <Filter>Agent</Filter>
+    </ClCompile>
+    <ClCompile Include="Agent\SkillCooldownAgent.cpp">
       <Filter>Agent</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "MonsterStates.h"
 #include "Monster.h"
+#include "Agent/SkillCooldownAgent.h"
 #include "Zone.h"
 #include "Player.h"
 #include "SkillTemplate.h"
@@ -150,7 +151,7 @@ void EngageState::OnUpdate(Monster& owner, const float deltaTime)
 	{
 		phase_ = Phase::Casting;
 		choice->tmpl->behavior->Execute(*choice->tmpl, owner, *target, now);
-		owner.MarkSkillUsed(choice->skillId, now + choice->appliedCooldown);
+		owner.Get<SkillCooldownAgent>().MarkUsed(choice->skillId, now + choice->appliedCooldown);
 		return;
 	}
 

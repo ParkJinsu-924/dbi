@@ -35,17 +35,6 @@ bool Player::IsOnline() const
 	return s && s->IsConnected();
 }
 
-bool Player::TryConsumeCooldown(const int32 skillId, const float cooldownSec)
-{
-	const float now = GetTimeManager().GetTotalTime();
-	auto it = skillCooldowns_.find(skillId);
-	if (it != skillCooldowns_.end() && now < it->second)
-		return false;
-
-	skillCooldowns_[skillId] = now + cooldownSec;
-	return true;
-}
-
 void Player::Update(const float deltaTime)
 {
 	Unit::Update(deltaTime);

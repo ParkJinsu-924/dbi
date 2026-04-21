@@ -5,7 +5,6 @@
 #include "AttackTypes.h"
 #include "AggroTable.h"
 #include <optional>
-#include <unordered_map>
 
 class Player;
 struct SkillTemplate;
@@ -77,9 +76,6 @@ public:
 	};
 	std::optional<SkillChoice> PickCastable(float now, float distance) const;
 
-	// PickCastable 로 선택된 스킬을 시전 후 호출 — 해당 skillId 의 다음 사용 가능 시각 갱신.
-	void MarkSkillUsed(int32 skillId, float nextUsable) { skillNextUsable_[skillId] = nextUsable; }
-
 private:
 	void BroadcastState(MonsterStateId prev, MonsterStateId next);
 
@@ -94,9 +90,6 @@ private:
 	float detectRange_ = 10.0f;
 	float leashRange_  = 15.0f;
 	float moveSpeed_   = 3.0f;
-
-	// skillId -> 다음 사용 가능 시각(TimeManager.totalTime 기준). 엔트리 없으면 0 (즉시 가능).
-	std::unordered_map<int32, float> skillNextUsable_;
 
 	// --- Aggro ---
 	AggroTable aggro_;
