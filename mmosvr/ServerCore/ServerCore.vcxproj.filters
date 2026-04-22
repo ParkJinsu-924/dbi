@@ -9,6 +9,7 @@
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Utils\Logger.cpp"><Filter>Utils</Filter></ClCompile>
+    <ClCompile Include="Utils\MetricsReporter.cpp"><Filter>Utils</Filter></ClCompile>
     <ClCompile Include="Network\RecvBuffer.cpp"><Filter>Network</Filter></ClCompile>
     <ClCompile Include="Network\SendBuffer.cpp"><Filter>Network</Filter></ClCompile>
     <ClCompile Include="Network\Session.cpp"><Filter>Network</Filter></ClCompile>
@@ -40,5 +41,7 @@
     <ClInclude Include="Server\SessionManager.h"><Filter>Server</Filter></ClInclude>
     <ClInclude Include="Utils\CsvParser.h"><Filter>Utils</Filter></ClInclude>
     <ClInclude Include="Utils\TimeManager.h"><Filter>Utils</Filter></ClInclude>
+    <ClInclude Include="Utils\Metrics.h"><Filter>Utils</Filter></ClInclude>
+    <ClInclude Include="Utils\MetricsReporter.h"><Filter>Utils</Filter></ClInclude>
   </ItemGroup>
 </Project>

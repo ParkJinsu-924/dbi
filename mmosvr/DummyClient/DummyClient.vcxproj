@@ -84,6 +84,14 @@
     </ItemDefinitionGroup>
     <ItemGroup>
         <ClCompile Include="main.cpp"/>
+        <ClCompile Include="StressBot.cpp"/>
+        <ClCompile Include="StressHarness.cpp"/>
+    </ItemGroup>
+    <ItemGroup>
+        <ClInclude Include="StressConfig.h"/>
+        <ClInclude Include="StressBot.h"/>
+        <ClInclude Include="StressHarness.h"/>
+        <ClInclude Include="ClientMetrics.h"/>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\ServerCore\ServerCore.vcxproj">

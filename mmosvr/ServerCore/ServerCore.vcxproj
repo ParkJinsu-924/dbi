@@ -83,6 +83,7 @@
             <PrecompiledHeader>Create</PrecompiledHeader>
         </ClCompile>
         <ClCompile Include="Utils\Logger.cpp"/>
+        <ClCompile Include="Utils\MetricsReporter.cpp"/>
         <ClCompile Include="Network\RecvBuffer.cpp"/>
         <ClCompile Include="Network\SendBuffer.cpp"/>
         <ClCompile Include="Network\Session.cpp"/>
@@ -110,6 +111,8 @@
         <ClInclude Include="Utils\JsonUtils.h"/>
         <ClInclude Include="Utils\CsvParser.h"/>
         <ClInclude Include="Utils\TimeManager.h"/>
+        <ClInclude Include="Utils\Metrics.h"/>
+        <ClInclude Include="Utils\MetricsReporter.h"/>
         <ClInclude Include="Network\RecvBuffer.h"/>
         <ClInclude Include="Network\SendBuffer.h"/>
         <ClInclude Include="Network\Session.h"/>

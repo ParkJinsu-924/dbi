@@ -282,17 +282,30 @@ def _h_player_list(state: GameState, msg):
         ps.tx, ps.tz = px, pz
 
 
-def _h_player_move(state: GameState, msg):
-    """서버로부터 플레이어 위치 업데이트. 자기 자신일 경우 예측 위치와 비교해 교정."""
-    if msg.player_id == state.me.player_id:
-        dx = msg.position.x - state.me.x
-        dz = msg.position.y - state.me.z
-        if dx * dx + dz * dz > config.POSITION_CORRECTION_EPSILON ** 2:
-            state.me.x = msg.position.x
-            state.me.z = msg.position.y
-        return
-    ps = state.others.setdefault(msg.player_id, PlayerState(player_id=msg.player_id))
-    ps.set_target(msg.position.x, 0.0, msg.position.y)
+def _h_unit_positions(state: GameState, msg):
+    """S_UnitPositions — Player/Monster 이동 상태를 guid 로 식별해 일괄 갱신.
+    서버는 이동 중인 Player 와 전체 Monster 를 한 패킷에 묶어 10Hz 로 뿌린다.
+    guid lookup 은 me → monsters(dict) → others(guid index) 순서."""
+    # others 는 player_id 키라 guid→player lookup 위해 패킷당 1회 역인덱스 구성.
+    others_by_guid = {ps.guid: ps for ps in state.others.values() if ps.guid}
+
+    for u in msg.units:
+        gid = u.guid
+        if gid == state.me.guid:
+            # 내 위치: 로컬 예측과 서버 위치 차이가 threshold 초과 시 교정.
+            dx = u.position.x - state.me.x
+            dz = u.position.y - state.me.z
+            if dx * dx + dz * dz > config.POSITION_CORRECTION_EPSILON ** 2:
+                state.me.x = u.position.x
+                state.me.z = u.position.y
+            continue
+        ms = state.monsters.get(gid)
+        if ms is not None:
+            ms.set_target(u.position.x, 0.0, u.position.y)
+            continue
+        ps = others_by_guid.get(gid)
+        if ps is not None:
+            ps.set_target(u.position.x, 0.0, u.position.y)
 
 
 def _h_player_spawn(state: GameState, msg):
@@ -345,12 +358,6 @@ def _h_monster_spawn(state: GameState, msg):
         max_hp=m.max_hp if m.max_hp > 0 else 100)
     if state.feedback is not None:
         state.feedback.on_monster_spawn(px, pz)
-
-
-def _h_monster_move(state: GameState, msg):
-    ms = state.monsters.get(msg.guid)
-    if ms:
-        ms.set_target(msg.position.x, 0.0, msg.position.y)
 
 
 def _h_monster_despawn(state: GameState, msg):
@@ -499,14 +506,13 @@ def _h_buff_removed(state: GameState, msg):
 PACKET_HANDLERS = {
     packet_ids.S_ENTER_GAME:         _h_enter_game,
     packet_ids.S_PLAYER_LIST:        _h_player_list,
-    packet_ids.S_PLAYER_MOVE:        _h_player_move,
+    packet_ids.S_UNIT_POSITIONS:     _h_unit_positions,
     packet_ids.S_PLAYER_SPAWN:       _h_player_spawn,
     packet_ids.S_PLAYER_LEAVE:       _h_player_leave,
     packet_ids.S_MOVE_CORRECTION:    _h_move_correction,
     packet_ids.S_ERROR:              _h_error,
     packet_ids.S_MONSTER_LIST:       _h_monster_list,
     packet_ids.S_MONSTER_SPAWN:      _h_monster_spawn,
-    packet_ids.S_MONSTER_MOVE:       _h_monster_move,
     packet_ids.S_MONSTER_DESPAWN:    _h_monster_despawn,
     packet_ids.S_MONSTER_STATE:      _h_monster_state,
     packet_ids.S_SKILL_HIT:          _h_skill_hit,

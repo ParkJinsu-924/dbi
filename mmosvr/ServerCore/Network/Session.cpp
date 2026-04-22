@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Network/Session.h"
+#include "Utils/Metrics.h"
 
 
 Session::Session(tcp::socket socket, net::io_context& ioc)
@@ -51,6 +52,8 @@ void Session::Send(SendBufferChunkPtr chunk)
 	if (!connected_)
 		return;
 
+	ServerMetrics::sendCalls.Add();
+
 	sendBuffer_.Push(std::move(chunk));
 
 	bool expected = false;
@@ -84,6 +87,8 @@ void Session::DoRead()
 					self->Disconnect();
 					return;
 				}
+
+				ServerMetrics::bytesRecv.Add(bytesTransferred);
 
 				self->recvBuffer_.OnWrite(static_cast<int32>(bytesTransferred));
 
@@ -123,20 +128,26 @@ void Session::DoWrite()
 
 	std::vector<net::const_buffer> buffers;
 	buffers.reserve(chunks.size());
+	std::uint64_t totalBytes = 0;
 	for (auto& c : chunks)
 	{
 		buffers.emplace_back(c->Buffer(), c->Size());
+		totalBytes += static_cast<std::uint64_t>(c->Size());
 	}
+	const std::uint64_t chunkCount = chunks.size();
 
 	auto self = shared_from_this();
 	net::async_write(socket_, buffers,
-		[self, chunks = std::move(chunks)](boost::system::error_code ec, std::size_t)
+		[self, chunks = std::move(chunks), chunkCount, totalBytes]
+			(boost::system::error_code ec, std::size_t)
 			{
 				if (ec)
 				{
 					self->Disconnect();
 					return;
 				}
+				ServerMetrics::packetsSent.Add(chunkCount);
+				ServerMetrics::bytesSent.Add(totalBytes);
 				self->DoWrite();
 			}
 	);

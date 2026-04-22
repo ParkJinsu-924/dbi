@@ -130,9 +130,13 @@ class Bot:
             self.in_game = True
             log.info("%s entered id=%d guid=%d at (%.1f, %.1f)",
                      self.prefix, self.player_id, self.guid, self.x, self.z)
-        elif pkt_id == packet_ids.S_PLAYER_MOVE and msg.player_id == self.player_id:
-            self.x = msg.position.x
-            self.z = msg.position.y
+        elif pkt_id == packet_ids.S_UNIT_POSITIONS:
+            # 내 guid 만 필터. 서버가 전체 Zone 의 Unit 위치를 묶어 보낸다.
+            for u in msg.units:
+                if u.guid == self.guid:
+                    self.x = u.position.x
+                    self.z = u.position.y
+                    break
         elif pkt_id == packet_ids.S_MOVE_CORRECTION:
             self.x = msg.position.x
             self.z = msg.position.y

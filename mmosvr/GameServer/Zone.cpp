@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Zone.h"
+#include "Utils/Metrics.h"
 #include "GameObject.h"
 #include "Player.h"
 #include "Monster.h"
@@ -47,12 +48,33 @@ std::shared_ptr<GameObject> Zone::Find(const long long guid) const
 	return it->second;
 }
 
+namespace
+{
+	void BumpTypeGauge(GameObjectType type, int delta)
+	{
+		switch (type)
+		{
+		case GameObjectType::Player:
+			ServerMetrics::currentPlayers.fetch_add(delta, std::memory_order_relaxed); break;
+		case GameObjectType::Monster:
+			ServerMetrics::currentMonsters.fetch_add(delta, std::memory_order_relaxed); break;
+		case GameObjectType::Projectile:
+			ServerMetrics::currentProjectiles.fetch_add(delta, std::memory_order_relaxed); break;
+		default:
+			break;
+		}
+	}
+}
+
 void Zone::InsertObject(std::shared_ptr<GameObject> obj)
 {
 	const long long guid = obj->GetGuid();
 	const GameObjectType type = obj->GetType();
+	const bool isNew = (objects_.find(guid) == objects_.end());
 	objects_[guid] = obj;
 	objectsByType_[type][guid] = std::move(obj);
+	if (isNew)
+		BumpTypeGauge(type, +1);
 }
 
 void Zone::EraseObject(const long long guid)
@@ -64,6 +86,7 @@ void Zone::EraseObject(const long long guid)
 	if (bucketIt != objectsByType_.end())
 		bucketIt->second.erase(guid);
 	objects_.erase(it);
+	BumpTypeGauge(type, -1);
 }
 
 void Zone::Update(const float deltaTime)
@@ -98,30 +121,41 @@ void Zone::FlushPendingObjects()
 
 void Zone::BroadcastObjectPositions(const float deltaTime)
 {
-	// Monster — 모든 몬스터의 현재 위치를 주기적으로 방송.
-	monsterBroadcastAccum_ += deltaTime;
-	if (monsterBroadcastAccum_ >= GameConfig::Zone::MONSTER_BROADCAST_INTERVAL_SEC)
-	{
-		monsterBroadcastAccum_ = 0.0f;
-		ForEachOfType(GameObjectType::Monster, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
-			{
-				Broadcast(PacketMaker::MakeMonsterMove(*std::static_pointer_cast<Monster>(obj)));
-			});
-	}
+	Metrics::ScopedTimer _bcastTimer(ServerMetrics::broadcastUs);
 
-	// Player — 이동 중인 플레이어만 방송. 정지 플레이어는 C_StopMove 수신 시 최종 위치를 한 번 방송했음.
-	playerBroadcastAccum_ += deltaTime;
-	if (playerBroadcastAccum_ >= GameConfig::Zone::PLAYER_BROADCAST_INTERVAL_SEC)
-	{
-		playerBroadcastAccum_ = 0.0f;
-		ForEachOfType(GameObjectType::Player, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
-			{
-				auto player = std::static_pointer_cast<Player>(obj);
-				if (!player->IsMoving())
-					return;
-				Broadcast(PacketMaker::MakePlayerMove(*player));
-			});
-	}
+	// Player/Monster 주기 방송을 하나의 S_WorldSnapshot 으로 묶는다.
+	// Spawn/Leave/HP/SkillHit 같은 이산 이벤트는 여기 포함 안 됨 (개별 패킷 유지).
+	snapshotAccum_ += deltaTime;
+	if (snapshotAccum_ < GameConfig::Zone::SNAPSHOT_INTERVAL_SEC) return;
+	snapshotAccum_ = 0.0f;
+
+	Proto::S_UnitPositions snap;
+	snap.set_server_tick(++snapshotTick_);
+
+	// Player — 이동 중인 플레이어만 포함. 정지 플레이어는 직전에 최종 위치 방송했음.
+	ForEachOfType(GameObjectType::Player, [&](const long long guid, const std::shared_ptr<GameObject>& obj)
+		{
+			auto player = std::static_pointer_cast<Player>(obj);
+			if (!player->IsMoving()) return;
+			auto* u = snap.add_units();
+			u->set_guid(guid);
+			*u->mutable_position() = player->GetPosition();
+			u->set_yaw(player->GetYaw());
+		});
+
+	// Monster — 전체 포함 (수가 적고 AI 이동 빈도도 낮음).
+	ForEachOfType(GameObjectType::Monster, [&](const long long guid, const std::shared_ptr<GameObject>& obj)
+		{
+			auto m = std::static_pointer_cast<Monster>(obj);
+			auto* u = snap.add_units();
+			u->set_guid(guid);
+			*u->mutable_position() = m->GetPosition();
+			u->set_yaw(0.0f);
+		});
+
+	if (snap.units_size() == 0) return;
+
+	Broadcast(snap);
 }
 
 void Zone::BroadcastChunk(const SendBufferChunkPtr& chunk) const

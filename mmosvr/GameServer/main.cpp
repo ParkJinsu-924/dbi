@@ -14,6 +14,8 @@
 #include "Network/Connector.h"
 #include "Network/ServerSession.h"
 #include "Utils/JobQueue.h"
+#include "Utils/Metrics.h"
+#include "Utils/MetricsReporter.h"
 #include "Packet/PacketHandler.h"
 
 
@@ -29,6 +31,7 @@ public:
 	~GameServer()
 	{
 		StopGameLoop();
+		metricsReporter_.Stop();
 	}
 
 protected:
@@ -41,6 +44,10 @@ protected:
 		SpawnMonstersFromData();
 		StartGameLoop();
 		ConnectToLoginServer();
+
+		const int tickBudgetUs = 1000000 / tickRate_;
+		metricsReporter_.Start("metrics/gameserver_metrics.csv",
+			std::chrono::seconds(5), tickBudgetUs);
 
 		LOG_INFO("GameServer initialized on port " + std::to_string(port_));
 	}
@@ -76,24 +83,38 @@ private:
 	{
 		using Clock = std::chrono::steady_clock;
 		const auto tickInterval = std::chrono::milliseconds(1000 / tickRate_);
+		const std::uint64_t tickBudgetUs = 1000000ULL / static_cast<std::uint64_t>(tickRate_);
 		auto lastTick = Clock::now();
 
 		while (!stopToken.stop_requested())
 		{
-			const auto now = Clock::now();
-			const float dt = std::chrono::duration<float>(now - lastTick).count();
-			lastTick = now;
+			const auto tickStart = Clock::now();
+			const float dt = std::chrono::duration<float>(tickStart - lastTick).count();
+			lastTick = tickStart;
 
 			// 1. Advance game time
 			GetTimeManager().Tick(dt);
 
 			// 2. Process queued packets from I/O threads
-			packetQueue_.Flush();
+			{
+				Metrics::ScopedTimer _t(ServerMetrics::packetFlushUs);
+				packetQueue_.Flush();
+			}
 
 			// 3. Update world (zones tick all GameObjects)
-			GetZoneManager().Update(dt);
+			{
+				Metrics::ScopedTimer _t(ServerMetrics::zoneUpdateUs);
+				GetZoneManager().Update(dt);
+			}
 
-			const auto elapsed = Clock::now() - now;
+			const auto tickEnd = Clock::now();
+			const auto tickUs = std::chrono::duration_cast<std::chrono::microseconds>(
+				tickEnd - tickStart).count();
+			ServerMetrics::tickTimeUs.Observe(static_cast<std::uint64_t>(tickUs));
+			if (static_cast<std::uint64_t>(tickUs) > tickBudgetUs)
+				ServerMetrics::tickOverBudget.Add();
+
+			const auto elapsed = tickEnd - tickStart;
 			if (elapsed < tickInterval)
 				std::this_thread::sleep_for(tickInterval - elapsed);
 		}
@@ -154,6 +175,7 @@ private:
 	JobQueue packetQueue_;
 	std::jthread gameThread_;
 	std::shared_ptr<Connector> loginConnector_;
+	MetricsReporter metricsReporter_;
 };
 
 

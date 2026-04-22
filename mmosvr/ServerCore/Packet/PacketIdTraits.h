@@ -17,6 +17,7 @@ namespace Proto
 	class S_EnterGame;
 	class S_PlayerList;
 	class S_PlayerMove;
+	class S_UnitPositions;
 	class S_Chat;
 	class S_PlayerLeave;
 	class S_PlayerSpawn;
@@ -56,6 +57,7 @@ PACKET_ID_TRAIT(C_StopMove, C_STOP_MOVE)
 PACKET_ID_TRAIT(S_EnterGame, S_ENTER_GAME)
 PACKET_ID_TRAIT(S_PlayerList, S_PLAYER_LIST)
 PACKET_ID_TRAIT(S_PlayerMove, S_PLAYER_MOVE)
+PACKET_ID_TRAIT(S_UnitPositions, S_UNIT_POSITIONS)
 PACKET_ID_TRAIT(S_Chat, S_CHAT)
 PACKET_ID_TRAIT(S_PlayerLeave, S_PLAYER_LEAVE)
 PACKET_ID_TRAIT(S_PlayerSpawn, S_PLAYER_SPAWN)

@@ -41,7 +41,8 @@ def test_msg_class_map_covers_server_packets():
     # 서버에서 올 주요 메시지의 역매핑
     assert _MSG_CLASS_MAP[packet_ids.S_LOGIN] is login_pb2.S_Login
     assert _MSG_CLASS_MAP[packet_ids.S_ENTER_GAME] is game_pb2.S_EnterGame
-    assert _MSG_CLASS_MAP[packet_ids.S_PLAYER_MOVE] is game_pb2.S_PlayerMove
+    # 주기적 위치 방송은 S_UnitPositions 한 패킷으로 통합.
+    assert _MSG_CLASS_MAP[packet_ids.S_UNIT_POSITIONS] is game_pb2.S_UnitPositions
 
 
 def _build_packet(pkt_id: int, payload: bytes) -> bytes:

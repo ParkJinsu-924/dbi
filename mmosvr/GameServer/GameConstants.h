@@ -23,13 +23,11 @@ namespace GameConfig
 
 	namespace Zone
 	{
-		// ─── Broadcast Tick ─────────────────────────────────────────────
-		// Zone::Update 가 축적한 delta 가 이 값을 넘을 때마다 위치 방송.
+		// ─── Snapshot Tick ──────────────────────────────────────────────
+		// Zone::Update 가 축적한 delta 가 이 값을 넘을 때마다 S_WorldSnapshot 송신.
+		// Player/Monster 이동 상태를 한 패킷으로 묶어 보낸다.
 		// 10 Hz = 네트워크 대역과 클라 보간 품질의 타협점.
-		constexpr float MONSTER_BROADCAST_INTERVAL_SEC = 0.1f;
-
-		// 클릭 이동 중인 플레이어의 위치만 방송하는 주기.
-		constexpr float PLAYER_BROADCAST_INTERVAL_SEC  = 0.1f;
+		constexpr float SNAPSHOT_INTERVAL_SEC = 0.1f;
 	}
 
 

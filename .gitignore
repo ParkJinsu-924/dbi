@@ -4,6 +4,7 @@ mmosvr/obj/
 mmosvr/out/
 mmosvr/.vs/
 mmosvr/proto/generated/
+mmosvr/metrics/
 *.user
 *.db
 *.opendb
@@ -48,3 +49,4 @@ __pycache__/
 Thumbs.db
 .DS_Store
 *.stackdump
+mmosvr/RecastDetour/obj/RecastDetour/Debug/x64/RecastDetour.tlog

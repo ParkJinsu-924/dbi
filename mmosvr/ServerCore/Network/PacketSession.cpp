@@ -1,5 +1,6 @@
 ﻿#include "pch.h"
 #include "Network/PacketSession.h"
+#include "Utils/Metrics.h"
 
 
 int32 PacketSession::OnRecv(char* buffer, int32 len)
@@ -22,6 +23,8 @@ int32 PacketSession::OnRecv(char* buffer, int32 len)
 
 		const char* payload = buffer + consumed + PACKET_HEADER_SIZE;
 		int32 payloadSize = static_cast<int32>(header->size) - PACKET_HEADER_SIZE;
+
+		ServerMetrics::packetsRecv.Add();
 
 		OnRecvPacket(header->id, payload, payloadSize);
 

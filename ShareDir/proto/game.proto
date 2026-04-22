@@ -64,6 +64,26 @@ message S_PlayerMove {
     float yaw = 3;
 }
 
+// Unit 한 개의 위치 업데이트. guid 로 대상 식별 (클라가 Spawn 시점에 guid↔type 매핑 보유).
+message UnitPosition {
+    int64 guid = 1;
+    Vector2 position = 2;
+    float yaw = 3;          // Monster 등 yaw 미사용 타입은 0
+}
+
+// 주기적 위치 방송 — Player/Monster 같은 Unit 의 현재 위치를 묶어 전송.
+// 이산 이벤트 (Spawn/Leave/SkillHit/Hp 등) 는 여전히 개별 패킷 사용.
+// 타입 식별은 수신측이 guid 로 lookup (Spawn 시점에 guid↔type 매핑 보유).
+//
+// Projectile 은 포함하지 않는다:
+//   - Spawn 시 전달한 초기 파라미터 (start_pos, dir, speed, target_guid 등) 로
+//     클라가 로컬 시뮬레이션. 권위는 판정(S_SkillHit)에만.
+//   - 빠른 객체를 10Hz 로 뿌리면 시각적으로 점프하고, 대역 폭증.
+message S_UnitPositions {
+    uint32 server_tick = 1;                 // 클라 보간/순서 보장용 서버측 tick 카운터
+    repeated UnitPosition units = 2;
+}
+
 message S_Chat {
     int32 player_id = 1;
     string sender = 2;

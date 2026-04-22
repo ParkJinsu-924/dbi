@@ -171,6 +171,7 @@ private:
 	std::vector<std::shared_ptr<GameObject>> pendingAdd_;
 	std::vector<long long>                   pendingRemove_;
 
-	float monsterBroadcastAccum_ = 0.0f;
-	float playerBroadcastAccum_ = 0.0f;
+	// 누적 delta 가 SNAPSHOT_INTERVAL_SEC 넘으면 S_WorldSnapshot 1회 송신.
+	float    snapshotAccum_ = 0.0f;
+	uint32_t snapshotTick_  = 0;
 };
