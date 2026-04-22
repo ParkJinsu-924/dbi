@@ -7,15 +7,13 @@
 #include "HomingProjectile.h"
 #include "SkillshotProjectile.h"
 #include "PacketMaker.h"
+#include "GameConstants.h"
 #include "Network/Session.h"
 #include "game.pb.h"
 
 
 namespace
 {
-	constexpr float MONSTER_BROADCAST_INTERVAL = 0.1f;  // 10 Hz
-	constexpr float PLAYER_BROADCAST_INTERVAL  = 0.1f;  // 10 Hz. 클릭 이동 중인 플레이어의 위치만 방송.
-
 	// Player 세션이 살아있으면 chunk 송신. 끊겼거나 bind 안됐으면 조용히 skip.
 	void SendIfConnected(const Player& player, const SendBufferChunkPtr& chunk)
 	{
@@ -102,7 +100,7 @@ void Zone::BroadcastObjectPositions(const float deltaTime)
 {
 	// Monster — 모든 몬스터의 현재 위치를 주기적으로 방송.
 	monsterBroadcastAccum_ += deltaTime;
-	if (monsterBroadcastAccum_ >= MONSTER_BROADCAST_INTERVAL)
+	if (monsterBroadcastAccum_ >= GameConfig::Zone::MONSTER_BROADCAST_INTERVAL_SEC)
 	{
 		monsterBroadcastAccum_ = 0.0f;
 		ForEachOfType(GameObjectType::Monster, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)
@@ -113,7 +111,7 @@ void Zone::BroadcastObjectPositions(const float deltaTime)
 
 	// Player — 이동 중인 플레이어만 방송. 정지 플레이어는 C_StopMove 수신 시 최종 위치를 한 번 방송했음.
 	playerBroadcastAccum_ += deltaTime;
-	if (playerBroadcastAccum_ >= PLAYER_BROADCAST_INTERVAL)
+	if (playerBroadcastAccum_ >= GameConfig::Zone::PLAYER_BROADCAST_INTERVAL_SEC)
 	{
 		playerBroadcastAccum_ = 0.0f;
 		ForEachOfType(GameObjectType::Player, [&](long long /*guid*/, const std::shared_ptr<GameObject>& obj)

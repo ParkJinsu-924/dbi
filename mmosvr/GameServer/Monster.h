@@ -3,6 +3,7 @@
 #include "Npc.h"
 #include "MonsterStates.h"
 #include "AttackTypes.h"
+#include "GameConstants.h"
 #include "Agent/FSMAgent.h"
 #include "Agent/AggroAgent.h"
 #include <optional>
@@ -18,7 +19,7 @@ public:
 	explicit Monster(Zone& zone)
 		: Npc(GameObjectType::Monster, zone)
 	{
-		moveSpeed_ = 3.0f;
+		moveSpeed_ = GameConfig::Monster::DEFAULT_MOVE_SPEED;
 		AddAgent<FSMAgent>();
 		AddAgent<AggroAgent>();
 	}
@@ -81,6 +82,6 @@ private:
 	// --- AI 파라미터 ---
 	// 공격 스킬은 monster_skills.csv (tid 기준) 에서 로드. 사거리/쿨다운/데미지는 SkillTemplate 참조.
 	int32 templateId_  = 0;
-	float detectRange_ = 10.0f;
-	float leashRange_  = 15.0f;
+	float detectRange_ = GameConfig::Monster::DEFAULT_DETECT_RANGE;
+	float leashRange_  = GameConfig::Monster::DEFAULT_LEASH_RANGE;
 };

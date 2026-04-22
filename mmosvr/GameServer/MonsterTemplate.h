@@ -2,6 +2,7 @@
 
 #include "ResourceManager.h"
 #include "AttackTypes.h"
+#include "GameConstants.h"
 
 
 class MonsterTable;
@@ -15,9 +16,9 @@ struct MonsterTemplate
 	std::string name;
 	int32       hp             = 100;
 	int32       maxHp          = 100;
-	float       detectRange    = 10.0f;
-	float       leashRange     = 15.0f;
-	float       moveSpeed      = 3.0f;
+	float       detectRange    = GameConfig::Monster::DEFAULT_DETECT_RANGE;
+	float       leashRange     = GameConfig::Monster::DEFAULT_LEASH_RANGE;
+	float       moveSpeed      = GameConfig::Monster::DEFAULT_MOVE_SPEED;
 	// 몬스터가 쓸 스킬은 monster_skills.csv (MonsterSkillEntry) 에서 tid 로 조인.
 
 	KeyType GetKey() const { return tid; }
