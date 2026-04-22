@@ -54,13 +54,22 @@ void Session::Send(SendBufferChunkPtr chunk)
 
 	ServerMetrics::sendCalls.Add();
 
-	sendBuffer_.Push(std::move(chunk));
+	// 호출 스레드와 무관하게 실제 송신은 자기 io_context 에서 수행.
+	// GameLoop 의 Broadcast fan-out(N 세션) 이 I/O 스레드들에 분산되어 tick 시간이 짧아진다.
+	// 한 세션은 하나의 io_context 에 바인딩 → 같은 세션에 대한 복수 Send 는 순차 실행 보장(strand 불필요).
+	auto self = shared_from_this();
+	net::post(ioc_, [self, chunk = std::move(chunk)]() mutable
+		{
+			if (!self->connected_) return;
 
-	bool expected = false;
-	if (writeInProgress_.compare_exchange_strong(expected, true))
-	{
-		DoWrite();
-	}
+			self->sendBuffer_.Push(std::move(chunk));
+
+			bool expected = false;
+			if (self->writeInProgress_.compare_exchange_strong(expected, true))
+			{
+				self->DoWrite();
+			}
+		});
 }
 
 void Session::DoRead()

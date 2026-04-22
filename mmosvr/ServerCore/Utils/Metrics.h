@@ -141,7 +141,7 @@ namespace ServerMetrics
 {
     inline Metrics::Histogram tickTimeUs;
     inline Metrics::Histogram zoneUpdateUs;
-    inline Metrics::Histogram broadcastUs;
+    inline Metrics::Histogram broadcastUs;    // GameLoop 구간만 — 실제 async_write 는 세션 io_context 에 post.
     inline Metrics::Histogram packetFlushUs;
 
     inline Metrics::Counter packetsSent;
