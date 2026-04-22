@@ -25,6 +25,19 @@ ClaudeProject/[Rr]ecordings/
 ClaudeProject/*.csproj
 ClaudeProject/*.sln
 
+# === Unity (AlbionClient — Chop Chop base) ===
+AlbionClient/UOP1_Project/[Ll]ibrary/
+AlbionClient/UOP1_Project/[Tt]emp/
+AlbionClient/UOP1_Project/[Oo]bj/
+AlbionClient/UOP1_Project/[Bb]uild/
+AlbionClient/UOP1_Project/[Bb]uilds/
+AlbionClient/UOP1_Project/[Ll]ogs/
+AlbionClient/UOP1_Project/[Uu]serSettings/
+AlbionClient/UOP1_Project/[Mm]emoryCaptures/
+AlbionClient/UOP1_Project/[Rr]ecordings/
+AlbionClient/UOP1_Project/*.csproj
+AlbionClient/UOP1_Project/*.sln
+
 # === IDE ===
 .vs/
 .idea/
