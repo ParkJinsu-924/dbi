@@ -308,6 +308,17 @@ def _h_unit_positions(state: GameState, msg):
             ps.set_target(u.position.x, 0.0, u.position.y)
 
 
+def _h_player_move(state: GameState, msg):
+    """S_PlayerMove — client-authoritative 이동 모드에서 각 클라가 자발적으로 송신한
+    C_PlayerMove 를 서버가 검증 후 그대로 브로드캐스트. 자기 자신 패킷은 무시."""
+    if msg.player_id == state.me.player_id:
+        return
+    ps = state.others.get(msg.player_id)
+    if ps is None:
+        return
+    ps.set_target(msg.position.x, 0.0, msg.position.y)
+
+
 def _h_player_spawn(state: GameState, msg):
     p = msg.player
     if p.player_id == state.me.player_id:
@@ -506,6 +517,7 @@ def _h_buff_removed(state: GameState, msg):
 PACKET_HANDLERS = {
     packet_ids.S_ENTER_GAME:         _h_enter_game,
     packet_ids.S_PLAYER_LIST:        _h_player_list,
+    packet_ids.S_PLAYER_MOVE:        _h_player_move,
     packet_ids.S_UNIT_POSITIONS:     _h_unit_positions,
     packet_ids.S_PLAYER_SPAWN:       _h_player_spawn,
     packet_ids.S_PLAYER_LEAVE:       _h_player_leave,
@@ -709,9 +721,7 @@ def _tick_pending_cast(state: GameState, client: PacketClient, io: dict,
                                or (abs(target.z - last_pos[1]) > 1.0)
     elapsed = (now - pc["last_sent_time"]) > 0.5
     if moved or elapsed:
-        cmd = game_pb2.C_MoveCommand()
-        cmd.target_pos.x, cmd.target_pos.y = dest_x, dest_z
-        client.send(cmd)
+        # Client-authoritative: destination 만 로컬 세팅. 서버 보고는 주기적 C_PlayerMove.
         state.me.set_destination(dest_x, dest_z)
         pc["last_sent_target_pos"] = (target.x, target.z)
         pc["last_sent_time"] = now
@@ -851,10 +861,9 @@ def _process_input(pygame, events: list, keys, state: GameState,
             if io["pending_cast"]["target_guid"] is not None:
                 _cancel_pending_cast(io)
                 # 아래 일반 이동으로 이어짐 (명시적 덮어쓰기).
-            cmd = game_pb2.C_MoveCommand()
-            cmd.target_pos.x, cmd.target_pos.y = cursor_wx, cursor_wz
-            client.send(cmd)
-            state.me.set_destination(cursor_wx, cursor_wz)   # 로컬 즉시 예측
+            # Client-authoritative: destination 은 로컬에만 세팅. 실제 위치는 메인 루프의
+            # 주기적 C_PlayerMove 송신 (SEND_INTERVAL 주기) 으로 서버에 보고.
+            state.me.set_destination(cursor_wx, cursor_wz)
             state.click_markers.append((cursor_wx, cursor_wz, now + config.CLICK_MARKER_LIFETIME))
 
         elif event.type == pygame.KEYUP:
@@ -961,6 +970,11 @@ def run_game(token: str, game_host: str, game_port: int, username: str) -> None:
                       feedback=feedback)
     io = {
         "last_skill_send": 0.0,
+        # Client-authoritative move 보고: 마지막 C_PlayerMove 송신 시각 / 위치.
+        # SEND_INTERVAL 주기로 transform.position 을 서버에 보고, 서버는 그대로 권위로 채택.
+        "last_move_send": 0.0,
+        "last_sent_move_x": None,
+        "last_sent_move_z": None,
         # skill_id -> next_usable_time (time.time() 기준). 서버 쿨다운과 동일 규칙으로
         # 로컬에서 선제 차단하여, 쿨다운 중 키 입력이 이동 예측을 끊지 않게 한다.
         "skill_next_usable": {},
@@ -1009,6 +1023,23 @@ def run_game(token: str, game_host: str, game_port: int, username: str) -> None:
         state.me.tick_buffs(dt_frame)
         # 자기 캐릭터: 목적지 방향 직선 예측 이동
         state.me.move_toward_destination(dt_frame)
+
+        # Client-authoritative: SEND_INTERVAL 주기로 현재 위치를 C_PlayerMove 로 보고.
+        # 위치 변동이 거의 없으면 skip. 서버는 받은 위치를 권위로 채택하고
+        # S_PlayerMove 로 다른 클라에 브로드캐스트.
+        _now_send = time.time()
+        if state.in_game and _now_send - io["last_move_send"] >= config.SEND_INTERVAL:
+            _lx = io["last_sent_move_x"]
+            _lz = io["last_sent_move_z"]
+            if _lx is None or abs(_lx - state.me.x) > 0.01 or abs(_lz - state.me.z) > 0.01:
+                mv = game_pb2.C_PlayerMove()
+                mv.position.x = state.me.x
+                mv.position.y = state.me.z
+                mv.yaw = 0.0
+                client.send(mv)
+                io["last_move_send"] = _now_send
+                io["last_sent_move_x"] = state.me.x
+                io["last_sent_move_z"] = state.me.z
         # 다른 플레이어/몬스터: 서버가 보내준 타깃으로 보간
         for ps in state.others.values():
             ps.lerp(dt_frame)

@@ -31,6 +31,7 @@ _MSG_CLASS_MAP = {
     packet_ids.S_LOGIN:               login_pb2.S_Login,
     packet_ids.S_ENTER_GAME:          game_pb2.S_EnterGame,
     packet_ids.S_PLAYER_LIST:         game_pb2.S_PlayerList,
+    packet_ids.S_PLAYER_MOVE:         game_pb2.S_PlayerMove,
     packet_ids.S_UNIT_POSITIONS:      game_pb2.S_UnitPositions,
     packet_ids.S_CHAT:                game_pb2.S_Chat,
     packet_ids.S_PLAYER_LEAVE:        game_pb2.S_PlayerLeave,

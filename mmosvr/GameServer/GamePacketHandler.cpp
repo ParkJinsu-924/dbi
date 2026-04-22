@@ -140,28 +140,11 @@ Proto::ErrorCode GamePacketHandler::C_PlayerMove(std::shared_ptr<GameSession> se
 	return Proto::ErrorCode::OK;
 }
 
-Proto::ErrorCode GamePacketHandler::C_MoveCommand(std::shared_ptr<GameSession> session, const Proto::C_MoveCommand& pkt)
+Proto::ErrorCode GamePacketHandler::C_MoveCommand(std::shared_ptr<GameSession> /*session*/, const Proto::C_MoveCommand& /*pkt*/)
 {
-	auto player = GetPlayerManager().FindBySession(session);
-	if (!player)
-		return Proto::ErrorCode::PLAYER_NOT_FOUND;
-
-	if (!player->Get<BuffAgent>().CanMove())
-		return Proto::ErrorCode::OK;
-
-	Proto::Vector2 target = pkt.target_pos();
-
-	auto& mapService = GetMapManager();
-	if (mapService.IsLoaded() && !mapService.IsOnNavMesh(target))
-	{
-		Proto::Vector2 corrected;
-		if (mapService.FindNearestValidPosition(target, corrected))
-			target = corrected;
-		else
-			return Proto::ErrorCode::INVALID_POSITION;
-	}
-
-	player->SetDestination(target);
+	// 클라-authoritative 이동 모드로 전환됨 (2026-04-23): 서버는 C_PlayerMove 로 들어오는
+	// 위치를 권위로 받고 S_PlayerMove 로 브로드캐스트한다. C_MoveCommand 는 수신해도
+	// destination 세팅을 안 하므로 서버 tick 이 플레이어를 움직이지 않는다. 호환을 위해 no-op.
 	return Proto::ErrorCode::OK;
 }
 
@@ -250,8 +233,6 @@ Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> sess
 		break;
 		default: ;
 	}
-
-	LOG_INFO("Player " + std::to_string(player->GetPlayerId()) +
-		" cast skill: " + sk->name);
+	
 	return Proto::ErrorCode::OK;
 }
