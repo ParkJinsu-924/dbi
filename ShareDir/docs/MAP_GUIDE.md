@@ -313,9 +313,8 @@ constexpr float AGENT_MAX_SLOPE = 45.0f;   // 걸을 수 있는 최대 경사각
 ## 9. 관련 파일 레퍼런스
 
 ### 클라이언트 (Unity)
-- `ClaudeProject/Assets/Scripts/Editor/MapExporter.cs` — 씬 지오메트리 Export
-- `ClaudeProject/Assets/Scripts/Editor/HackAndSlashSceneSetup.cs` — 샘플 맵 자동 생성
-- `ClaudeProject/Assets/Scripts/Network/NetworkPlayerSync.cs` — S_MoveCorrection 수신 처리
+- `AlbionClient/UOP1_Project/Assets/Scripts/MMO/Editor/MapExporter.cs` — 씬 지오메트리 Export
+- `AlbionClient/UOP1_Project/Assets/Scripts/MMO/Network/NetworkPlayerSync.cs` — S_MoveCorrection 수신 처리
 
 ### 공유 (ShareDir)
 - `ShareDir/maps/default.scene.bin` — Export된 바이너리 맵 데이터

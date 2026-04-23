@@ -44,7 +44,7 @@ Proto source files are in `../ShareDir/proto/` (shared with the Unity client pro
 1. `protoc` (from `ThirdParty/protobuf/tools/protoc.exe`) generates C++ and C# code
 2. `generate_packet_ids.js` (Node.js) parses proto files and auto-generates PacketId:
    - C++: `ServerCore/Packet/PacketUtils.h` (enum) + `PacketIdTraits.h` (compile-time mapping)
-   - C#: `../ClaudeProject/Assets/Scripts/Proto/PacketIds.cs` (partial classes with `PacketId` const)
+   - C#: `../AlbionClient/UOP1_Project/Assets/Scripts/MMO/Proto/PacketIds.cs` (partial classes with `PacketId` const)
 
 PacketIds are assigned **sequentially** based on message declaration order in proto files. No manual ID management.
 

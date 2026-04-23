@@ -7,8 +7,10 @@ GitHub: https://github.com/ParkJinsu-924/dbi
 ```
 C:\claude-project\
 ├── mmosvr/          ← C++20 MMO 게임 서버 (VS 2022, MSBuild)
-├── ClaudeProject/   ← Unity 클라이언트 (URP)
-└── ShareDir/        ← 서버/클라이언트 공유 파일 (proto, 생성 스크립트)
+├── AlbionClient/    ← Unity 6 탑다운 MMO 클라이언트 (Chop Chop 베이스, URP)
+│   └── UOP1_Project/  ← 실제 Unity 프로젝트 루트
+├── ShareDir/        ← 서버/클라이언트 공유 파일 (proto, 생성 스크립트)
+└── debug_tool/      ← Python 디버그/테스트 클라이언트
 ```
 
 ## ShareDir — 공유 리소스
@@ -42,10 +44,10 @@ msbuild mmosvr.sln /p:Configuration=Debug /p:Platform=x64 /m
 - vcpkg 불필요 — 모든 서드파티가 `ThirdParty/`에 포함
 - Output: `bin\Debug\x64\` → `GameServer.exe` (7777), `LoginServer.exe` (9999), `DummyClient.exe`
 
-## 클라이언트 빌드 (ClaudeProject)
+## 클라이언트 빌드 (AlbionClient)
 
-Unity 에디터에서 `Build > Build And Run (Relative Path)` 또는 표준 Build Settings 사용.
-빌드 산출물: `ClaudeProject/Build/`
+Unity Hub → Add project from disk → `AlbionClient/UOP1_Project` 선택 (Unity 6000.4.2f1).
+표준 `File > Build Settings` 로 빌드.
 
 ## 새 패킷 추가 workflow
 

@@ -6,7 +6,7 @@ const PROTO_DIR = path.join(SCRIPT_DIR, 'proto');
 
 const CPP_ENUM_OUT = path.join(SCRIPT_DIR, '..', 'mmosvr', 'ServerCore', 'Packet', 'PacketUtils.h');
 const CPP_TRAITS_OUT = path.join(SCRIPT_DIR, '..', 'mmosvr', 'ServerCore', 'Packet', 'PacketIdTraits.h');
-const CS_PARTIAL_OUT = path.join(SCRIPT_DIR, '..', 'ClaudeProject', 'Assets', 'Scripts', 'Proto', 'PacketIds.cs');
+const CS_PARTIAL_OUT = path.join(SCRIPT_DIR, '..', 'AlbionClient', 'UOP1_Project', 'Assets', 'Scripts', 'MMO', 'Proto', 'PacketIds.cs');
 const PY_OUT = path.join(SCRIPT_DIR, '..', 'debug_tool', 'packet_ids.py');
 
 // Proto files to scan, in order. Messages get sequential IDs.

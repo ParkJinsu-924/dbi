@@ -4,7 +4,7 @@ setlocal
 set SCRIPT_DIR=%~dp0
 set PROTO_DIR=%SCRIPT_DIR%proto
 set CPP_OUT=%SCRIPT_DIR%..\mmosvr\proto\generated
-set CS_OUT=%SCRIPT_DIR%..\ClaudeProject\Assets\Scripts\Proto
+set CS_OUT=%SCRIPT_DIR%..\AlbionClient\UOP1_Project\Assets\Scripts\MMO\Proto
 set PY_OUT=%SCRIPT_DIR%..\debug_tool
 
 rem === Find protoc (vcpkg first, then PATH) ===

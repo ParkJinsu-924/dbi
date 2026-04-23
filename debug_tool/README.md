@@ -112,7 +112,7 @@ generate_proto.bat
 **스크립트 실행 경로**:
 - Python 출력 → `debug_tool/` (이 디렉토리)
 - C++ 출력  → `mmosvr/proto/generated/`
-- C# 출력   → `ClaudeProject/Assets/Scripts/Proto/`
+- C# 출력   → `AlbionClient/UOP1_Project/Assets/Scripts/MMO/Proto/`
 
 즉 서버/클라(C++), Unity(C#), debug_tool(Python) 이 **한 번의 배치 실행**으로
 모두 동기화됩니다. debug_tool에서만 별도로 돌리는 경로는 없습니다.

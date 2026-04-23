@@ -49,8 +49,8 @@ public class MapExporter : EditorWindow
         int vertexCount = allVertices.Count;
         int triangleCount = allTriangles.Count / 3;
 
-        // Write binary file
-        string outputDir = Path.GetFullPath(Path.Combine(Application.dataPath, "../../ShareDir/maps"));
+        // dataPath = AlbionClient/UOP1_Project/Assets → ShareDir 까지 3단계 위.
+        string outputDir = Path.GetFullPath(Path.Combine(Application.dataPath, "../../../ShareDir/maps"));
         if (!Directory.Exists(outputDir))
             Directory.CreateDirectory(outputDir);
 
