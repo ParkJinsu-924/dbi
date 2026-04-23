@@ -147,13 +147,17 @@ class Bot:
                 random.uniform(MAP_MIN_Z, MAP_MAX_Z))
 
     def _send_move(self) -> None:
-        tx, tz = self._pick_destination()
+        # 서버의 C_MoveCommand 핸들러는 현재 no-op (client-authoritative 전환됨).
+        # 봇은 무작위 위치를 C_PlayerMove 로 직접 권위 보고 (텔레포트형).
         # 주의: Vector2.y 는 월드 z 축 (2D top-down 규칙 — common.proto 의 Vector2 정의).
-        cmd = game_pb2.C_MoveCommand()
-        cmd.target_pos.x = tx
-        cmd.target_pos.y = tz
+        tx, tz = self._pick_destination()
+        mv = game_pb2.C_PlayerMove()
+        mv.position.x = tx
+        mv.position.y = tz
+        mv.yaw = 0.0
+        self.x, self.z = tx, tz
         try:
-            self.client.send(cmd)
+            self.client.send(mv)
         except Exception as e:
             log.debug("%s send move failed: %s", self.prefix, e)
 
