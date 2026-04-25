@@ -80,6 +80,14 @@ class Bot:
 
         self.stop_event = threading.Event()
 
+        # 이동 상태 (client.py 와 동일 규칙: destination 잡고 MOVE_SPEED 로 보간)
+        self.dest_x = 0.0
+        self.dest_z = 0.0
+        self.is_moving = False
+        self._last_move_send = 0.0
+        self._last_sent_x: float | None = None
+        self._last_sent_z: float | None = None
+
         # 다음 행동 타임스탬프 (wall-clock)
         self._next_move_at = 0.0
         self._next_skill_at = 0.0
@@ -138,26 +146,55 @@ class Bot:
                     self.z = u.position.y
                     break
         elif pkt_id == packet_ids.S_MOVE_CORRECTION:
+            # 서버 보정 = 로컬 예측이 틀렸다는 뜻. client.py 와 동일하게 이동 중단.
             self.x = msg.position.x
             self.z = msg.position.y
+            self.is_moving = False
 
     # ── AI 행동 ─────────────────────────────────────────────────────
     def _pick_destination(self) -> tuple[float, float]:
         return (random.uniform(MAP_MIN_X, MAP_MAX_X),
                 random.uniform(MAP_MIN_Z, MAP_MAX_Z))
 
-    def _send_move(self) -> None:
-        # 서버의 C_MoveCommand 핸들러는 현재 no-op (client-authoritative 전환됨).
-        # 봇은 무작위 위치를 C_PlayerMove 로 직접 권위 보고 (텔레포트형).
-        # 주의: Vector2.y 는 월드 z 축 (2D top-down 규칙 — common.proto 의 Vector2 정의).
-        tx, tz = self._pick_destination()
-        mv = game_pb2.C_PlayerMove()
-        mv.position.x = tx
-        mv.position.y = tz
-        mv.yaw = 0.0
-        self.x, self.z = tx, tz
+    def _pick_new_destination(self) -> None:
+        """랜덤 목적지를 잡고 이동 시작 (client.py 의 set_destination 과 동일 규칙)."""
+        self.dest_x, self.dest_z = self._pick_destination()
+        self.is_moving = True
+
+    def _tick_move(self, dt: float, now: float) -> None:
+        """매 프레임 호출. client.py 와 동일하게:
+          1. 목적지 방향으로 MOVE_SPEED * dt 만큼 보간 이동
+          2. SEND_INTERVAL 주기로 현재 위치를 C_PlayerMove 로 보고
+        Vector2.y 는 월드 z 축 (common.proto 규칙)."""
+        if self.is_moving:
+            dx = self.dest_x - self.x
+            dz = self.dest_z - self.z
+            dist = math.sqrt(dx * dx + dz * dz)
+            step = config.MOVE_SPEED * dt
+            if dist <= 1e-3 or step >= dist:
+                self.x = self.dest_x
+                self.z = self.dest_z
+                self.is_moving = False
+            else:
+                self.x += dx / dist * step
+                self.z += dz / dist * step
+
+        if now - self._last_move_send < config.SEND_INTERVAL:
+            return
+        if self._last_sent_x is not None \
+                and abs(self._last_sent_x - self.x) <= 0.01 \
+                and abs(self._last_sent_z - self.z) <= 0.01:
+            self._last_move_send = now
+            return
         try:
+            mv = game_pb2.C_PlayerMove()
+            mv.position.x = self.x
+            mv.position.y = self.z
+            mv.yaw = 0.0
             self.client.send(mv)
+            self._last_move_send = now
+            self._last_sent_x = self.x
+            self._last_sent_z = self.z
         except Exception as e:
             log.debug("%s send move failed: %s", self.prefix, e)
 
@@ -202,6 +239,7 @@ class Bot:
         now = time.time()
         self._next_move_at = now + random.uniform(MOVE_INTERVAL_MIN, MOVE_INTERVAL_MAX)
         self._next_skill_at = now + random.uniform(SKILL_INTERVAL_MIN, SKILL_INTERVAL_MAX)
+        last_tick = now
 
         try:
             while not self.stop_event.is_set():
@@ -214,14 +252,19 @@ class Bot:
 
                 if self.in_game:
                     now = time.time()
+                    dt = now - last_tick
+                    last_tick = now
                     if now >= self._next_move_at:
-                        self._send_move()
+                        self._pick_new_destination()
                         self._next_move_at = now + random.uniform(
                             MOVE_INTERVAL_MIN, MOVE_INTERVAL_MAX)
+                    self._tick_move(dt, now)
                     if now >= self._next_skill_at:
                         self._send_skill()
                         self._next_skill_at = now + random.uniform(
                             SKILL_INTERVAL_MIN, SKILL_INTERVAL_MAX)
+                else:
+                    last_tick = time.time()
 
                 time.sleep(0.05)
         finally:
