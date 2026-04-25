@@ -4,7 +4,7 @@
 #include "Zone.h"
 #include "Unit.h"
 #include "PacketMaker.h"
-#include "SkillRuntime.h"
+#include "SkillExecution.h"
 
 
 void Projectile::Update(const float dt)
@@ -42,7 +42,7 @@ void Projectile::ApplyHit(Unit& target, const Proto::Vector2& hitPos)
 
 	// OnHit 효과 적용 + S_SkillHit 방송. S_UnitHp / aggro 누적은
 	// Unit::TakeDamage 가 BuffAgent 경로로 자동 처리.
-	SkillRuntime::ResolveHit(casterUnit, target, skillId_, GetPosition(), hitPos, GetZone());
+	SkillExecution::ResolveHit(casterUnit, target, skillId_, GetPosition(), hitPos, GetZone());
 
 	consumed_ = true;
 	GetZone().Broadcast(PacketMaker::MakeProjectileDestroy(GetGuid(), Proto::S_ProjectileDestroy_Reason_HIT));

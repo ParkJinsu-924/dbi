@@ -12,7 +12,7 @@ struct Effect;
 // ===========================================================================
 // BuffAgent — Unit 공통. 지속성 효과(Buff/Debuff/CC) 저장소.
 // 책임: StatMod/CCState 엔트리 보관, Tick 마다 duration 감소/만료 처리, CC 플래그 집계.
-// 즉발(Damage/Heal) 효과의 분배는 SkillRuntime::ApplyEffectToUnit 이 담당 — 여기서는 저장만.
+// 즉발(Damage/Heal) 효과의 분배는 SkillExecution 의 내부 헬퍼가 담당 — 여기서는 저장만.
 // ===========================================================================
 class BuffAgent : public IAgent
 {

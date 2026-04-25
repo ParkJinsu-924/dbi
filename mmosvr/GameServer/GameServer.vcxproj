@@ -110,7 +110,7 @@
         <ClCompile Include="HomingProjectile.cpp"/>
         <ClCompile Include="SkillshotProjectile.cpp"/>
         <ClCompile Include="SkillBehavior.cpp"/>
-        <ClCompile Include="SkillRuntime.cpp"/>
+        <ClCompile Include="SkillExecution.cpp"/>
         <ClCompile Include="SkillTemplate.cpp"/>
     </ItemGroup>
     <ItemGroup>
@@ -141,7 +141,7 @@
         <ClInclude Include="Effect.h"/>
         <ClInclude Include="SkillEffect.h"/>
         <ClInclude Include="MonsterSkillEntry.h"/>
-        <ClInclude Include="SkillRuntime.h"/>
+        <ClInclude Include="SkillExecution.h"/>
         <ClInclude Include="SkillBehavior.h"/>
         <ClInclude Include="SkillBehaviorRegistry.h"/>
         <ClInclude Include="Agent\IAgent.h"/>

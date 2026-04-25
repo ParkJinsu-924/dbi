@@ -1,9 +1,9 @@
 #pragma once
 
 // Strategy 인터페이스 — 스킬마다의 "AI 수준 행동" 을 캡슐화한다.
-// 데미지/Effect 적용 같은 실제 처리는 SkillRuntime::CastTargeted 가 담당하며,
+// 데미지/Effect 적용 같은 실제 처리는 SkillExecution::CastTargeted 가 담당하며,
 // Behavior 는 그 호출 여부 및 주변 처리(예: 추가 조건, 선행 이동 등)를 결정한다.
-// 기본 구현은 DefaultAttackBehavior — SkillRuntime::CastTargeted 한 번 호출만.
+// 기본 구현은 DefaultAttackBehavior — SkillExecution::CastTargeted 한 번 호출만.
 
 class Monster;
 class Player;

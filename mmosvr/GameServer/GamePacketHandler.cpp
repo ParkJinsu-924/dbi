@@ -11,7 +11,7 @@
 #include "ZoneManager.h"
 #include "ResourceManager.h"
 #include "SkillTemplate.h"
-#include "SkillRuntime.h"
+#include "SkillExecution.h"
 #include "PacketMaker.h"
 #include "GameConstants.h"
 #include "Utils/MathUtil.h"
@@ -217,7 +217,7 @@ Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> sess
 					return Proto::ErrorCode::OK;
 			}
 
-			SkillRuntime::CastTargeted(*sk, *player, *target, playerZone);
+			SkillExecution::CastTargeted(*sk, *player, *target, playerZone);
 		}
 		break;
 		case SkillKind::Skillshot:
@@ -226,7 +226,7 @@ Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> sess
 			if (!dir)
 				return Proto::ErrorCode::INVALID_REQUEST;
 
-			SkillRuntime::CastSkillshot(*player, dir->x, dir->y, *sk, playerZone);
+			SkillExecution::CastSkillshot(*player, dir->x, dir->y, *sk, playerZone);
 		}
 		break;
 		default: ;

@@ -1,5 +1,5 @@
 #include "pch.h"
-#include "SkillRuntime.h"
+#include "SkillExecution.h"
 
 #include "SkillTemplate.h"
 #include "Effect.h"
@@ -101,8 +101,8 @@ namespace
 	                 Unit& caster, Unit& target, Zone& zone)
 	{
 		ApplyEffects(skill.sid, EffectTrigger::OnCast, &caster, &target);
-		SkillRuntime::ResolveHit(&caster, target, skill.sid,
-		                         caster.GetPosition(), target.GetPosition(), zone);
+		SkillExecution::ResolveHit(&caster, target, skill.sid,
+		                           caster.GetPosition(), target.GetPosition(), zone);
 	}
 
 	// Homing 발사 — OnCast (Self 버프 등) 즉발. 명중 시 OnHit 은 Projectile::ApplyHit 에서 처리.
@@ -122,7 +122,7 @@ namespace
 // ===========================================================================
 // 공개 API
 // ===========================================================================
-namespace SkillRuntime
+namespace SkillExecution
 {
 	void ResolveHit(Unit* caster, Unit& target, int32 skillId,
 	                const Proto::Vector2& casterPos,

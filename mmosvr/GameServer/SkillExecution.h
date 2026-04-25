@@ -1,7 +1,7 @@
 #pragma once
 
-// 스킬 실행 진입점. Player(GamePacketHandler) / Monster(DefaultAttackBehavior) /
-// Projectile(명중 처리) 가 공통 경유.
+// 스킬 한 번의 실행 과정을 담당하는 진입점. Player(GamePacketHandler) /
+// Monster(DefaultAttackBehavior) / Projectile(명중 처리) 가 공통 경유.
 //
 // 외부에 공개되는 진입점은 아래 3가지뿐. effect 적용/데미지 계산/공격 종류별
 // 분기 같은 내부 헬퍼는 .cpp 의 anonymous namespace 에 격리되어 외부에서 호출 불가.
@@ -20,7 +20,7 @@ class Zone;
 struct SkillTemplate;
 
 
-namespace SkillRuntime
+namespace SkillExecution
 {
 	void CastTargeted(const SkillTemplate& skill, Unit& caster, Unit& target, Zone& zone);
 
