@@ -217,7 +217,7 @@ Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> sess
 					return Proto::ErrorCode::OK;
 			}
 
-			SkillRuntime::Cast(*sk, *player, *target, playerZone);
+			SkillRuntime::CastTargeted(*sk, *player, *target, playerZone);
 		}
 		break;
 		case SkillKind::Skillshot:

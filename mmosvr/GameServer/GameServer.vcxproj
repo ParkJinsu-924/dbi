@@ -110,6 +110,7 @@
         <ClCompile Include="HomingProjectile.cpp"/>
         <ClCompile Include="SkillshotProjectile.cpp"/>
         <ClCompile Include="SkillBehavior.cpp"/>
+        <ClCompile Include="SkillRuntime.cpp"/>
         <ClCompile Include="SkillTemplate.cpp"/>
     </ItemGroup>
     <ItemGroup>
