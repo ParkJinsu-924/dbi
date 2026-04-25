@@ -276,7 +276,8 @@ void StressBot::DoMove()
     if (!gameSession_ || !gameSession_->IsConnected()) { Die(); return; }
 
     // 원점 근처 반경 3~10m 랜덤 target 으로 C_MoveCommand 송신.
-    // MovementAgent::SetDestination → IsMoving=true → S_WorldSnapshot 에 포함.
+    // 서버 측 C_MoveCommand 는 클라 권위 이동 전환(2026-04-23) 이후 no-op 이라
+    // 실제 위치 갱신은 일어나지 않는다 — DB/세션 부하 측정용 idle traffic 으로만 의미.
     std::uniform_real_distribution<float> angle(0.0f, 6.2831853f);
     std::uniform_real_distribution<float> radius(3.0f, 10.0f);
     const float a = angle(rng_);

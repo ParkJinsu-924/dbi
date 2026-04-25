@@ -132,16 +132,9 @@ void Zone::BroadcastObjectPositions(const float deltaTime)
 	Proto::S_UnitPositions snap;
 	snap.set_server_tick(++snapshotTick_);
 
-	// Player — 이동 중인 플레이어만 포함. 정지 플레이어는 직전에 최종 위치 방송했음.
-	ForEachOfType(GameObjectType::Player, [&](const long long guid, const std::shared_ptr<GameObject>& obj)
-		{
-			auto player = std::static_pointer_cast<Player>(obj);
-			if (!player->IsMoving()) return;
-			auto* u = snap.add_units();
-			u->set_guid(guid);
-			*u->mutable_position() = player->GetPosition();
-			u->set_yaw(player->GetYaw());
-		});
+	// Player 위치는 클라 권위 — C_PlayerMove 마다 즉시 S_PlayerMove 로 브로드캐스트
+	// 되므로 스냅샷에 포함하지 않는다. 서버 권위 강제 이동(돌진/넉백 등) 도입 시
+	// ForcedMoveAgent::IsActive() 게이트로 다시 합칠 것.
 
 	// Monster — 전체 포함 (수가 적고 AI 이동 빈도도 낮음).
 	ForEachOfType(GameObjectType::Monster, [&](const long long guid, const std::shared_ptr<GameObject>& obj)

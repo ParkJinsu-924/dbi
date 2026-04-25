@@ -154,9 +154,8 @@ Proto::ErrorCode GamePacketHandler::C_StopMove(std::shared_ptr<GameSession> sess
 	if (!player)
 		return Proto::ErrorCode::PLAYER_NOT_FOUND;
 
-	player->ClearDestination();
-
-	// 정지 시점 최종 위치를 1회 브로드캐스트해서 다른 클라이언트의 보간이 정확히 끝나도록 한다
+	// 클라 권위 이동 모델: 서버 destination 개념이 없으므로 별도 상태 정리는 불필요.
+	// 정지 시점 최종 위치를 1회 브로드캐스트해서 다른 클라이언트의 보간이 정확히 끝나도록 한다.
 	player->GetZone().Broadcast(PacketMaker::MakePlayerMove(*player));
 
 	return Proto::ErrorCode::OK;
@@ -196,8 +195,7 @@ Proto::ErrorCode GamePacketHandler::C_UseSkill(std::shared_ptr<GameSession> sess
 	if (!player->Get<SkillCooldownAgent>().TryConsume(sk->sid, sk->cooldown))
 		return Proto::ErrorCode::OK;  // 쿨다운 중 — 조용히 무시
 
-	// LoL 스타일: 스킬 사용 시 진행 중이던 이동을 자동 중단한다
-	player->ClearDestination();
+	// 클라 권위 이동 모델: 스킬 사용 시 이동 중단은 클라(_cast_skill 의 is_moving=False) 책임.
 
 	switch (sk->targeting)
 	{

@@ -4,6 +4,7 @@
 #include "Agent/BuffAgent.h"
 #include "Agent/SkillCooldownAgent.h"
 #include "Agent/AggroAgent.h"
+#include "Agent/ForcedMoveAgent.h"
 #include "Utils/MathUtil.h"
 #include "Zone.h"
 #include "PacketMaker.h"
@@ -19,6 +20,7 @@ Unit::Unit(GameObjectType type, Zone& zone, long long guid, std::string name)
 {
 	AddAgent<BuffAgent>();
 	AddAgent<SkillCooldownAgent>();
+	AddAgent<ForcedMoveAgent>();   // 강제 이동(돌진/넉백 등) 수신 채널. 첫 사용처 도입 전엔 inactive.
 }
 
 void Unit::Update(const float deltaTime)

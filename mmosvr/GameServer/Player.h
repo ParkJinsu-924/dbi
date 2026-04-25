@@ -1,7 +1,6 @@
 ﻿#pragma once
 
 #include "Unit.h"
-#include "Agent/MovementAgent.h"
 #include <memory>
 #include <string>
 
@@ -32,13 +31,8 @@ public:
 	float GetYaw() const { return yaw_; }
 	void SetYaw(float yaw) { yaw_ = yaw; }
 
-	// --- Movement (LoL-style click-to-move) ---
-	// 실제 상태는 MovementAgent 가 관리. 아래 메서드는 wrapper.
-	// C_MoveCommand 수신 시 SetDestination, C_StopMove / C_UseSkill 시 ClearDestination.
-	void SetDestination(const Proto::Vector2& dest) { Get<MovementAgent>().SetDestination(dest); }
-	void ClearDestination()                          { Get<MovementAgent>().Clear(); }
-	bool IsMoving() const                            { return Get<MovementAgent>().IsMoving(); }
-	const Proto::Vector2& GetDestination() const     { return Get<MovementAgent>().GetDestination(); }
+	// 이동은 클라 권위 — C_PlayerMove 가 SetPosition 으로 직접 갱신한다.
+	// 서버 권위 강제 이동(돌진/넉백 등)이 도입되면 ForcedMoveAgent 로 처리.
 
 	// --- Game State (hp/maxHp/IsAlive are in Unit) ---
 	int32 GetLevel() const { return level_; }

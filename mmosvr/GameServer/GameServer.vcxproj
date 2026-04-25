@@ -95,7 +95,7 @@
         <ClCompile Include="Agent\SkillCooldownAgent.cpp"/>
         <ClCompile Include="Agent\FSMAgent.cpp"/>
         <ClCompile Include="Agent\AggroAgent.cpp"/>
-        <ClCompile Include="Agent\MovementAgent.cpp"/>
+        <ClCompile Include="Agent\ForcedMoveAgent.cpp"/>
         <ClCompile Include="GameObject.cpp"/>
         <ClCompile Include="Unit.cpp"/>
         <ClCompile Include="Monster.cpp"/>
@@ -149,7 +149,7 @@
         <ClInclude Include="Agent\SkillCooldownAgent.h"/>
         <ClInclude Include="Agent\FSMAgent.h"/>
         <ClInclude Include="Agent\AggroAgent.h"/>
-        <ClInclude Include="Agent\MovementAgent.h"/>
+        <ClInclude Include="Agent\ForcedMoveAgent.h"/>
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\ServerCore\ServerCore.vcxproj">
