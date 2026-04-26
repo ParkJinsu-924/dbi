@@ -7,8 +7,10 @@ GitHub: https://github.com/ParkJinsu-924/dbi
 ```
 C:\claude-project\
 ├── mmosvr/          ← C++20 MMO 게임 서버 (VS 2022, MSBuild)
-├── AlbionClient/    ← Unity 6 탑다운 MMO 클라이언트 (Chop Chop 베이스, URP)
-│   └── UOP1_Project/  ← 실제 Unity 프로젝트 루트
+├── mmoclient/       ← Unity 6 MMO 클라이언트 (URP)
+│   └── Assets/Scripts/Network/  ← MMO Network Layer (TcpSession, PacketRouter, NetworkManager)
+│   └── Assets/Scripts/Proto/    ← protoc 자동생성 C# (asmdef: MMO.Proto)
+│   └── Assets/Plugins/          ← Google.Protobuf.dll
 ├── ShareDir/        ← 서버/클라이언트 공유 파일 (proto, 생성 스크립트)
 └── debug_tool/      ← Python 디버그/테스트 클라이언트
 ```
@@ -44,10 +46,20 @@ msbuild mmosvr.sln /p:Configuration=Debug /p:Platform=x64 /m
 - vcpkg 불필요 — 모든 서드파티가 `ThirdParty/`에 포함
 - Output: `bin\Debug\x64\` → `GameServer.exe` (7777), `LoginServer.exe` (9999), `DummyClient.exe`
 
-## 클라이언트 빌드 (AlbionClient)
+## 클라이언트 빌드 (mmoclient)
 
-Unity Hub → Add project from disk → `AlbionClient/UOP1_Project` 선택 (Unity 6000.4.2f1).
+Unity Hub → Add project from disk → `mmoclient/` 선택 (Unity 6).
 표준 `File > Build Settings` 로 빌드.
+
+### Network Layer (Assets/Scripts/Network/)
+- `TcpSession`: 비동기 send/recv 스레드 + ArrayPool 버퍼 풀링 + 상태머신 + DisconnectReason 분리
+- `ReceiveBuffer`: TCP 프레이밍(append-and-compact) + 6byte 헤더 검증
+- `PacketIdMap`: 리플렉션 기반 Type↔uint 캐시 (1회만 reflect, 이후 dict lookup)
+- `PacketRouter.Register<T>(handler)`: 백그라운드에서 protobuf 파싱 → MainThreadDispatcher로 dispatch
+- `MainThreadDispatcher`: 프레임당 처리 budget 제한, 백그라운드-안전 TryEnqueue
+- `LoginSession` / `GameSession`: 도메인별 typed event API
+- `NetworkManager` (싱글턴 MonoBehaviour): 로그인 → S_Login → GameServer → C_EnterGame 플로우 오케스트레이션
+- `NetworkConfig` (ScriptableObject): 환경별 endpoint/timeout/buffer 설정
 
 ## 새 패킷 추가 workflow
 

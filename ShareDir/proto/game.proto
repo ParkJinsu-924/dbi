@@ -8,8 +8,8 @@ message C_EnterGame {
     string token = 1;
 }
 
-// Deprecated: 기존 위치 직접 송신 방식. 신규 클라이언트는 C_MoveCommand 사용.
-// 서버가 완전히 전환되면 이 메시지와 핸들러를 제거한다.
+// 클라이언트가 매 tick 자기 위치/yaw 를 서버에 송신.
+// 클라이언트 권위 이동 — 서버는 받은 좌표를 다른 플레이어에게 S_PlayerMove 로 브로드캐스트.
 message C_PlayerMove {
     Vector2 position = 1;
     float yaw = 2;
