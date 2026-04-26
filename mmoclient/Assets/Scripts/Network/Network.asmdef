@@ -1,0 +1,16 @@
+{
+    "name": "MMO.Network",
+    "rootNamespace": "MMO.Network",
+    "references": [
+        "MMO.Proto"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
