@@ -54,3 +54,4 @@ Thumbs.db
 .DS_Store
 *.stackdump
 mmosvr/RecastDetour/obj/RecastDetour/Debug/x64/RecastDetour.tlog
+mmosvr/GameServer/metrics

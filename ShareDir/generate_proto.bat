@@ -60,4 +60,14 @@ if %ERRORLEVEL% neq 0 (
     )
 )
 
+rem === Invalidate MSBuild ProtoLib obj cache ===
+rem MSBuild's incremental build can miss protoc-regenerated .pb.cc/.pb.h changes,
+rem leading to stale .obj files mixing old/new PlayerInfo layouts (ODR violation,
+rem manifested once as PlayerId/Guid wire-format swap). Force-clear ProtoLib obj
+rem so the next msbuild rebuilds game.pb.cc cleanly.
+if exist "%SCRIPT_DIR%..\mmosvr\obj\ProtoLib" (
+    echo Invalidating ProtoLib obj cache...
+    rmdir /s /q "%SCRIPT_DIR%..\mmosvr\obj\ProtoLib"
+)
+
 echo [OK] All generation complete.

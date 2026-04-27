@@ -233,5 +233,6 @@ Proto::PlayerInfo PacketMaker::MakePlayerInfo(const Player& player)
 	info.set_name(player.GetName());
 	*info.mutable_position() = player.GetPosition();
 	info.set_guid(player.GetGuid());
+	info.set_yaw(player.GetYaw());
 	return info;
 }

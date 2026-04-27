@@ -67,6 +67,9 @@ class PlayerState:
     destination_x: float = 0.0
     destination_z: float = 0.0
     is_moving: bool = False
+    # 마지막 이동 방향에서 파생한 facing yaw (Unity 컨벤션, degrees).
+    # 정지 후에도 마지막 방향을 유지해 Unity 클라이언트의 RemotePlayer 회전과 동기화.
+    yaw: float = 0.0
 
     # 활성 Buff/Debuff — eid → remaining_duration(sec).
     # 서버의 S_BuffApplied 로 추가, Tick 과 S_BuffRemoved 로 제거.
@@ -130,6 +133,8 @@ class PlayerState:
         if dist < 0.001:
             self.is_moving = False
             return
+        # Unity 의 transform.eulerAngles.y 와 동일 컨벤션: +Z 가 yaw 0, atan2(dx, dz) deg.
+        self.yaw = math.degrees(math.atan2(dx, dz))
         step = self.get_effective_move_speed() * dt
         if step >= dist:
             self.x = self.destination_x
@@ -280,6 +285,7 @@ def _h_player_list(state: GameState, msg):
         ps.guid = p.guid
         ps.x, ps.z = px, pz
         ps.tx, ps.tz = px, pz
+        ps.yaw = p.yaw
 
 
 def _h_unit_positions(state: GameState, msg):
@@ -329,6 +335,7 @@ def _h_player_spawn(state: GameState, msg):
     ps.guid = p.guid
     ps.x, ps.z = px, pz
     ps.tx, ps.tz = px, pz
+    ps.yaw = p.yaw
     log_game.info("player joined: id=%d name=%s", p.player_id, p.name)
 
 
@@ -1035,7 +1042,7 @@ def run_game(token: str, game_host: str, game_port: int, username: str) -> None:
                 mv = game_pb2.C_PlayerMove()
                 mv.position.x = state.me.x
                 mv.position.y = state.me.z
-                mv.yaw = 0.0
+                mv.yaw = state.me.yaw
                 client.send(mv)
                 io["last_move_send"] = _now_send
                 io["last_sent_move_x"] = state.me.x

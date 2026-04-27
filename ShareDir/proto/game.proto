@@ -52,6 +52,7 @@ message PlayerInfo {
     string name = 2;
     Vector2 position = 3;
     int64 guid = 4;              // 해당 플레이어의 GameObject GUID
+    float yaw = 5;               // 첫 S_PlayerMove 도착 전 RemotePlayer facing 초기값
 }
 
 message S_PlayerList {

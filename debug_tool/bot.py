@@ -84,6 +84,9 @@ class Bot:
         self.dest_x = 0.0
         self.dest_z = 0.0
         self.is_moving = False
+        # 마지막 이동 방향에서 파생한 facing yaw (Unity 컨벤션, degrees).
+        # 정지 후에도 마지막 방향을 유지해 Unity 클라이언트의 RemotePlayer 회전과 동기화.
+        self.yaw = 0.0
         self._last_move_send = 0.0
         self._last_sent_x: float | None = None
         self._last_sent_z: float | None = None
@@ -170,6 +173,9 @@ class Bot:
             dx = self.dest_x - self.x
             dz = self.dest_z - self.z
             dist = math.sqrt(dx * dx + dz * dz)
+            # Unity transform.eulerAngles.y 컨벤션: +Z 가 yaw 0, atan2(dx, dz) deg.
+            if dist > 1e-3:
+                self.yaw = math.degrees(math.atan2(dx, dz))
             step = config.MOVE_SPEED * dt
             if dist <= 1e-3 or step >= dist:
                 self.x = self.dest_x
@@ -190,7 +196,7 @@ class Bot:
             mv = game_pb2.C_PlayerMove()
             mv.position.x = self.x
             mv.position.y = self.z
-            mv.yaw = 0.0
+            mv.yaw = self.yaw
             self.client.send(mv)
             self._last_move_send = now
             self._last_sent_x = self.x

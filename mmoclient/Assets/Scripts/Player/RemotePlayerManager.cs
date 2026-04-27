@@ -51,6 +51,8 @@ namespace MMO.Player
             foreach (var info in msg.Players)
             {
                 if (info.PlayerId == LocalPlayerId) continue;
+                Debug.Log($" >>>>>>>>>>>>>>> {LocalPlayerId}");
+                Debug.Log($"[RemotePlayerManager] Player {info.PlayerId}");
                 Spawn(info);
             }
         }

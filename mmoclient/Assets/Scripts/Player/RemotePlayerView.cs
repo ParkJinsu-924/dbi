@@ -19,7 +19,7 @@ namespace MMO.Player
             Guid = info.Guid;
             PlayerName = info.Name ?? "";
             _targetPos = new Vector3(info.Position?.X ?? 0f, 0f, info.Position?.Y ?? 0f);
-            _targetYaw = 0f;
+            _targetYaw = info.Yaw;
             transform.position = _targetPos;
             transform.rotation = Quaternion.Euler(0f, _targetYaw, 0f);
         }

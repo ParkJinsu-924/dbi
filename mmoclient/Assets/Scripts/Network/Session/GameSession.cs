@@ -51,6 +51,7 @@ namespace MMO.Network
             _router.Register<S_EnterGame>(msg =>
             {
                 LocalPlayerId = msg.PlayerId;
+                Debug.Log($"[>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Game] entered as playerId={msg.PlayerId}");
                 LocalPlayerGuid = msg.Guid;
                 LocalSpawnPosition = new Vector3(
                     msg.SpawnPosition?.X ?? 0f, 0f, msg.SpawnPosition?.Y ?? 0f);

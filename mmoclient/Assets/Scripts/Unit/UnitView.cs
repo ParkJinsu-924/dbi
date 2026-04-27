@@ -13,12 +13,23 @@ namespace MMO.Unit
     {
         [SerializeField] protected float _smoothing = 12f;
         [SerializeField] protected float _snapDistance = 5f;
+        [SerializeField] protected Animator _animator;
 
         public long Guid { get; protected set; }
         public int Hp { get; protected set; }
         public int MaxHp { get; protected set; }
 
         protected Vector3 _targetPos;
+
+        private static readonly int SpeedHash = Animator.StringToHash("Speed");
+        private Vector3 _prevPos;
+        private bool _prevPosInitialized;
+
+        protected virtual void Awake()
+        {
+            if (_animator == null)
+                _animator = GetComponentInChildren<Animator>();
+        }
 
         public virtual void SetTargetPosition(Vector3 pos)
         {
@@ -41,6 +52,25 @@ namespace MMO.Unit
         {
             float t = 1f - Mathf.Exp(-_smoothing * Time.deltaTime);
             transform.position = Vector3.Lerp(transform.position, _targetPos, t);
+
+            UpdateAnimatorSpeed();
+        }
+
+        private void UpdateAnimatorSpeed()
+        {
+            if (!_prevPosInitialized)
+            {
+                _prevPos = transform.position;
+                _prevPosInitialized = true;
+                return;
+            }
+
+            if (_animator != null && Time.deltaTime > 0f)
+            {
+                float speed = (transform.position - _prevPos).magnitude / Time.deltaTime;
+                _animator.SetFloat(SpeedHash, speed, 0.1f, Time.deltaTime);
+            }
+            _prevPos = transform.position;
         }
     }
 }

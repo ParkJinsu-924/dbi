@@ -17,15 +17,30 @@ namespace MMO.Player
         [SerializeField] private float _positionEpsilon = 0.05f;
         [SerializeField] private float _yawEpsilon = 1f;
 
+        [Header("Animation")]
+        [SerializeField] private Animator _animator;
+        
+        [Header("Angular Speed")]
+        [SerializeField] private float _angularSpeed = 720f;
+
+        private static readonly int SpeedHash = Animator.StringToHash("Speed");
+
         private NavMeshAgent _agent;
         private float _nextSendAt;
         private Vector3 _lastSentPos;
         private float _lastSentYaw;
 
+        // Rotation we drive manually so the character keeps turning even after
+        // NavMeshAgent stops on a short path.
+        private Vector3 _facingDir;
+        private bool _hasFacing;
+
         private void Awake()
         {
             _agent = GetComponent<NavMeshAgent>();
+            _agent.updateRotation = false;
             if (_camera == null) _camera = Camera.main;
+            if (_animator == null) _animator = GetComponentInChildren<Animator>();
             _lastSentPos = transform.position;
             _lastSentYaw = transform.eulerAngles.y;
         }
@@ -33,7 +48,35 @@ namespace MMO.Player
         private void Update()
         {
             HandleClick();
+            UpdateRotation();
+            UpdateAnimator();
             TrySendPosition();
+        }
+
+        private void UpdateRotation()
+        {
+            Vector3 vel = _agent.velocity;
+            vel.y = 0f;
+            if (vel.sqrMagnitude > 0.01f)
+            {
+                _facingDir = vel.normalized;
+                _hasFacing = true;
+            }
+            if (!_hasFacing) return;
+
+            Quaternion target = Quaternion.LookRotation(_facingDir, Vector3.up);
+            transform.rotation = Quaternion.RotateTowards(
+                transform.rotation, target, _angularSpeed * Time.deltaTime);
+
+            if (Quaternion.Angle(transform.rotation, target) < 0.5f)
+                _hasFacing = false;
+        }
+
+        private void UpdateAnimator()
+        {
+            if (_animator == null) return;
+            float speed = _agent.velocity.magnitude;
+            _animator.SetFloat(SpeedHash, speed, 0.1f, Time.deltaTime);
         }
 
         private void HandleClick()
