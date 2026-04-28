@@ -168,6 +168,30 @@ message S_SkillHit {
     Vector2 hit_pos     = 6;
 }
 
+// 시전 시작(wind-up) 알림. cast_time>0 인 스킬만 송신된다.
+// 시간축:  0 ── cast_time ── cast_end_time
+//          │ wind-up │  recovery  │
+//          │         ↑            ↑
+//          │   임팩트 = S_SkillHit │  시전 완료 = cooldown 시작
+// 클라이언트는 두 구간을 별도 비율로 재생 — wind-up 동안 클립의 임팩트 프레임까지를
+// cast_time 안에 끝내고, recovery 동안 나머지 follow-through 를 (cast_end_time-cast_time) 안에 끝낸다.
+// 이렇게 분리하면 서버 cast_time 값이 0.5 든 2 든 임팩트와 데미지 도착이 항상 동기화된다.
+message S_SkillCastStart {
+    int64   caster_guid   = 1;
+    int64   target_guid   = 2;     // Skillshot/AoE 면 0
+    int32   skill_id      = 3;
+    float   cast_time     = 4;     // 시작 후 임팩트(데미지) 시각. S_SkillHit 도착 예정 시각.
+    Vector2 caster_pos    = 5;     // 시전 시작 시점 caster 위치 (facing/시각화용 스냅샷)
+    float   cast_end_time = 6;     // 시작 후 시전 완료 시각. cooldown 은 이 시점부터 시작.
+}
+
+// 시전 캔슬 알림. caster 사망/CC/타겟 사망 등으로 wind-up 이 중단됐을 때 송신.
+// 클라는 진행 중인 공격 모션을 끊고 Locomotion 으로 복귀.
+message S_SkillCastCancel {
+    int64 caster_guid = 1;
+    int32 skill_id    = 2;       // 식별/디버그용
+}
+
 // Unit(Player/Monster/NPC 등 HP를 가진 모든 GameObject) 의 HP 변경을 알리는 범용 패킷.
 // guid 로 대상 식별하므로 수신 측이 자기 자신/다른 플레이어/몬스터 모두 동일 로직으로 처리한다.
 message S_UnitHp {

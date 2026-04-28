@@ -9,6 +9,7 @@
 #include "Agent/BuffAgent.h"
 #include "PacketMaker.h"
 #include "Utils/MathUtil.h"
+#include "Utils/TimeManager.h"
 
 
 // ===========================================================================
@@ -150,6 +151,8 @@ namespace SkillExecution
 
 	void CastTargeted(const SkillTemplate& skill, Unit& caster, Unit& target, Zone& zone)
 	{
+		// 즉발 경로. wind-up (cast_time>0) 은 BeginTargetedCast 가 별도 진입점이므로
+		// 여기서는 분기하지 않는다 — EngageState 가 cast_time 보고 분기한 결과를 받는다.
 		switch (skill.targeting)
 		{
 		case SkillKind::Melee:
@@ -168,5 +171,15 @@ namespace SkillExecution
 			break;
 		}
 		}
+	}
+
+	void BeginTargetedCast(const SkillTemplate& skill, Unit& caster, Unit& target,
+	                       Zone& zone, const float now, const float appliedCooldown)
+	{
+		// wind-up 진입. OnCast 효과(self-buff/cost 등)는 시전 *시작* 시점에 적용 — LoL/Albion 관습.
+		// OnHit + S_SkillHit 은 Unit::TickCast → ResolveHit 가 cast_time 경과 시점에 처리.
+		ApplyEffects(skill.sid, EffectTrigger::OnCast, &caster, &target);
+		caster.BeginCast(skill, target, now, appliedCooldown);
+		(void)zone;   // zone 은 caster.GetZone() 와 동일 — 인터페이스 일관성 위해 받지만 사용 안 함.
 	}
 }

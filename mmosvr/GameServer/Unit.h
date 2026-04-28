@@ -6,8 +6,11 @@
 
 #include <cassert>
 #include <memory>
+#include <optional>
 #include <type_traits>
 #include <vector>
+
+struct SkillTemplate;
 
 
 // ===========================================================================
@@ -82,10 +85,46 @@ public:
 	// false = 아직 이동 중 또는 CanMove() 가 false 라 이동 불가.
 	bool MoveToward(const Proto::Vector2& target, float deltaTime);
 
+	// --- Cast (wind-up + recovery) --------------------------------------------
+	// SkillTemplate.cast_time>0 인 스킬 한정. 두 단계 흐름:
+	//   0 ── resolveAt(=now+cast_time) ── endAt(=now+cast_time+recovery_time)
+	//   │      wind-up      │       recovery       │
+	//   │                   ↑                      ↑
+	//   │             ResolveHit (S_SkillHit)   cooldown 시작 + pendingCast 해제
+	// 두 단계 동안 IsCasting()==true 이며 EngageState 는 이동/추가 시전을 차단한다.
+	// cancel(target 사망 wind-up 중 / caster 사망 / Stun) 시 즉시 cooldown MarkUsed.
+	struct PendingCast
+	{
+		int32          skillId         = 0;
+		long long      targetGuid      = 0;
+		float          resolveAt       = 0.0f;   // 임팩트 시각 (now+cast_time)
+		float          endAt           = 0.0f;   // 시전 완료 시각 (now+cast_time+recovery_time)
+		float          appliedCooldown = 0.0f;   // endAt/cancel 시 MarkUsed(now + applied) 에 사용
+		bool           resolved        = false;  // 임팩트 도달 후 true → ResolveHit 중복 방지
+		Proto::Vector2 castPos;                  // 시전 시작 시점 caster 위치 스냅샷
+	};
+
+	bool IsCasting() const { return pendingCast_.has_value(); }
+
+	// skill.cast_time>0 가정. S_SkillCastStart 브로드캐스트 + pendingCast_ 세팅.
+	// appliedCooldown: cast 완료 또는 cancel 시점에 SkillCooldownAgent.MarkUsed 에 사용.
+	// now 는 TimeManager.GetTotalTime() 기준 (호출부와 동일 clock).
+	void BeginCast(const SkillTemplate& skill, const Unit& target, float now, float appliedCooldown);
+
+	// pendingCast_ 가 있고 임팩트/완료 조건을 만족하면 ResolveHit / cooldown 시작.
+	// Update 의 마지막 단계에서 자동 호출 — 외부에서 직접 부를 일은 없다.
+	void TickCast();
+
+	// 시전 중이면 S_SkillCastCancel 브로드캐스트 + 즉시 cooldown 시작 + pendingCast_.reset().
+	// 아니면 no-op.
+	void CancelCast();
+
 protected:
 	int32 hp_ = 100;
 	int32 maxHp_ = 100;
 	float moveSpeed_ = 3.0f;   // 파생 ctor 또는 스폰 시점(템플릿) 에서 덮어쓴다.
+
+	std::optional<PendingCast> pendingCast_;
 
 private:
 	// AgentRegistry::IdOf<T>() 를 인덱스로 사용. 미등록 Agent 슬롯은 nullptr.

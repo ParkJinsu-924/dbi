@@ -47,6 +47,14 @@ public:
 	                                      const Proto::Vector2& casterPos,
 	                                      const Proto::Vector2& hitPos);
 
+	// --- 시전 시작/캔슬 (cast_time>0 인 스킬 한정) ---
+	// targetGuid=0 은 Skillshot/AoE 처럼 명시 타겟이 없는 경우.
+	// castTime: 임팩트 시점 (S_SkillHit 도착 예정). castEndTime: 시전 완료 시점.
+	static Proto::S_SkillCastStart  MakeSkillCastStart(long long casterGuid, long long targetGuid,
+	                                                   int32 skillId, float castTime, float castEndTime,
+	                                                   const Proto::Vector2& casterPos);
+	static Proto::S_SkillCastCancel MakeSkillCastCancel(long long casterGuid, int32 skillId);
+
 	// --- Unit (generic, Player/Monster/Npc 공통) ---
 	static Proto::S_UnitHp MakeUnitHp(const Unit& unit);
 

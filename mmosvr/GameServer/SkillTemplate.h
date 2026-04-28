@@ -27,6 +27,12 @@ struct SkillTemplate
 	float       cooldown            = 1.0f;
 	int32       cost                = 0;      // 자원 소모 (Phase 2+)
 	float       cast_range          = 30.0f;  // 서버측 사거리 validation (Phase 2+)
+	// wind-up. 0 이면 즉발(현행 동작), >0 이면 S_SkillCastStart 후 cast_time 경과 후 ResolveHit.
+	float       cast_time           = 0.0f;
+	// 임팩트 후 follow-through 길이. cast_end_time = cast_time + recovery_time.
+	// 이 시점부터 cooldown 이 돌기 시작하고 pendingCast 가 해제된다.
+	// 0 이면 임팩트 직후 시전 완료 (recovery 없음).
+	float       recovery_time       = 0.0f;
 
 	// AI 행동 이름. "" 또는 "default" → DefaultAttackBehavior. 특수 스킬은 이 필드로 식별.
 	std::string behaviorName;
@@ -41,7 +47,7 @@ struct SkillTemplate
 	CSV_DEFINE_TYPE(SkillTemplate,
 		sid, name, targeting,
 		projectile_speed, projectile_radius, projectile_range, projectile_lifetime,
-		cooldown, cost, cast_range, behaviorName)
+		cooldown, cost, cast_range, cast_time, recovery_time, behaviorName)
 };
 
 

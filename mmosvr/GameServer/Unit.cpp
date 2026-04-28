@@ -5,7 +5,10 @@
 #include "Agent/SkillCooldownAgent.h"
 #include "Agent/AggroAgent.h"
 #include "Agent/ForcedMoveAgent.h"
+#include "SkillExecution.h"
+#include "SkillTemplate.h"
 #include "Utils/MathUtil.h"
+#include "Utils/TimeManager.h"
 #include "Zone.h"
 #include "PacketMaker.h"
 
@@ -27,6 +30,10 @@ void Unit::Update(const float deltaTime)
 {
 	for (auto* a : tickOrder_)
 		a->Tick(deltaTime);
+
+	// Cast 진행은 Agent Tick 후에 평가 — BuffAgent 가 이번 틱에 부착한 stun 의 캔슬 결과가
+	// 즉시 반영되도록(부착 시점에 CancelCast 호출이 따로 있긴 하지만 안전망 역할).
+	TickCast();
 }
 
 void Unit::TakeDamage(int32 amount, const Unit* attacker)
@@ -47,6 +54,10 @@ void Unit::TakeDamage(int32 amount, const Unit* attacker)
 	{
 		Get<AggroAgent>().Add(attacker->GetGuid(), static_cast<float>(actualDmg));
 	}
+
+	// 사망 시 진행 중 시전 캔슬 — Update 순회 안이라 다음 TickCast 가 돌기 전에 정리해 둔다.
+	if (hp_ == 0)
+		CancelCast();
 }
 
 void Unit::Heal(int32 amount)
@@ -76,4 +87,70 @@ bool Unit::MoveToward(const Proto::Vector2& target, float deltaTime)
 	position_.set_x(position_.x() + (dx / dist) * step);
 	position_.set_y(position_.y() + (dz / dist) * step);
 	return false;
+}
+
+void Unit::BeginCast(const SkillTemplate& skill, const Unit& target, const float now, const float appliedCooldown)
+{
+	const float castEndTime = skill.cast_time + skill.recovery_time;
+	pendingCast_ = PendingCast{
+		skill.sid,
+		target.GetGuid(),
+		now + skill.cast_time,
+		now + castEndTime,
+		appliedCooldown,
+		false,
+		position_,
+	};
+	GetZone().Broadcast(PacketMaker::MakeSkillCastStart(
+		guid_, target.GetGuid(), skill.sid, skill.cast_time, castEndTime, position_));
+}
+
+void Unit::TickCast()
+{
+	if (!pendingCast_) return;
+
+	const float now = GetTimeManager().GetTotalTime();
+
+	// 1) wind-up 단계 — 아직 임팩트 전이면 target 살아있는지 확인.
+	//    target 사망/소실 시 wind-up 캔슬 (데미지 미적용).
+	//    recovery 단계 (resolved=true) 진입 후엔 데미지가 이미 적용됐으므로
+	//    target 가 죽어도 follow-through 는 그대로 진행한다.
+	if (!pendingCast_->resolved)
+	{
+		auto target = std::dynamic_pointer_cast<Unit>(GetZone().Find(pendingCast_->targetGuid));
+		if (!target || !target->IsAlive())
+		{
+			CancelCast();
+			return;
+		}
+
+		if (now >= pendingCast_->resolveAt)
+		{
+			// 임팩트 — ResolveHit 가 부수효과로 caster/target 상태를 건드릴 수 있으니
+			// 먼저 resolved=true 로 마킹해 재진입 가드.
+			pendingCast_->resolved = true;
+			SkillExecution::ResolveHit(this, *target, pendingCast_->skillId,
+			                           pendingCast_->castPos, target->GetPosition(), GetZone());
+			// ResolveHit 안에서 caster 사망 등으로 pendingCast_.reset() 이 일어났을 수 있음.
+			if (!pendingCast_) return;
+		}
+	}
+
+	// 2) recovery 종료 — cooldown 시작 + pendingCast 해제.
+	if (now >= pendingCast_->endAt)
+	{
+		Get<SkillCooldownAgent>().MarkUsed(pendingCast_->skillId, now + pendingCast_->appliedCooldown);
+		pendingCast_.reset();
+	}
+}
+
+void Unit::CancelCast()
+{
+	if (!pendingCast_) return;
+	const int32 skillId = pendingCast_->skillId;
+	const float appliedCooldown = pendingCast_->appliedCooldown;
+	pendingCast_.reset();
+	// 캔슬도 cooldown 패널티 — 무한 캔슬-재시전 방지. wind-up/recovery 어느 단계에서 끊기든 동일.
+	Get<SkillCooldownAgent>().MarkUsed(skillId, GetTimeManager().GetTotalTime() + appliedCooldown);
+	GetZone().Broadcast(PacketMaker::MakeSkillCastCancel(guid_, skillId));
 }

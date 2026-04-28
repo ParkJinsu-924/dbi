@@ -18,13 +18,23 @@ bool BuffAgent::Add(const Effect& e, const long long casterGuid)
 			entry.remainingDuration = e.duration;
 			entry.casterGuid        = casterGuid;
 			owner_.GetZone().Broadcast(PacketMaker::MakeBuffApplied(owner_.GetGuid(), e, casterGuid));
+			MaybeCancelCastOn(e);
 			return true;
 		}
 	}
 
 	entries_.push_back({ &e, casterGuid, e.duration });
 	owner_.GetZone().Broadcast(PacketMaker::MakeBuffApplied(owner_.GetGuid(), e, casterGuid));
+	MaybeCancelCastOn(e);
 	return true;
+}
+
+void BuffAgent::MaybeCancelCastOn(const Effect& e)
+{
+	// Stun 부착(또는 refresh) 시 진행 중 시전을 끊는다. Silence 는 "신규 시전 차단"
+	// 이고 진행 중 시전은 끊지 않는 LoL 관습 — 평타 wind-up 에는 영향 없다.
+	if (static_cast<uint32>(e.cc_flag) & static_cast<uint32>(CCFlag::Stun))
+		owner_.CancelCast();
 }
 
 void BuffAgent::Tick(const float dt)

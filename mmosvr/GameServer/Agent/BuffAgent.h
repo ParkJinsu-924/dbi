@@ -59,5 +59,9 @@ public:
 	bool CanIgnoreDamage()  const { return IsInvulnerable(); }
 
 private:
+	// Stun 부착 시 owner 의 진행 중 시전을 끊기 위한 헬퍼. Add 가 두 분기(refresh/신규)
+	// 를 가지므로 양쪽에서 동일하게 호출되도록 분리.
+	void MaybeCancelCastOn(const Effect& e);
+
 	std::vector<Entry> entries_;
 };

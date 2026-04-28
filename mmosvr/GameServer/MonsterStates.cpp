@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "MonsterStates.h"
 #include "Monster.h"
+#include "Agent/BuffAgent.h"
 #include "Agent/SkillCooldownAgent.h"
 #include "Agent/FSMAgent.h"
 #include "Agent/AggroAgent.h"
@@ -8,6 +9,7 @@
 #include "Player.h"
 #include "SkillTemplate.h"
 #include "SkillBehavior.h"
+#include "SkillExecution.h"
 #include <cmath>
 #include <random>
 
@@ -119,6 +121,14 @@ void EngageState::OnEnter(Monster& /*owner*/)
 
 void EngageState::OnUpdate(Monster& owner, const float deltaTime)
 {
+	// 0) wind-up 진행 중이면 이동·추가 시전 모두 차단. Unit::TickCast 가 expire 시
+	//    ResolveHit 또는 target 소실 시 CancelCast 를 처리한다.
+	if (owner.IsCasting())
+	{
+		phase_ = Phase::Casting;
+		return;
+	}
+
 	// 1) 종료 조건: 타겟 소실 / leash 초과 → Return.
 	//    GetTarget() 은 매 호출 시점에 AggroAgent.GetTop() 결과를 반영 (단일 소스).
 	const auto target = owner.GetTarget();
@@ -135,8 +145,24 @@ void EngageState::OnUpdate(Monster& owner, const float deltaTime)
 	if (const auto choice = owner.PickCastable(now, dist))
 	{
 		phase_ = Phase::Casting;
-		choice->tmpl->behavior->Execute(*choice->tmpl, owner, *target, now);
-		owner.Get<SkillCooldownAgent>().MarkUsed(choice->skillId, now + choice->appliedCooldown);
+		const SkillTemplate& skill = *choice->tmpl;
+
+		// wind-up 경로 — Targeted (Melee/Hitscan) + cast_time>0 만 해당.
+		// cooldown 은 PendingCast 가 cast 완료/cancel 시점에 자동 MarkUsed.
+		if (skill.cast_time > 0.0f &&
+			(skill.targeting == SkillKind::Melee || skill.targeting == SkillKind::Hitscan))
+		{
+			if (!owner.Get<BuffAgent>().CanAttack())
+				return;   // skip — 다음 tick 에 다시 시도. cooldown 은 아직 안 돌았다.
+			SkillExecution::BeginTargetedCast(skill, owner, *target, owner.GetZone(),
+			                                  now, choice->appliedCooldown);
+		}
+		else
+		{
+			// 즉발 경로 — Behavior::Execute 가 CanAttack 체크 + SkillExecution 즉발 분기.
+			skill.behavior->Execute(skill, owner, *target, now);
+			owner.Get<SkillCooldownAgent>().MarkUsed(choice->skillId, now + choice->appliedCooldown);
+		}
 		return;
 	}
 

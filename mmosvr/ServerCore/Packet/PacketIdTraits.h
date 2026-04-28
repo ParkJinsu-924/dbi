@@ -30,6 +30,8 @@ namespace Proto
 	class S_MonsterList;
 	class S_MonsterState;
 	class S_SkillHit;
+	class S_SkillCastStart;
+	class S_SkillCastCancel;
 	class S_UnitHp;
 	class S_ProjectileSpawn;
 	class S_BuffApplied;
@@ -70,6 +72,8 @@ PACKET_ID_TRAIT(S_MonsterDespawn, S_MONSTER_DESPAWN)
 PACKET_ID_TRAIT(S_MonsterList, S_MONSTER_LIST)
 PACKET_ID_TRAIT(S_MonsterState, S_MONSTER_STATE)
 PACKET_ID_TRAIT(S_SkillHit, S_SKILL_HIT)
+PACKET_ID_TRAIT(S_SkillCastStart, S_SKILL_CAST_START)
+PACKET_ID_TRAIT(S_SkillCastCancel, S_SKILL_CAST_CANCEL)
 PACKET_ID_TRAIT(S_UnitHp, S_UNIT_HP)
 PACKET_ID_TRAIT(S_ProjectileSpawn, S_PROJECTILE_SPAWN)
 PACKET_ID_TRAIT(S_BuffApplied, S_BUFF_APPLIED)

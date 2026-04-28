@@ -128,6 +128,28 @@ Proto::S_SkillHit PacketMaker::MakeSkillHit(const long long casterGuid, const lo
 	return pkt;
 }
 
+Proto::S_SkillCastStart PacketMaker::MakeSkillCastStart(const long long casterGuid, const long long targetGuid,
+                                                        const int32 skillId, const float castTime, const float castEndTime,
+                                                        const Proto::Vector2& casterPos)
+{
+	Proto::S_SkillCastStart pkt;
+	pkt.set_caster_guid(casterGuid);
+	pkt.set_target_guid(targetGuid);
+	pkt.set_skill_id(skillId);
+	pkt.set_cast_time(castTime);
+	pkt.set_cast_end_time(castEndTime);
+	*pkt.mutable_caster_pos() = casterPos;
+	return pkt;
+}
+
+Proto::S_SkillCastCancel PacketMaker::MakeSkillCastCancel(const long long casterGuid, const int32 skillId)
+{
+	Proto::S_SkillCastCancel pkt;
+	pkt.set_caster_guid(casterGuid);
+	pkt.set_skill_id(skillId);
+	return pkt;
+}
+
 
 // ===========================================================================
 // Unit

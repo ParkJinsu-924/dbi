@@ -1,24 +1,28 @@
 # Phase 1: 스킬 메타데이터만 보관. 데미지/버프 등의 "효과"는 effects.csv + skill_effects.csv 로 분리.
 # targeting: Melee | Hitscan | Homing | Skillshot  (대소문자 무관, 숫자도 허용 — 0=Melee, 1=Hitscan, 2=Homing, 3=Skillshot)
 # projectile_* : 투사체 파라미터. Melee/Hitscan 은 0. Homing 은 speed/lifetime, Skillshot 은 speed/radius/range 사용.
-# cost       : 자원 소모 (마나 등). Phase 1 은 0.
-# cast_range : 사거리. Melee/Hitscan 은 공격 리치, Homing/Skillshot 은 서버측 validation.
-# cooldown   : 스킬 재사용 대기 (평타의 attack speed 역할 포함).
-# behaviorName : AI 수준 스킬 행동. 빈 값/"default" → DefaultAttackBehavior (현재 유일한 구현).
-#                특수 스킬을 추가할 때 ISkillBehavior 상속 클래스를 만들고 이름을 여기에 적는다.
-sid,name,targeting,projectile_speed,projectile_radius,projectile_range,projectile_lifetime,cooldown,cost,cast_range,behaviorName
-1001,goblin_auto,Melee,0.0,0.0,0.0,0.0,1.2,0,2.0,default
-1002,orc_auto,Melee,0.0,0.0,0.0,0.0,2.0,0,2.5,default
-1003,slime_auto,Melee,0.0,0.0,0.0,0.0,1.0,0,1.5,default
-1004,sniper_shot,Hitscan,0.0,0.0,0.0,0.0,2.0,0,10.0,default
-1005,archer_homing,Homing,12.0,0.0,0.0,5.0,1.8,0,8.0,default
-1006,caster_bolt,Skillshot,18.0,0.6,16.0,0.0,2.5,0,10.0,default
+# cost          : 자원 소모 (마나 등). Phase 1 은 0.
+# cast_range    : 사거리. Melee/Hitscan 은 공격 리치, Homing/Skillshot 은 서버측 validation.
+# cooldown      : 스킬 재사용 대기. wind-up 스킬은 cast 완료(=cast_end) 시점부터 돌기 시작.
+# cast_time     : wind-up(선딜) 초. 0 이면 즉발(기존 동작 — 시전 즉시 데미지).
+#                 >0 이면 S_SkillCastStart 송신 + cast_time 경과 후 임팩트(S_SkillHit). Monster 전용 권장.
+# recovery_time : 임팩트 후 follow-through 길이. cast_end = cast_time + recovery_time.
+#                 클라가 클립의 임팩트 이후 부분을 이 시간 안에 재생. 0 이면 즉시 종료.
+# behaviorName  : AI 수준 스킬 행동. 빈 값/"default" → DefaultAttackBehavior (현재 유일한 구현).
+#                 특수 스킬을 추가할 때 ISkillBehavior 상속 클래스를 만들고 이름을 여기에 적는다.
+sid,name,targeting,projectile_speed,projectile_radius,projectile_range,projectile_lifetime,cooldown,cost,cast_range,cast_time,recovery_time,behaviorName
+1001,goblin_auto,Melee,0.0,0.0,0.0,0.0,1.2,0,2.0,0.0,0.0,default
+1002,orc_auto,Melee,0.0,0.0,0.0,0.0,2.0,0,2.5,0.5,1.0,default
+1003,slime_auto,Melee,0.0,0.0,0.0,0.0,3.0,0,1.5,0.5,1.0,default
+1004,sniper_shot,Hitscan,0.0,0.0,0.0,0.0,2.0,0,10.0,0.0,0.0,default
+1005,archer_homing,Homing,12.0,0.0,0.0,5.0,1.8,0,8.0,0.0,0.0,default
+1006,caster_bolt,Skillshot,18.0,0.6,16.0,0.0,2.5,0,10.0,0.0,0.0,default
 # Goblin 스페셜 스킬: 큰 폭탄을 던진다. 느리지만 큰 피탄 반경 + 슬로우 부여 (skill_effects 참조)
-1101,goblin_bomb,Skillshot,8.0,1.5,8.0,0.0,4.0,0,8.0,default
-2001,auto_attack,Homing,12.0,0.0,0.0,5.0,0.0,0,30.0,default
-2002,bolt,Skillshot,18.0,0.6,16.0,0.0,0.0,0,20.0,default
-2003,strike,Homing,14.0,0.0,0.0,3.0,0.0,0,8.0,default
-2004,nuke,Skillshot,22.0,1.2,24.0,0.0,0.0,0,30.0,default
+1101,goblin_bomb,Skillshot,8.0,1.5,8.0,0.0,4.0,0,8.0,0.0,0.0,default
+2001,auto_attack,Homing,12.0,0.0,0.0,5.0,0.0,0,30.0,0.0,0.0,default
+2002,bolt,Skillshot,18.0,0.6,16.0,0.0,0.0,0,20.0,0.0,0.0,default
+2003,strike,Homing,14.0,0.0,0.0,3.0,0.0,0,8.0,0.0,0.0,default
+2004,nuke,Skillshot,22.0,1.2,24.0,0.0,0.0,0,30.0,0.0,0.0,default
 # 터널링 회귀 테스트용 초고속 Skillshot. speed 300 / radius 0.2 —
 # 100Hz 틱 기준 step 3.0 >> 판정지름 1.4 (= 2 * (0.2 + 0.5)) → sweep 판정 없으면 100% 뚫림.
-2005,tunnel_test,Skillshot,300.0,0.2,30.0,0.0,0.3,0,30.0,default
+2005,tunnel_test,Skillshot,300.0,0.2,30.0,0.0,0.3,0,30.0,0.0,0.0,default
