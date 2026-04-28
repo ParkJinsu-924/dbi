@@ -34,14 +34,20 @@ namespace MMO.Unit
 
         private void OnEnable()
         {
-            Net.Handlers.OnUnitPositions += OnUnitPositions;
-            Net.Handlers.OnUnitHp        += OnUnitHp;
+            Net.Handlers.OnUnitPositions   += OnUnitPositions;
+            Net.Handlers.OnUnitHp          += OnUnitHp;
+            Net.Handlers.OnSkillCastStart  += OnSkillCastStart;
+            Net.Handlers.OnSkillCastCancel += OnSkillCastCancel;
+            Net.Handlers.OnSkillHit        += OnSkillHit;
         }
 
         private void OnDisable()
         {
-            Net.Handlers.OnUnitPositions -= OnUnitPositions;
-            Net.Handlers.OnUnitHp        -= OnUnitHp;
+            Net.Handlers.OnUnitPositions   -= OnUnitPositions;
+            Net.Handlers.OnUnitHp          -= OnUnitHp;
+            Net.Handlers.OnSkillCastStart  -= OnSkillCastStart;
+            Net.Handlers.OnSkillCastCancel -= OnSkillCastCancel;
+            Net.Handlers.OnSkillHit        -= OnSkillHit;
         }
 
         public void Register(UnitView view)
@@ -69,6 +75,24 @@ namespace MMO.Unit
         {
             if (_units.TryGetValue(msg.Guid, out var view) && view != null)
                 view.SetHp(msg.Hp, msg.MaxHp);
+        }
+
+        private void OnSkillCastStart(S_SkillCastStart msg)
+        {
+            Debug.Log("OnSkillCastStart");
+            if (_units.TryGetValue(msg.CasterGuid, out var view) && view != null)
+                view.PlayCastStart(msg.SkillId, msg.CastTime, msg.CastEndTime);
+        }
+
+        private void OnSkillCastCancel(S_SkillCastCancel msg)
+        {
+            if (_units.TryGetValue(msg.CasterGuid, out var view) && view != null)
+                view.CancelCast(msg.SkillId);
+        }
+
+        private void OnSkillHit(S_SkillHit msg)
+        {
+            Debug.Log("OnSkillHit");
         }
     }
 }

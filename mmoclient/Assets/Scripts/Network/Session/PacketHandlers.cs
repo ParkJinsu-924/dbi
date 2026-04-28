@@ -47,6 +47,8 @@ namespace MMO.Network
 
         // ── Combat domain (skills, projectiles, hp, buffs) ─────────────────────
         public event Action<S_SkillHit>          OnSkillHit;
+        public event Action<S_SkillCastStart>    OnSkillCastStart;
+        public event Action<S_SkillCastCancel>   OnSkillCastCancel;
         public event Action<S_UnitHp>            OnUnitHp;
         public event Action<S_ProjectileSpawn>   OnProjectileSpawn;
         public event Action<S_ProjectileDestroy> OnProjectileDestroy;

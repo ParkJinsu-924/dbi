@@ -62,22 +62,27 @@ namespace Proto {
             "Z3VpZBgBIAEoAxITCgt0YXJnZXRfZ3VpZBgCIAEoAxIQCghza2lsbF9pZBgD",
             "IAEoBRIOCgZkYW1hZ2UYBCABKAUSIgoKY2FzdGVyX3BvcxgFIAEoCzIOLlBy",
             "b3RvLlZlY3RvcjISHwoHaGl0X3BvcxgGIAEoCzIOLlByb3RvLlZlY3RvcjIi",
-            "NAoIU19Vbml0SHASCgoCaHAYASABKAUSDgoGbWF4X2hwGAIgASgFEgwKBGd1",
-            "aWQYAyABKAMiiQIKEVNfUHJvamVjdGlsZVNwYXduEgwKBGd1aWQYASABKAMS",
-            "EgoKb3duZXJfZ3VpZBgCIAEoAxIjCgRraW5kGAMgASgOMhUuUHJvdG8uUHJv",
-            "amVjdGlsZUtpbmQSIQoJc3RhcnRfcG9zGAQgASgLMg4uUHJvdG8uVmVjdG9y",
-            "MhINCgVzcGVlZBgFIAEoAhITCgt0YXJnZXRfZ3VpZBgGIAEoAxIbCgNkaXIY",
-            "ByABKAsyDi5Qcm90by5WZWN0b3IyEg4KBnJhZGl1cxgIIAEoAhIRCgltYXhf",
-            "cmFuZ2UYCSABKAISFAoMbWF4X2xpZmV0aW1lGAogASgCEhAKCHNraWxsX2lk",
-            "GAsgASgFIlgKDVNfQnVmZkFwcGxpZWQSEwoLdGFyZ2V0X2d1aWQYASABKAMS",
-            "CwoDZWlkGAIgASgFEhMKC2Nhc3Rlcl9ndWlkGAMgASgDEhAKCGR1cmF0aW9u",
-            "GAQgASgCIjEKDVNfQnVmZlJlbW92ZWQSEwoLdGFyZ2V0X2d1aWQYASABKAMS",
-            "CwoDZWlkGAIgASgFIpIBChNTX1Byb2plY3RpbGVEZXN0cm95EhcKD3Byb2pl",
-            "Y3RpbGVfZ3VpZBgBIAEoAxIxCgZyZWFzb24YAiABKA4yIS5Qcm90by5TX1By",
-            "b2plY3RpbGVEZXN0cm95LlJlYXNvbiIvCgZSZWFzb24SCwoHRVhQSVJFRBAA",
-            "Eg8KC1RBUkdFVF9MT1NUEAESBwoDSElUEAIqQQoOUHJvamVjdGlsZUtpbmQS",
-            "FQoRUFJPSkVDVElMRV9IT01JTkcQABIYChRQUk9KRUNUSUxFX1NLSUxMU0hP",
-            "VBABYgZwcm90bzM="));
+            "nAEKEFNfU2tpbGxDYXN0U3RhcnQSEwoLY2FzdGVyX2d1aWQYASABKAMSEwoL",
+            "dGFyZ2V0X2d1aWQYAiABKAMSEAoIc2tpbGxfaWQYAyABKAUSEQoJY2FzdF90",
+            "aW1lGAQgASgCEiIKCmNhc3Rlcl9wb3MYBSABKAsyDi5Qcm90by5WZWN0b3Iy",
+            "EhUKDWNhc3RfZW5kX3RpbWUYBiABKAIiOgoRU19Ta2lsbENhc3RDYW5jZWwS",
+            "EwoLY2FzdGVyX2d1aWQYASABKAMSEAoIc2tpbGxfaWQYAiABKAUiNAoIU19V",
+            "bml0SHASCgoCaHAYASABKAUSDgoGbWF4X2hwGAIgASgFEgwKBGd1aWQYAyAB",
+            "KAMiiQIKEVNfUHJvamVjdGlsZVNwYXduEgwKBGd1aWQYASABKAMSEgoKb3du",
+            "ZXJfZ3VpZBgCIAEoAxIjCgRraW5kGAMgASgOMhUuUHJvdG8uUHJvamVjdGls",
+            "ZUtpbmQSIQoJc3RhcnRfcG9zGAQgASgLMg4uUHJvdG8uVmVjdG9yMhINCgVz",
+            "cGVlZBgFIAEoAhITCgt0YXJnZXRfZ3VpZBgGIAEoAxIbCgNkaXIYByABKAsy",
+            "Di5Qcm90by5WZWN0b3IyEg4KBnJhZGl1cxgIIAEoAhIRCgltYXhfcmFuZ2UY",
+            "CSABKAISFAoMbWF4X2xpZmV0aW1lGAogASgCEhAKCHNraWxsX2lkGAsgASgF",
+            "IlgKDVNfQnVmZkFwcGxpZWQSEwoLdGFyZ2V0X2d1aWQYASABKAMSCwoDZWlk",
+            "GAIgASgFEhMKC2Nhc3Rlcl9ndWlkGAMgASgDEhAKCGR1cmF0aW9uGAQgASgC",
+            "IjEKDVNfQnVmZlJlbW92ZWQSEwoLdGFyZ2V0X2d1aWQYASABKAMSCwoDZWlk",
+            "GAIgASgFIpIBChNTX1Byb2plY3RpbGVEZXN0cm95EhcKD3Byb2plY3RpbGVf",
+            "Z3VpZBgBIAEoAxIxCgZyZWFzb24YAiABKA4yIS5Qcm90by5TX1Byb2plY3Rp",
+            "bGVEZXN0cm95LlJlYXNvbiIvCgZSZWFzb24SCwoHRVhQSVJFRBAAEg8KC1RB",
+            "UkdFVF9MT1NUEAESBwoDSElUEAIqQQoOUHJvamVjdGlsZUtpbmQSFQoRUFJP",
+            "SkVDVElMRV9IT01JTkcQABIYChRQUk9KRUNUSUxFX1NLSUxMU0hPVBABYgZw",
+            "cm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { global::Proto.CommonReflection.Descriptor, },
           new pbr::GeneratedClrTypeInfo(new[] {typeof(global::Proto.ProjectileKind), }, null, new pbr::GeneratedClrTypeInfo[] {
@@ -106,6 +111,8 @@ namespace Proto {
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterList), global::Proto.S_MonsterList.Parser, new[]{ "Monsters" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_MonsterState), global::Proto.S_MonsterState.Parser, new[]{ "Guid", "State", "TargetGuid" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_SkillHit), global::Proto.S_SkillHit.Parser, new[]{ "CasterGuid", "TargetGuid", "SkillId", "Damage", "CasterPos", "HitPos" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_SkillCastStart), global::Proto.S_SkillCastStart.Parser, new[]{ "CasterGuid", "TargetGuid", "SkillId", "CastTime", "CasterPos", "CastEndTime" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_SkillCastCancel), global::Proto.S_SkillCastCancel.Parser, new[]{ "CasterGuid", "SkillId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_UnitHp), global::Proto.S_UnitHp.Parser, new[]{ "Hp", "MaxHp", "Guid" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_ProjectileSpawn), global::Proto.S_ProjectileSpawn.Parser, new[]{ "Guid", "OwnerGuid", "Kind", "StartPos", "Speed", "TargetGuid", "Dir", "Radius", "MaxRange", "MaxLifetime", "SkillId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Proto.S_BuffApplied), global::Proto.S_BuffApplied.Parser, new[]{ "TargetGuid", "Eid", "CasterGuid", "Duration" }, null, null, null, null),
@@ -6413,6 +6420,662 @@ namespace Proto {
   }
 
   /// <summary>
+  /// 시전 시작(wind-up) 알림. cast_time>0 인 스킬만 송신된다.
+  /// 시간축:  0 ── cast_time ── cast_end_time
+  ///          │ wind-up │  recovery  │
+  ///          │         ↑            ↑
+  ///          │   임팩트 = S_SkillHit │  시전 완료 = cooldown 시작
+  /// 클라이언트는 두 구간을 별도 비율로 재생 — wind-up 동안 클립의 임팩트 프레임까지를
+  /// cast_time 안에 끝내고, recovery 동안 나머지 follow-through 를 (cast_end_time-cast_time) 안에 끝낸다.
+  /// 이렇게 분리하면 서버 cast_time 값이 0.5 든 2 든 임팩트와 데미지 도착이 항상 동기화된다.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class S_SkillCastStart : pb::IMessage<S_SkillCastStart>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<S_SkillCastStart> _parser = new pb::MessageParser<S_SkillCastStart>(() => new S_SkillCastStart());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<S_SkillCastStart> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Proto.GameReflection.Descriptor.MessageTypes[25]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public S_SkillCastStart() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public S_SkillCastStart(S_SkillCastStart other) : this() {
+      casterGuid_ = other.casterGuid_;
+      targetGuid_ = other.targetGuid_;
+      skillId_ = other.skillId_;
+      castTime_ = other.castTime_;
+      casterPos_ = other.casterPos_ != null ? other.casterPos_.Clone() : null;
+      castEndTime_ = other.castEndTime_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public S_SkillCastStart Clone() {
+      return new S_SkillCastStart(this);
+    }
+
+    /// <summary>Field number for the "caster_guid" field.</summary>
+    public const int CasterGuidFieldNumber = 1;
+    private long casterGuid_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long CasterGuid {
+      get { return casterGuid_; }
+      set {
+        casterGuid_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "target_guid" field.</summary>
+    public const int TargetGuidFieldNumber = 2;
+    private long targetGuid_;
+    /// <summary>
+    /// Skillshot/AoE 면 0
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long TargetGuid {
+      get { return targetGuid_; }
+      set {
+        targetGuid_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "skill_id" field.</summary>
+    public const int SkillIdFieldNumber = 3;
+    private int skillId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int SkillId {
+      get { return skillId_; }
+      set {
+        skillId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "cast_time" field.</summary>
+    public const int CastTimeFieldNumber = 4;
+    private float castTime_;
+    /// <summary>
+    /// 시작 후 임팩트(데미지) 시각. S_SkillHit 도착 예정 시각.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float CastTime {
+      get { return castTime_; }
+      set {
+        castTime_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "caster_pos" field.</summary>
+    public const int CasterPosFieldNumber = 5;
+    private global::Proto.Vector2 casterPos_;
+    /// <summary>
+    /// 시전 시작 시점 caster 위치 (facing/시각화용 스냅샷)
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public global::Proto.Vector2 CasterPos {
+      get { return casterPos_; }
+      set {
+        casterPos_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "cast_end_time" field.</summary>
+    public const int CastEndTimeFieldNumber = 6;
+    private float castEndTime_;
+    /// <summary>
+    /// 시작 후 시전 완료 시각. cooldown 은 이 시점부터 시작.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public float CastEndTime {
+      get { return castEndTime_; }
+      set {
+        castEndTime_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as S_SkillCastStart);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(S_SkillCastStart other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (CasterGuid != other.CasterGuid) return false;
+      if (TargetGuid != other.TargetGuid) return false;
+      if (SkillId != other.SkillId) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(CastTime, other.CastTime)) return false;
+      if (!object.Equals(CasterPos, other.CasterPos)) return false;
+      if (!pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.Equals(CastEndTime, other.CastEndTime)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (CasterGuid != 0L) hash ^= CasterGuid.GetHashCode();
+      if (TargetGuid != 0L) hash ^= TargetGuid.GetHashCode();
+      if (SkillId != 0) hash ^= SkillId.GetHashCode();
+      if (CastTime != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(CastTime);
+      if (casterPos_ != null) hash ^= CasterPos.GetHashCode();
+      if (CastEndTime != 0F) hash ^= pbc::ProtobufEqualityComparers.BitwiseSingleEqualityComparer.GetHashCode(CastEndTime);
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (CasterGuid != 0L) {
+        output.WriteRawTag(8);
+        output.WriteInt64(CasterGuid);
+      }
+      if (TargetGuid != 0L) {
+        output.WriteRawTag(16);
+        output.WriteInt64(TargetGuid);
+      }
+      if (SkillId != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(SkillId);
+      }
+      if (CastTime != 0F) {
+        output.WriteRawTag(37);
+        output.WriteFloat(CastTime);
+      }
+      if (casterPos_ != null) {
+        output.WriteRawTag(42);
+        output.WriteMessage(CasterPos);
+      }
+      if (CastEndTime != 0F) {
+        output.WriteRawTag(53);
+        output.WriteFloat(CastEndTime);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (CasterGuid != 0L) {
+        output.WriteRawTag(8);
+        output.WriteInt64(CasterGuid);
+      }
+      if (TargetGuid != 0L) {
+        output.WriteRawTag(16);
+        output.WriteInt64(TargetGuid);
+      }
+      if (SkillId != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(SkillId);
+      }
+      if (CastTime != 0F) {
+        output.WriteRawTag(37);
+        output.WriteFloat(CastTime);
+      }
+      if (casterPos_ != null) {
+        output.WriteRawTag(42);
+        output.WriteMessage(CasterPos);
+      }
+      if (CastEndTime != 0F) {
+        output.WriteRawTag(53);
+        output.WriteFloat(CastEndTime);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (CasterGuid != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(CasterGuid);
+      }
+      if (TargetGuid != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(TargetGuid);
+      }
+      if (SkillId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(SkillId);
+      }
+      if (CastTime != 0F) {
+        size += 1 + 4;
+      }
+      if (casterPos_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(CasterPos);
+      }
+      if (CastEndTime != 0F) {
+        size += 1 + 4;
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(S_SkillCastStart other) {
+      if (other == null) {
+        return;
+      }
+      if (other.CasterGuid != 0L) {
+        CasterGuid = other.CasterGuid;
+      }
+      if (other.TargetGuid != 0L) {
+        TargetGuid = other.TargetGuid;
+      }
+      if (other.SkillId != 0) {
+        SkillId = other.SkillId;
+      }
+      if (other.CastTime != 0F) {
+        CastTime = other.CastTime;
+      }
+      if (other.casterPos_ != null) {
+        if (casterPos_ == null) {
+          CasterPos = new global::Proto.Vector2();
+        }
+        CasterPos.MergeFrom(other.CasterPos);
+      }
+      if (other.CastEndTime != 0F) {
+        CastEndTime = other.CastEndTime;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            CasterGuid = input.ReadInt64();
+            break;
+          }
+          case 16: {
+            TargetGuid = input.ReadInt64();
+            break;
+          }
+          case 24: {
+            SkillId = input.ReadInt32();
+            break;
+          }
+          case 37: {
+            CastTime = input.ReadFloat();
+            break;
+          }
+          case 42: {
+            if (casterPos_ == null) {
+              CasterPos = new global::Proto.Vector2();
+            }
+            input.ReadMessage(CasterPos);
+            break;
+          }
+          case 53: {
+            CastEndTime = input.ReadFloat();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            CasterGuid = input.ReadInt64();
+            break;
+          }
+          case 16: {
+            TargetGuid = input.ReadInt64();
+            break;
+          }
+          case 24: {
+            SkillId = input.ReadInt32();
+            break;
+          }
+          case 37: {
+            CastTime = input.ReadFloat();
+            break;
+          }
+          case 42: {
+            if (casterPos_ == null) {
+              CasterPos = new global::Proto.Vector2();
+            }
+            input.ReadMessage(CasterPos);
+            break;
+          }
+          case 53: {
+            CastEndTime = input.ReadFloat();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
+  /// 시전 캔슬 알림. caster 사망/CC/타겟 사망 등으로 wind-up 이 중단됐을 때 송신.
+  /// 클라는 진행 중인 공격 모션을 끊고 Locomotion 으로 복귀.
+  /// </summary>
+  [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
+  public sealed partial class S_SkillCastCancel : pb::IMessage<S_SkillCastCancel>
+  #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      , pb::IBufferMessage
+  #endif
+  {
+    private static readonly pb::MessageParser<S_SkillCastCancel> _parser = new pb::MessageParser<S_SkillCastCancel>(() => new S_SkillCastCancel());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pb::MessageParser<S_SkillCastCancel> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Proto.GameReflection.Descriptor.MessageTypes[26]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public S_SkillCastCancel() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public S_SkillCastCancel(S_SkillCastCancel other) : this() {
+      casterGuid_ = other.casterGuid_;
+      skillId_ = other.skillId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public S_SkillCastCancel Clone() {
+      return new S_SkillCastCancel(this);
+    }
+
+    /// <summary>Field number for the "caster_guid" field.</summary>
+    public const int CasterGuidFieldNumber = 1;
+    private long casterGuid_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public long CasterGuid {
+      get { return casterGuid_; }
+      set {
+        casterGuid_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "skill_id" field.</summary>
+    public const int SkillIdFieldNumber = 2;
+    private int skillId_;
+    /// <summary>
+    /// 식별/디버그용
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int SkillId {
+      get { return skillId_; }
+      set {
+        skillId_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override bool Equals(object other) {
+      return Equals(other as S_SkillCastCancel);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public bool Equals(S_SkillCastCancel other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (CasterGuid != other.CasterGuid) return false;
+      if (SkillId != other.SkillId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (CasterGuid != 0L) hash ^= CasterGuid.GetHashCode();
+      if (SkillId != 0) hash ^= SkillId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void WriteTo(pb::CodedOutputStream output) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      output.WriteRawMessage(this);
+    #else
+      if (CasterGuid != 0L) {
+        output.WriteRawTag(8);
+        output.WriteInt64(CasterGuid);
+      }
+      if (SkillId != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(SkillId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalWriteTo(ref pb::WriteContext output) {
+      if (CasterGuid != 0L) {
+        output.WriteRawTag(8);
+        output.WriteInt64(CasterGuid);
+      }
+      if (SkillId != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(SkillId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(ref output);
+      }
+    }
+    #endif
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public int CalculateSize() {
+      int size = 0;
+      if (CasterGuid != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(CasterGuid);
+      }
+      if (SkillId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(SkillId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(S_SkillCastCancel other) {
+      if (other == null) {
+        return;
+      }
+      if (other.CasterGuid != 0L) {
+        CasterGuid = other.CasterGuid;
+      }
+      if (other.SkillId != 0) {
+        SkillId = other.SkillId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public void MergeFrom(pb::CodedInputStream input) {
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+      input.ReadRawMessage(this);
+    #else
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            CasterGuid = input.ReadInt64();
+            break;
+          }
+          case 16: {
+            SkillId = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    #endif
+    }
+
+    #if !GOOGLE_PROTOBUF_REFSTRUCT_COMPATIBILITY_MODE
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    void pb::IBufferMessage.InternalMergeFrom(ref pb::ParseContext input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+      if ((tag & 7) == 4) {
+        // Abort on any end group tag.
+        return;
+      }
+      switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, ref input);
+            break;
+          case 8: {
+            CasterGuid = input.ReadInt64();
+            break;
+          }
+          case 16: {
+            SkillId = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    }
+    #endif
+
+  }
+
+  /// <summary>
   /// Unit(Player/Monster/NPC 등 HP를 가진 모든 GameObject) 의 HP 변경을 알리는 범용 패킷.
   /// guid 로 대상 식별하므로 수신 측이 자기 자신/다른 플레이어/몬스터 모두 동일 로직으로 처리한다.
   /// </summary>
@@ -6431,7 +7094,7 @@ namespace Proto {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Proto.GameReflection.Descriptor.MessageTypes[25]; }
+      get { return global::Proto.GameReflection.Descriptor.MessageTypes[27]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -6703,7 +7366,7 @@ namespace Proto {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Proto.GameReflection.Descriptor.MessageTypes[26]; }
+      get { return global::Proto.GameReflection.Descriptor.MessageTypes[28]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7312,7 +7975,7 @@ namespace Proto {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Proto.GameReflection.Descriptor.MessageTypes[27]; }
+      get { return global::Proto.GameReflection.Descriptor.MessageTypes[29]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7624,7 +8287,7 @@ namespace Proto {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Proto.GameReflection.Descriptor.MessageTypes[28]; }
+      get { return global::Proto.GameReflection.Descriptor.MessageTypes[30]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -7859,7 +8522,7 @@ namespace Proto {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::Proto.GameReflection.Descriptor.MessageTypes[29]; }
+      get { return global::Proto.GameReflection.Descriptor.MessageTypes[31]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

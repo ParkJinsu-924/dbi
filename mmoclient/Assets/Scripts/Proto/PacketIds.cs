@@ -25,9 +25,11 @@ namespace Proto
     public partial class S_MonsterList { public const uint PacketId = 22; }
     public partial class S_MonsterState { public const uint PacketId = 23; }
     public partial class S_SkillHit { public const uint PacketId = 24; }
-    public partial class S_UnitHp { public const uint PacketId = 25; }
-    public partial class S_ProjectileSpawn { public const uint PacketId = 26; }
-    public partial class S_BuffApplied { public const uint PacketId = 27; }
-    public partial class S_BuffRemoved { public const uint PacketId = 28; }
-    public partial class S_ProjectileDestroy { public const uint PacketId = 29; }
+    public partial class S_SkillCastStart { public const uint PacketId = 25; }
+    public partial class S_SkillCastCancel { public const uint PacketId = 26; }
+    public partial class S_UnitHp { public const uint PacketId = 27; }
+    public partial class S_ProjectileSpawn { public const uint PacketId = 28; }
+    public partial class S_BuffApplied { public const uint PacketId = 29; }
+    public partial class S_BuffRemoved { public const uint PacketId = 30; }
+    public partial class S_ProjectileDestroy { public const uint PacketId = 31; }
 }
